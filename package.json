@@ -1,10 +1,11 @@
 {
-  "name": "my-web-app",
+  "name": "redundant",
   "private": true,
   "packageManager": "pnpm@9.4.0",
   "scripts": {
     "dev": "turbo run dev --parallel",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "build:common": "turbo run build --filter=@redundant/common"
   },
   "devDependencies": {
     "turbo": "^2.1.3"

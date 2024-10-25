@@ -1,12 +1,37 @@
 import OpenAI from "openai";
-
+import { ResumeSchema, TResume } from "@redundant/common";
 class AssistantService {
   private openai: OpenAI;
-
+  private resumeParserAssistantId: string =
+    process.env.RESUME_PARSER_ASSISTANT_ID ?? "";
   constructor() {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+  }
+
+  async parseResume(resumeText: string): Promise<TResume> {
+    try {
+      const output = await this.getAssistantOutput({
+        assistantId: this.resumeParserAssistantId,
+        userInput: resumeText,
+      });
+
+      // Clean the output by removing newlines and JSON code block markers
+      const cleanedOutput = output
+        .replace(/\\n/g, "")
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+      // Parse the cleaned JSON string
+      const parsedOutput = JSON.parse(cleanedOutput);
+      const validatedOutput = ResumeSchema.parse(parsedOutput);
+      return validatedOutput;
+    } catch (err) {
+      console.error("Error parsing resume:", err);
+      throw new Error("Failed to parse resume");
+    }
   }
 
   async getAssistantOutput({
