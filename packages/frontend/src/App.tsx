@@ -55,7 +55,7 @@ const App: React.FC = () => {
     return (
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Resume Viewer</h2>
-        <div className="bg-gray-100 h-96 overflow-auto">
+        <div className="bg-gray-100 h-[calc(100vh-12rem)] w-3/4 mx-auto overflow-auto">
           {selectedFile ? (
             <Document
               file={selectedFile}
@@ -66,7 +66,8 @@ const App: React.FC = () => {
                 <Page
                   key={`page_${index + 1}`}
                   pageNumber={index + 1}
-                  width={600}
+                  width={500}
+                  className="mb-4"
                 />
               ))}
             </Document>
