@@ -3,49 +3,51 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Document, Page, pdfjs } from "react-pdf";
 import { useState, useCallback, useMemo } from "react";
-import ReactMarkdown from "react-markdown";
-import extractText from "react-pdftotext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useProcessResume } from "@/hooks/useProcessResume";
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-const App: React.FC = () => {
-  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
-  const [numPages, setNumPages] = React.useState<number | null>(null);
-  const [extractedText, setExtractedText] = React.useState<string>("");
+const queryClient = new QueryClient();
 
-  const handleFileUpload = React.useCallback(
+const App: React.FC = () => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [processedText, setProcessedText] = useState<string>("");
+
+  const { mutate: processResume, isPending } = useProcessResume();
+
+  const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (file) {
         setSelectedFile(file);
-        extractTextFromPdf(file);
+        processResume(file, {
+          onSuccess: (data) => {
+            setProcessedText(data.text);
+          },
+          onError: (error) => {
+            console.error("Error processing resume:", error);
+            setProcessedText("Error processing resume");
+          },
+        });
       }
     },
-    []
+    [processResume]
   );
 
-  const extractTextFromPdf = React.useCallback(async (file: File) => {
-    try {
-      const text = await extractText(file);
-
-      setExtractedText(text);
-    } catch (error) {
-      console.error("Error extracting text from PDF:", error);
-      setExtractedText("Error extracting text from PDF");
-    }
-  }, []);
-
-  const handleUploadClick = React.useCallback(() => {
+  const handleUploadClick = useCallback(() => {
     document.getElementById("fileInput")?.click();
   }, []);
 
-  const onDocumentLoadSuccess = React.useCallback(
+  const onDocumentLoadSuccess = useCallback(
     ({ numPages }: { numPages: number }) => {
       setNumPages(numPages);
     },
     []
   );
 
-  const ResumeUploader = React.useMemo(() => {
+  const ResumeUploader = useMemo(() => {
     return (
       <div className="space-y-4">
         <h2 className="text-2xl font-bold">Upload Resume</h2>
@@ -56,7 +58,9 @@ const App: React.FC = () => {
           accept=".pdf"
           className="hidden"
         />
-        <Button onClick={handleUploadClick}>Select File</Button>
+        <Button onClick={handleUploadClick} disabled={isPending}>
+          {isPending ? "Processing..." : "Select File"}
+        </Button>
         {selectedFile && (
           <p className="text-sm text-gray-600">
             Selected file: {selectedFile.name}
@@ -64,9 +68,9 @@ const App: React.FC = () => {
         )}
       </div>
     );
-  }, [handleFileUpload, handleUploadClick, selectedFile]);
+  }, [handleFileUpload, handleUploadClick, isPending, selectedFile]);
 
-  const ResumeViewer = React.useMemo(() => {
+  const ResumeViewer = useMemo(() => {
     return (
       <div className="mt-8 flex gap-8">
         <div className="w-1/2">
@@ -95,36 +99,38 @@ const App: React.FC = () => {
           </div>
         </div>
         <div className="w-1/2">
-          <h2 className="text-2xl font-bold mb-4">Extracted Text (Markdown)</h2>
+          <h2 className="text-2xl font-bold mb-4">Processed Text</h2>
           <div className="bg-gray-100 h-[calc(100vh-16rem)] overflow-auto p-4">
-            <ReactMarkdown>{extractedText}</ReactMarkdown>
+            <pre>{processedText}</pre>
           </div>
         </div>
       </div>
     );
-  }, [selectedFile, numPages, onDocumentLoadSuccess, extractedText]);
+  }, [selectedFile, numPages, onDocumentLoadSuccess, processedText]);
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Top Navbar */}
-      <nav className="bg-gray-800 text-white p-4">
-        <h1 className="text-xl font-bold">Resume Dashboard</h1>
-      </nav>
+    <QueryClientProvider client={queryClient}>
+      <div className="flex flex-col h-screen">
+        {/* Top Navbar */}
+        <nav className="bg-gray-800 text-white p-4">
+          <h1 className="text-xl font-bold">Resume Dashboard</h1>
+        </nav>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidepanel */}
-        <aside className="w-64 bg-gray-100 p-4">
-          <h2 className="text-lg font-semibold mb-4">Sidepanel</h2>
-          {/* List will be added here later */}
-        </aside>
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidepanel */}
+          <aside className="w-64 bg-gray-100 p-4">
+            <h2 className="text-lg font-semibold mb-4">Sidepanel</h2>
+            {/* List will be added here later */}
+          </aside>
 
-        {/* Main content area */}
-        <main className="flex-1 p-8 overflow-auto">
-          {ResumeUploader}
-          {ResumeViewer}
-        </main>
+          {/* Main content area */}
+          <main className="flex-1 p-8 overflow-auto">
+            {ResumeUploader}
+            {ResumeViewer}
+          </main>
+        </div>
       </div>
-    </div>
+    </QueryClientProvider>
   );
 };
 
