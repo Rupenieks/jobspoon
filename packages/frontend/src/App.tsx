@@ -3,21 +3,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Document, Page, pdfjs } from "react-pdf";
 import { useState, useCallback, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import extractText from "react-pdftotext";
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const App: React.FC = () => {
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [numPages, setNumPages] = React.useState<number | null>(null);
+  const [extractedText, setExtractedText] = React.useState<string>("");
 
   const handleFileUpload = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (file) {
         setSelectedFile(file);
+        extractTextFromPdf(file);
       }
     },
     []
   );
+
+  const extractTextFromPdf = React.useCallback(async (file: File) => {
+    try {
+      const text = await extractText(file);
+
+      setExtractedText(text);
+    } catch (error) {
+      console.error("Error extracting text from PDF:", error);
+      setExtractedText("Error extracting text from PDF");
+    }
+  }, []);
 
   const handleUploadClick = React.useCallback(() => {
     document.getElementById("fileInput")?.click();
@@ -53,33 +68,41 @@ const App: React.FC = () => {
 
   const ResumeViewer = React.useMemo(() => {
     return (
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Resume Viewer</h2>
-        <div className="bg-gray-100 h-[calc(100vh-12rem)] w-3/4 mx-auto overflow-auto">
-          {selectedFile ? (
-            <Document
-              file={selectedFile}
-              onLoadSuccess={onDocumentLoadSuccess}
-              className="flex flex-col items-center"
-            >
-              {Array.from(new Array(numPages), (el, index) => (
-                <Page
-                  key={`page_${index + 1}`}
-                  pageNumber={index + 1}
-                  width={500}
-                  className="mb-4"
-                />
-              ))}
-            </Document>
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-gray-500">Upload a PDF to view it here</p>
-            </div>
-          )}
+      <div className="mt-8 flex gap-8">
+        <div className="w-1/2">
+          <h2 className="text-2xl font-bold mb-4">PDF Viewer</h2>
+          <div className="bg-gray-100 h-[calc(100vh-16rem)] overflow-auto">
+            {selectedFile ? (
+              <Document
+                file={selectedFile}
+                onLoadSuccess={onDocumentLoadSuccess}
+                className="flex flex-col items-center"
+              >
+                {Array.from(new Array(numPages), (el, index) => (
+                  <Page
+                    key={`page_${index + 1}`}
+                    pageNumber={index + 1}
+                    width={400}
+                    className="mb-4"
+                  />
+                ))}
+              </Document>
+            ) : (
+              <div className="h-full flex items-center justify-center">
+                <p className="text-gray-500">Upload a PDF to view it here</p>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="w-1/2">
+          <h2 className="text-2xl font-bold mb-4">Extracted Text (Markdown)</h2>
+          <div className="bg-gray-100 h-[calc(100vh-16rem)] overflow-auto p-4">
+            <ReactMarkdown>{extractedText}</ReactMarkdown>
+          </div>
         </div>
       </div>
     );
-  }, [selectedFile, numPages, onDocumentLoadSuccess]);
+  }, [selectedFile, numPages, onDocumentLoadSuccess, extractedText]);
 
   return (
     <div className="flex flex-col h-screen">
