@@ -26,7 +26,8 @@
     "react-pdf": "^9.1.1",
     "react-pdftotext": "^1.3.3",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "@redundant/common": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.8.0",

@@ -1,39 +1,41 @@
 import { z } from "zod";
 
 export const ExperienceSchema = z.object({
-  positionTitle: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-  company: z.string(),
-  contributions: z.array(z.string()),
+  positionTitle: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  company: z.string().optional(),
+  contributions: z.array(z.string()).optional(),
 });
 
 export const EducationSchema = z.object({
-  university: z.string(),
-  degree: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
+  university: z.string().optional(),
+  degree: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 export const ReferenceSchema = z.object({
-  name: z.string(),
-  position: z.string(),
-  number: z.string(),
-  email: z.string().email(),
+  name: z.string().optional(),
+  position: z.string().optional(),
+  number: z.string().optional(),
+  email: z.string().optional(),
 });
 
-export const ResumeSchema = z.object({
-  fullName: z.string(),
-  country: z.string(),
-  city: z.string(),
-  address: z.string(),
-  email: z.string().email(),
-  phoneNumber: z.string(),
-  positionName: z.string(),
-  experience: z.array(ExperienceSchema),
-  education: z.array(EducationSchema),
-  skills: z.array(z.string()),
-  references: z.array(ReferenceSchema),
-});
+export const ResumeSchema = z
+  .object({
+    fullName: z.string().optional(),
+    country: z.string().optional(),
+    city: z.string().optional(),
+    address: z.string().optional(),
+    email: z.string().optional(),
+    phoneNumber: z.string().optional(),
+    positionName: z.string().optional(),
+    experience: z.array(ExperienceSchema).optional(),
+    education: z.array(EducationSchema).optional(),
+    skills: z.array(z.string()).optional(),
+    references: z.array(ReferenceSchema).optional(),
+  })
+  .passthrough();
 
 export type TResume = z.infer<typeof ResumeSchema>;

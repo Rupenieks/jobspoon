@@ -18,7 +18,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@redundant/*": ["../*"]
+      "@redundant/*": ["../*"],
+      "@redundant/common": ["../common/src"]
     }
   },
   "include": ["src"]

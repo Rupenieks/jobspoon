@@ -5,6 +5,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 import { useState, useCallback, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useProcessResume } from "@/hooks/useProcessResume";
+import { TResume } from "@redundant/common";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -13,7 +14,7 @@ const queryClient = new QueryClient();
 const App: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
-  const [processedText, setProcessedText] = useState<string>("");
+  const [processedResume, setProcessedResume] = useState<TResume | null>(null);
 
   const { mutate: processResume, isPending } = useProcessResume();
 
@@ -23,12 +24,13 @@ const App: React.FC = () => {
       if (file) {
         setSelectedFile(file);
         processResume(file, {
-          onSuccess: (data) => {
-            setProcessedText(data.text);
+          onSuccess: (data: TResume) => {
+            console.log("Successfully processed resume:", data);
+            setProcessedResume(data);
           },
           onError: (error) => {
             console.error("Error processing resume:", error);
-            setProcessedText("Error processing resume");
+            setProcessedResume(null);
           },
         });
       }
@@ -99,14 +101,67 @@ const App: React.FC = () => {
           </div>
         </div>
         <div className="w-1/2">
-          <h2 className="text-2xl font-bold mb-4">Processed Text</h2>
+          <h2 className="text-2xl font-bold mb-4">Processed Resume</h2>
           <div className="bg-gray-100 h-[calc(100vh-16rem)] overflow-auto p-4">
-            <pre>{processedText}</pre>
+            {processedResume ? (
+              <div>
+                <h3 className="text-xl font-semibold">
+                  {processedResume.fullName}
+                </h3>
+                <p>
+                  {processedResume.email} | {processedResume.phoneNumber}
+                </p>
+                <p>
+                  {processedResume.address}, {processedResume.city},{" "}
+                  {processedResume.country}
+                </p>
+
+                <h4 className="text-lg font-semibold mt-4">Experience</h4>
+                {processedResume.experience?.map((exp, index) => (
+                  <div key={index} className="mb-2">
+                    <p>
+                      <strong>{exp.positionTitle}</strong> at {exp.company}
+                    </p>
+                    <p>
+                      {exp.startDate} - {exp.endDate}
+                    </p>
+                    <ul className="list-disc list-inside">
+                      {exp.contributions?.map((contribution, i) => (
+                        <li key={i}>{contribution}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+
+                <h4 className="text-lg font-semibold mt-4">Education</h4>
+                {processedResume.education?.map((edu, index) => (
+                  <div key={index} className="mb-2">
+                    <p>
+                      <strong>{edu.degree}</strong> at {edu.university}
+                    </p>
+                    <p>
+                      {edu.startDate} - {edu.endDate}
+                    </p>
+                  </div>
+                ))}
+
+                <h4 className="text-lg font-semibold mt-4">Skills</h4>
+                <ul className="list-disc list-inside">
+                  {processedResume.skills?.map((skill, index) => (
+                    <li key={index}>{skill}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-gray-500">
+                Upload a resume to see the processed data
+              </p>
+            )}
           </div>
         </div>
       </div>
     );
-  }, [selectedFile, numPages, onDocumentLoadSuccess, processedText]);
+  }, [selectedFile, numPages, onDocumentLoadSuccess, processedResume]);
 
   return (
     <QueryClientProvider client={queryClient}>

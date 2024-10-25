@@ -6,11 +6,23 @@ import multer from "multer";
 import pdf from "pdf-parse";
 import AssistantService from "./assistants/AssistantService";
 import { TResume } from "@redundant/common";
+import cors from "cors";
 
 const app = express();
 const port = process.env.PORT || 3000;
 const upload = multer({ storage: multer.memoryStorage() });
 const assistantService = new AssistantService();
+
+const allowedOrigins = "*";
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+  })
+);
+
+// Parse JSON bodies
+app.use(express.json());
 
 // Function to parse PDF to text
 async function parsePdfToText(buffer: Buffer): Promise<string> {
