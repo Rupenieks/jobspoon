@@ -168,7 +168,7 @@ const App: React.FC = () => {
       <div className="flex flex-col h-screen">
         {/* Top Navbar */}
         <nav className="bg-gray-800 text-white p-4">
-          <h1 className="text-xl font-bold">Resume Dashboard</h1>
+          <h1 className="text-xl font-bold">VirtueVita</h1>
         </nav>
 
         <div className="flex flex-1 overflow-hidden">

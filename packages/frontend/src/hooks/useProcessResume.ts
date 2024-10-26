@@ -6,7 +6,7 @@ const processResume = async (file: File) => {
   formData.append("file", file);
 
   const response = await axios.post(
-    "http://localhost:3000/process-resume",
+    "http://localhost:3000/resume-parser/process",
     formData,
     {
       headers: {
