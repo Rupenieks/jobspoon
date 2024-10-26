@@ -1,16 +1,16 @@
-import React, { useState, useMemo, useCallback } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { useReadResumes } from "@/hooks/useReadResumes";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { DatePicker } from "@/components/ui/date-picker";
-import { ChevronLeft } from "lucide-react";
 import { Breadcrumb, BreadcrumbItem } from "@/components/ui/breadcrumb";
-import { Card, CardContent } from "@/components/ui/card";
-import { TResume } from "@redundant/common/src";
+import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { useReadResumes } from "@/hooks/useReadResumes";
 import { parseResumeDate } from "@/utils/dateUtils";
+import { TResume } from "@redundant/common/src";
+import { ChevronLeft } from "lucide-react";
+import React, { useCallback, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 const ResumeDetails: React.FC = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -161,10 +161,11 @@ const ResumeDetails: React.FC = () => {
             </div>
 
             <div>
-              <Label>Experience</Label>
+              <Label className="text-lg font-semibold">Experience</Label>
               {editedResume.experience?.map((exp, index) => (
-                <Card key={index} className="mb-4">
-                  <CardContent className="space-y-2">
+                <div key={index} className="my-4">
+                  <Separator className="my-4" />
+                  <div className="space-y-2">
                     <Input
                       placeholder="Position Title"
                       value={exp.positionTitle || ""}
@@ -218,16 +219,20 @@ const ResumeDetails: React.FC = () => {
                         )
                       }
                     />
-                  </CardContent>
-                </Card>
+                  </div>
+                  {index === editedResume.experience.length - 1 && (
+                    <Separator className="my-4" />
+                  )}
+                </div>
               ))}
             </div>
 
             <div>
-              <Label>Education</Label>
+              <Label className="text-lg font-semibold">Education</Label>
               {editedResume.education?.map((edu, index) => (
-                <Card key={index} className="mb-4">
-                  <CardContent className="space-y-2">
+                <div key={index} className="my-4">
+                  <Separator className="my-4" />
+                  <div className="space-y-2">
                     <Input
                       placeholder="University"
                       value={edu.university || ""}
@@ -270,8 +275,11 @@ const ResumeDetails: React.FC = () => {
                         }
                       />
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                  {index === editedResume.education.length - 1 && (
+                    <Separator className="my-4" />
+                  )}
+                </div>
               ))}
             </div>
 
