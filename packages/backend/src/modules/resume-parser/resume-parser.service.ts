@@ -66,4 +66,10 @@ export class ResumeParserService {
         : null,
     }));
   }
+
+  async parseResumeText(text: string, userId: string): Promise<TResume> {
+    const parsedResume = await this.assistantService.parseResume(text);
+    await this.storeResume(parsedResume, userId);
+    return parsedResume;
+  }
 }

@@ -7,6 +7,7 @@ import {
   InternalServerErrorException,
   UseGuards,
   Request,
+  Body,
   Get,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -23,17 +24,26 @@ export class ResumeParserController {
   @UseInterceptors(FileInterceptor('file'))
   async processResume(
     @UploadedFile() file: Express.Multer.File,
+    @Body('text') text: string,
     @Request() req,
   ): Promise<TResume> {
-    if (!file) {
-      throw new BadRequestException('No file uploaded');
+    if (!file && !text) {
+      throw new BadRequestException('No file or text provided');
     }
 
     try {
-      const parsedResume = await this.resumeParserService.parseResume(
-        file.buffer,
-        req.user.userId,
-      );
+      let parsedResume: TResume;
+      if (file) {
+        parsedResume = await this.resumeParserService.parseResume(
+          file.buffer,
+          req.user.userId,
+        );
+      } else {
+        parsedResume = await this.resumeParserService.parseResumeText(
+          text,
+          req.user.userId,
+        );
+      }
       return parsedResume;
     } catch (error) {
       console.error('Error processing resume:', error);

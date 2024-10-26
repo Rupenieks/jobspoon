@@ -2,9 +2,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import axiosInstance from "@/utils/axiosConfig";
 
-const processResume = async (file: File) => {
+const processResume = async (input: {
+  type: "file" | "text";
+  content: File | string;
+}) => {
   const formData = new FormData();
-  formData.append("file", file);
+  if (input.type === "file") {
+    formData.append("file", input.content as File);
+  } else {
+    formData.append("text", input.content as string);
+  }
 
   const response = await axiosInstance.post(
     "http://localhost:3000/resume-parser/process",

@@ -18,8 +18,7 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (user && (await bcrypt.compare(password, user.password))) {
-      const { ...result } = user;
-      return result;
+      return user;
     }
     return null;
   }
@@ -28,7 +27,12 @@ export class AuthService {
     const tokens = await this.generateTokens(user);
     return {
       ...tokens,
-      user: { id: user.id, email: user.email, fullName: user.fullName },
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        picture: user.picture,
+      },
     };
   }
 
@@ -58,6 +62,7 @@ export class AuthService {
         email: payload.email,
         fullName: payload.name,
         googleId: payload.sub,
+        picture: payload.picture,
       };
     } catch (error) {
       throw new UnauthorizedException('Invalid Google token');
@@ -67,11 +72,15 @@ export class AuthService {
   async googleLogin(googleUser: any) {
     const user = await this.prisma.user.upsert({
       where: { email: googleUser.email },
-      update: { googleId: googleUser.googleId },
+      update: {
+        googleId: googleUser.googleId,
+        picture: googleUser.picture, // Add this line
+      },
       create: {
         email: googleUser.email,
         fullName: googleUser.fullName,
         googleId: googleUser.googleId,
+        picture: googleUser.picture,
       },
     });
     return this.login(user);

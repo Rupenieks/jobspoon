@@ -17,16 +17,19 @@ const Dashboard = () => {
       const file = event.target.files?.[0];
       if (file) {
         setSelectedFile(file);
-        processResume(file, {
-          onSuccess: (data: TResume) => {
-            console.log("Successfully processed resume:", data);
-            setProcessedResume(data);
-          },
-          onError: (error) => {
-            console.error("Error processing resume:", error);
-            setProcessedResume(null);
-          },
-        });
+        processResume(
+          { type: "file", content: file },
+          {
+            onSuccess: (data: TResume) => {
+              console.log("Successfully processed resume:", data);
+              setProcessedResume(data);
+            },
+            onError: (error) => {
+              console.error("Error processing resume:", error);
+              setProcessedResume(null);
+            },
+          }
+        );
       }
     },
     [processResume]

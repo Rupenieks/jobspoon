@@ -1,11 +1,6 @@
 import { useState, useCallback } from "react";
 import axiosInstance from "@/utils/axiosConfig";
-
-interface User {
-  id: string;
-  email: string;
-  fullName: string;
-}
+import { TUser } from "@redundant/common";
 
 interface AuthCredentials {
   email: string;
@@ -14,7 +9,7 @@ interface AuthCredentials {
 }
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);

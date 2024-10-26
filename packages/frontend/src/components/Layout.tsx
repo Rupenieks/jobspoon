@@ -1,33 +1,73 @@
-import React from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Button } from "./ui/button";
 import { useAuth } from "@/auth/AuthProvider";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { HomeIcon, FileTextIcon, FileIcon } from "@radix-ui/react-icons";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const location = useLocation();
 
   const navItems = [
-    { name: "Start", path: "/" },
-    { name: "Resumes", path: "/resumes" },
-    { name: "Jobs", path: "/jobs" },
+    { name: "Start", path: "/", icon: <HomeIcon className="w-4 h-4 mr-2" /> },
+    {
+      name: "Resumes",
+      path: "/resumes",
+      icon: <FileTextIcon className="w-4 h-4 mr-2" />,
+    },
+    {
+      name: "Jobs",
+      path: "/jobs",
+      icon: <FileIcon className="w-4 h-4 mr-2" />,
+    },
   ];
+
+  const handleSignOut = useCallback(() => {
+    signOut();
+  }, [signOut]);
+
+  const userInitials = user?.fullName
+    ? user.fullName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "";
 
   return (
     <div className="flex flex-col h-screen">
       <nav className="bg-gray-800 text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">VirtueVita</h1>
-        <Button
-          onClick={signOut}
-          variant="outline"
-          className="text-white bg-transparent hover:bg-gray-700"
-        >
-          Logout
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="cursor-pointer">
+              <AvatarImage
+                src={
+                  user?.picture
+                    ? `https://images.weserv.nl/?url=${encodeURIComponent(
+                        user.picture
+                      )}`
+                    : undefined
+                }
+                alt={user?.fullName}
+              />
+              <AvatarFallback>{userInitials}</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </nav>
 
       <div className="flex flex-1 overflow-hidden">
@@ -37,12 +77,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <li key={item.name}>
                 <Link
                   to={item.path}
-                  className={`block p-2 rounded ${
+                  className={`flex items-center p-2 gap-2 rounded ${
                     location.pathname === item.path
                       ? "bg-gray-200 font-semibold"
                       : "hover:bg-gray-200"
                   }`}
                 >
+                  {item.icon}
                   {item.name}
                 </Link>
               </li>
