@@ -1,20 +1,68 @@
-import React, { useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useReadResumes } from "@/hooks/useReadResumes";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import { ChevronLeft } from "lucide-react";
 import { Breadcrumb, BreadcrumbItem } from "@/components/ui/breadcrumb";
+import { Card, CardContent } from "@/components/ui/card";
+import { TResume } from "@redundant/common/src";
+import { parseResumeDate } from "@/utils/dateUtils";
 
 const ResumeDetails: React.FC = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resumes } = useReadResumes();
   const navigate = useNavigate();
 
-  const resume = useMemo(() => {
-    return resumes?.find((r) => r.id === resumeId);
+  const initialResume = useMemo(() => {
+    return resumes?.find((r) => r.id === resumeId) || null;
   }, [resumes, resumeId]);
 
-  if (!resume) {
+  const [editedResume, setEditedResume] = useState<TResume | null>(
+    initialResume
+  );
+
+  const handleInputChange = useCallback((field: keyof TResume, value: any) => {
+    setEditedResume((prev) => (prev ? { ...prev, [field]: value } : null));
+  }, []);
+
+  const handleExperienceChange = useCallback(
+    (index: number, field: keyof TResume["experience"][0], value: any) => {
+      setEditedResume((prev) => {
+        if (!prev) return null;
+        const newExperience = [...(prev.experience || [])];
+        newExperience[index] = { ...newExperience[index], [field]: value };
+        return { ...prev, experience: newExperience };
+      });
+    },
+    []
+  );
+
+  const handleEducationChange = useCallback(
+    (index: number, field: keyof TResume["education"][0], value: any) => {
+      setEditedResume((prev) => {
+        if (!prev) return null;
+        const newEducation = [...(prev.education || [])];
+        newEducation[index] = { ...newEducation[index], [field]: value };
+        return { ...prev, education: newEducation };
+      });
+    },
+    []
+  );
+
+  const handleSkillChange = useCallback((index: number, value: string) => {
+    setEditedResume((prev) => {
+      if (!prev) return null;
+      const newSkills = [...(prev.skills || [])];
+      newSkills[index] = value;
+      return { ...prev, skills: newSkills };
+    });
+  }, []);
+
+  if (!editedResume) {
     return <div>Resume not found</div>;
   }
 
@@ -37,54 +85,216 @@ const ResumeDetails: React.FC = () => {
             Resumes
           </Link>
         </BreadcrumbItem>
-        <BreadcrumbItem>{resume.positionName}</BreadcrumbItem>
+        <BreadcrumbItem>{editedResume.positionName}</BreadcrumbItem>
       </Breadcrumb>
 
-      <h1 className="text-2xl font-bold">{resume.positionName}</h1>
+      <div className="flex gap-6">
+        <div className="w-1/2 space-y-6">
+          <h1 className="text-2xl font-bold">{editedResume.positionName}</h1>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">{resume.fullName}</h2>
-        <p>{resume.email}</p>
-        <p>{resume.phoneNumber}</p>
-        <p>
-          {resume.address}, {resume.city}, {resume.country}
-        </p>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                value={editedResume.fullName || ""}
+                onChange={(e) => handleInputChange("fullName", e.target.value)}
+              />
+            </div>
 
-        <h3 className="text-lg font-semibold mt-6">Experience</h3>
-        {resume.experience?.map((exp, index) => (
-          <div key={index} className="ml-4">
-            <h4 className="font-medium">
-              {exp.positionTitle} at {exp.company}
-            </h4>
-            <p>
-              {exp.startDate} - {exp.endDate}
-            </p>
-            <ul className="list-disc list-inside">
-              {exp.contributions?.map((contribution, i) => (
-                <li key={i}>{contribution}</li>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                value={editedResume.email || ""}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input
+                id="phoneNumber"
+                value={editedResume.phoneNumber || ""}
+                onChange={(e) =>
+                  handleInputChange("phoneNumber", e.target.value)
+                }
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={editedResume.address || ""}
+                onChange={(e) => handleInputChange("address", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={editedResume.city || ""}
+                onChange={(e) => handleInputChange("city", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="country">Country</Label>
+              <Input
+                id="country"
+                value={editedResume.country || ""}
+                onChange={(e) => handleInputChange("country", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="positionName">Position Name</Label>
+              <Input
+                id="positionName"
+                value={editedResume.positionName || ""}
+                onChange={(e) =>
+                  handleInputChange("positionName", e.target.value)
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Experience</Label>
+              {editedResume.experience?.map((exp, index) => (
+                <Card key={index} className="mb-4">
+                  <CardContent className="space-y-2">
+                    <Input
+                      placeholder="Position Title"
+                      value={exp.positionTitle || ""}
+                      onChange={(e) =>
+                        handleExperienceChange(
+                          index,
+                          "positionTitle",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <Input
+                      placeholder="Company"
+                      value={exp.company || ""}
+                      onChange={(e) =>
+                        handleExperienceChange(index, "company", e.target.value)
+                      }
+                    />
+                    <div className="flex gap-2">
+                      <DatePicker
+                        placeholder="Start Date"
+                        value={parseResumeDate(exp.startDate)}
+                        onChange={(date) =>
+                          handleExperienceChange(
+                            index,
+                            "startDate",
+                            date?.toISOString()
+                          )
+                        }
+                      />
+                      <DatePicker
+                        placeholder="End Date"
+                        value={parseResumeDate(exp.endDate)}
+                        onChange={(date) =>
+                          handleExperienceChange(
+                            index,
+                            "endDate",
+                            date?.toISOString()
+                          )
+                        }
+                      />
+                    </div>
+                    <Textarea
+                      placeholder="Contributions (one per line)"
+                      value={exp.contributions?.join("\n") || ""}
+                      onChange={(e) =>
+                        handleExperienceChange(
+                          index,
+                          "contributions",
+                          e.target.value.split("\n")
+                        )
+                      }
+                    />
+                  </CardContent>
+                </Card>
               ))}
-            </ul>
-          </div>
-        ))}
+            </div>
 
-        <h3 className="text-lg font-semibold mt-6">Education</h3>
-        {resume.education?.map((edu, index) => (
-          <div key={index} className="ml-4">
-            <h4 className="font-medium">
-              {edu.degree} at {edu.university}
-            </h4>
-            <p>
-              {edu.startDate} - {edu.endDate}
-            </p>
-          </div>
-        ))}
+            <div>
+              <Label>Education</Label>
+              {editedResume.education?.map((edu, index) => (
+                <Card key={index} className="mb-4">
+                  <CardContent className="space-y-2">
+                    <Input
+                      placeholder="University"
+                      value={edu.university || ""}
+                      onChange={(e) =>
+                        handleEducationChange(
+                          index,
+                          "university",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <Input
+                      placeholder="Degree"
+                      value={edu.degree || ""}
+                      onChange={(e) =>
+                        handleEducationChange(index, "degree", e.target.value)
+                      }
+                    />
+                    <div className="flex gap-2">
+                      <DatePicker
+                        placeholder="Start Date"
+                        value={parseResumeDate(edu.startDate)}
+                        onChange={(date) =>
+                          handleEducationChange(
+                            index,
+                            "startDate",
+                            date?.toISOString()
+                          )
+                        }
+                      />
+                      <DatePicker
+                        placeholder="End Date"
+                        value={parseResumeDate(edu.endDate)}
+                        onChange={(date) =>
+                          handleEducationChange(
+                            index,
+                            "endDate",
+                            date?.toISOString()
+                          )
+                        }
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
-        <h3 className="text-lg font-semibold mt-6">Skills</h3>
-        <ul className="list-disc list-inside">
-          {resume.skills?.map((skill, index) => (
-            <li key={index}>{skill}</li>
-          ))}
-        </ul>
+            <div>
+              <Label>Skills</Label>
+              {editedResume.skills?.map((skill, index) => (
+                <Input
+                  key={index}
+                  className="mb-2"
+                  value={skill}
+                  onChange={(e) => handleSkillChange(index, e.target.value)}
+                />
+              ))}
+            </div>
+
+            <Button>Save Changes</Button>
+          </div>
+        </div>
+
+        <div className="w-1/2 border p-4">
+          <h2 className="text-xl font-semibold mb-4">Preview</h2>
+          <p>Preview content will be added here later.</p>
+        </div>
       </div>
     </div>
   );
