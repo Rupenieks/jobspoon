@@ -26,7 +26,9 @@ export class ResumeParserService {
   private async storeResume(resume: TResume, userId: string): Promise<void> {
     await this.prismaService.resume.create({
       data: {
-        userId,
+        user: {
+          connect: { id: userId },
+        },
         fullName: resume.fullName,
         country: resume.country,
         city: resume.city,

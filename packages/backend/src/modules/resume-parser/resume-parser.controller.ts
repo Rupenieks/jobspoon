@@ -32,7 +32,7 @@ export class ResumeParserController {
     try {
       const parsedResume = await this.resumeParserService.parseResume(
         file.buffer,
-        req.user.id,
+        req.user.userId,
       );
       return parsedResume;
     } catch (error) {
