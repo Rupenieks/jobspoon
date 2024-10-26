@@ -4,7 +4,6 @@ import { useState, useCallback, useMemo } from "react";
 import { Page, Document } from "react-pdf";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useAuth } from "@/auth/AuthProvider";
 
 const Dashboard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -12,7 +11,6 @@ const Dashboard = () => {
   const [processedResume, setProcessedResume] = useState<TResume | null>(null);
 
   const { mutate: processResume, isPending } = useProcessResume();
-  const { signOut } = useAuth();
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,32 +158,10 @@ const Dashboard = () => {
   }, [selectedFile, numPages, onDocumentLoadSuccess, processedResume]);
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Top Navbar */}
-      <nav className="bg-gray-800 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">VirtueVita</h1>
-        <Button
-          onClick={signOut}
-          variant="outline"
-          className="text-white bg-transparent hover:bg-gray-700"
-        >
-          Logout
-        </Button>
-      </nav>
-
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidepanel */}
-        <aside className="w-64 bg-gray-100 p-4">
-          <h2 className="text-lg font-semibold mb-4">Sidepanel</h2>
-          {/* List will be added here later */}
-        </aside>
-
-        {/* Main content area */}
-        <main className="flex-1 p-8 overflow-auto">
-          {ResumeUploader}
-          {ResumeViewer}
-        </main>
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Start</h1>
+      {ResumeUploader}
+      {ResumeViewer}
     </div>
   );
 };

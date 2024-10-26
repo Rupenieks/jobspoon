@@ -22,4 +22,26 @@ model User {
   picture   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  resumes   Resume[]
+}
+
+model Resume {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  fullName     String?
+  country      String?
+  city         String?
+  address      String?
+  email        String?
+  phoneNumber  String?
+  positionName String?
+  experience   Json?
+  education    Json?
+  skills       String[]
+  references   Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
 }
