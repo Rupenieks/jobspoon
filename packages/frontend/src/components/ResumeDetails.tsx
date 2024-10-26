@@ -9,19 +9,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useReadResumes } from "@/hooks/useReadResumes";
-import { parseResumeDate } from "@/utils/dateUtils";
-import { TResume } from "@redundant/common/src";
-import { ChevronLeft, Download, X } from "lucide-react";
-import React, { useCallback, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import ResumePreviewProfessional from "./resumes/ResumePreviewProfessional";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useReadResumes } from "@/hooks/useReadResumes";
+import { parseResumeDate } from "@/utils/dateUtils";
+import { PDFViewer } from "@react-pdf/renderer";
+import { TResume } from "@redundant/common/src";
+import { ChevronLeft, Download } from "lucide-react";
+import React, { useCallback, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import ResumePDFRenderer from "./resumes/ResumePDFRenderer";
+import ResumePreviewProfessional from "./resumes/ResumePreviewProfessional";
 
 const ResumeDetails: React.FC = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -118,6 +120,14 @@ const ResumeDetails: React.FC = () => {
 
   const handleOpenPreview = useCallback(() => setIsPreviewOpen(true), []);
   const handleClosePreview = useCallback(() => setIsPreviewOpen(false), []);
+
+  const [isPDFPreviewOpen, setIsPDFPreviewOpen] = useState(false);
+
+  const handleOpenPDFPreview = useCallback(() => setIsPDFPreviewOpen(true), []);
+  const handleClosePDFPreview = useCallback(
+    () => setIsPDFPreviewOpen(false),
+    []
+  );
 
   if (!editedResume) {
     return <div>Resume not found</div>;
@@ -341,9 +351,10 @@ const ResumeDetails: React.FC = () => {
         </div>
 
         <div className="w-1/2">
-          <Button onClick={handleOpenPreview} className="mb-4">
-            Preview
-          </Button>
+          <div className="flex gap-2 mb-4">
+            <Button onClick={handleOpenPreview}>Preview</Button>
+            <Button onClick={handleOpenPDFPreview}>Preview as PDF</Button>
+          </div>
           <div className="border p-4">
             <ResumePreviewProfessional resume={editedResume} />
           </div>
@@ -376,6 +387,21 @@ const ResumeDetails: React.FC = () => {
           </DialogHeader>
           <div className="mt-4">
             <ResumePreviewProfessional resume={editedResume} />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPDFPreviewOpen} onOpenChange={setIsPDFPreviewOpen}>
+        <DialogContent className="max-w-[210mm] h-[297mm] max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>PDF Preview</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-grow overflow-hidden">
+            <PDFViewer width="100%" height="100%">
+              <ResumePDFRenderer resume={editedResume} />
+            </PDFViewer>
           </div>
         </DialogContent>
       </Dialog>
