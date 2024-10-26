@@ -120,33 +120,41 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {navItems.map((item) => (
               <li key={item.name} className="relative">
                 <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        to={item.path}
-                        className={cn(
-                          "flex items-center p-2 rounded overflow-hidden",
-                          isNavItemActive(item.path)
-                            ? "bg-gray-200 font-semibold"
-                            : "hover:bg-gray-200",
-                          isCollapsed ? "justify-center" : "pr-8"
-                        )}
-                      >
-                        <span className="flex-shrink-0">{item.icon}</span>
-                        <span
+                  {isCollapsed ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link
+                          to={item.path}
                           className={cn(
-                            "ml-2 whitespace-nowrap transition-all duration-300 ease-in-out",
-                            isCollapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+                            "flex items-center p-2 rounded overflow-hidden justify-center",
+                            isNavItemActive(item.path)
+                              ? "bg-gray-200 font-semibold"
+                              : "hover:bg-gray-200"
                           )}
                         >
-                          {item.name}
-                        </span>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>{item.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                          <span className="flex-shrink-0">{item.icon}</span>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p>{item.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Link
+                      to={item.path}
+                      className={cn(
+                        "flex items-center p-2 rounded overflow-hidden pr-8",
+                        isNavItemActive(item.path)
+                          ? "bg-gray-200 font-semibold"
+                          : "hover:bg-gray-200"
+                      )}
+                    >
+                      <span className="flex-shrink-0">{item.icon}</span>
+                      <span className="ml-2 whitespace-nowrap transition-all duration-300 ease-in-out opacity-100 w-auto">
+                        {item.name}
+                      </span>
+                    </Link>
+                  )}
                 </TooltipProvider>
               </li>
             ))}
