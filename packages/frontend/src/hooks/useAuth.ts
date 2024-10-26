@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import axios from "axios";
+import axiosInstance from "@/utils/axiosConfig";
 
 interface User {
   id: string;
@@ -25,7 +25,7 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         "http://localhost:3000/auth/login",
         credentials
       );
@@ -44,7 +44,7 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         "http://localhost:3000/auth/register",
         credentials
       );
@@ -63,9 +63,12 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post("http://localhost:3000/auth/google", {
-        credential,
-      });
+      const response = await axiosInstance.post(
+        "http://localhost:3000/auth/google",
+        {
+          credential,
+        }
+      );
 
       console.log(response.data);
       localStorage.setItem("token", response.data.access_token);
@@ -94,6 +97,27 @@ export const useAuth = () => {
     }
   }, []);
 
+  const refreshTokens = useCallback(async () => {
+    const refreshToken = localStorage.getItem("refresh_token");
+    if (!refreshToken) {
+      throw new Error("No refresh token available");
+    }
+    try {
+      const response = await axiosInstance.post(
+        "http://localhost:3000/auth/refresh",
+        {
+          refresh_token: refreshToken,
+        }
+      );
+      localStorage.setItem("token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+      return response.data.access_token;
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      throw error;
+    }
+  }, []);
+
   return {
     user,
     loading,
@@ -103,5 +127,6 @@ export const useAuth = () => {
     signUp,
     signInWithGoogle,
     signOut,
+    refreshTokens,
   };
 };

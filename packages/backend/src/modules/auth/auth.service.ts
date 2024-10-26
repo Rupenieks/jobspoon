@@ -25,9 +25,9 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { email: user.email, sub: user.id };
+    const tokens = await this.generateTokens(user);
     return {
-      access_token: this.jwtService.sign(payload),
+      ...tokens,
       user: { id: user.id, email: user.email, fullName: user.fullName },
     };
   }
@@ -75,5 +75,28 @@ export class AuthService {
       },
     });
     return this.login(user);
+  }
+
+  async generateTokens(user: any) {
+    const payload = { email: user.email, sub: user.id };
+    return {
+      access_token: this.jwtService.sign(payload, { expiresIn: '15m' }),
+      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
+    };
+  }
+
+  async refreshTokens(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken);
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+      });
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+      return this.generateTokens(user);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }

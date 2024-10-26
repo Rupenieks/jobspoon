@@ -26,4 +26,9 @@ export class AuthController {
     const googleUser = await this.authService.validateGoogleToken(credential);
     return this.authService.googleLogin(googleUser);
   }
+
+  @Post('refresh')
+  async refreshTokens(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refreshTokens(refreshToken);
+  }
 }
