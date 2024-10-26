@@ -44,6 +44,15 @@ export class AuthController {
   @Get('check')
   @UseGuards(JwtAuthGuard)
   async checkAuth(@Request() req) {
-    return { isAuthenticated: true, user: req.user };
+    const user = await this.authService.getUserById(req.user.userId);
+    return {
+      isAuthenticated: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        picture: user.picture,
+      },
+    };
   }
 }

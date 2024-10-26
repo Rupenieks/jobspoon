@@ -94,6 +94,10 @@ export class AuthService {
     };
   }
 
+  async getUserById(userId: string) {
+    return this.prisma.user.findUnique({ where: { id: userId } });
+  }
+
   async refreshTokens(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken);
