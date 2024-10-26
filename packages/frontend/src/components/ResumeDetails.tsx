@@ -1,24 +1,20 @@
-import { Breadcrumb, BreadcrumbItem } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useReadResumes } from "@/hooks/useReadResumes";
 import { parseResumeDate } from "@/utils/dateUtils";
 import { TResume } from "@redundant/common/src";
 import { ChevronLeft } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useNavigate, useParams } from "react-router-dom";
 import ResumePreviewProfessional from "./resumes/ResumePreviewProfessional";
 
 const ResumeDetails: React.FC = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resumes } = useReadResumes();
   const navigate = useNavigate();
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const initialResume = useMemo(() => {
     return resumes?.find((r) => r.id === resumeId) || null;
@@ -65,6 +61,47 @@ const ResumeDetails: React.FC = () => {
     });
   }, []);
 
+  const handleAddExperience = useCallback(() => {
+    setEditedResume((prev) => {
+      if (!prev) return null;
+      const newExperience = [
+        ...(prev.experience || []),
+        {
+          positionTitle: "",
+          company: "",
+          startDate: "",
+          endDate: "",
+          contributions: [],
+        },
+      ];
+      return { ...prev, experience: newExperience };
+    });
+  }, []);
+
+  const handleAddEducation = useCallback(() => {
+    setEditedResume((prev) => {
+      if (!prev) return null;
+      const newEducation = [
+        ...(prev.education || []),
+        { university: "", degree: "", startDate: "", endDate: "" },
+      ];
+      return { ...prev, education: newEducation };
+    });
+  }, []);
+
+  const handleAddSkill = useCallback(() => {
+    setEditedResume((prev) => {
+      if (!prev) return null;
+      const newSkills = [...(prev.skills || []), ""];
+      return { ...prev, skills: newSkills };
+    });
+  }, []);
+
+  const handleSaveChanges = useCallback(() => {
+    // Implement the logic to save the changes to the backend
+    console.log("Saving changes:", editedResume);
+  }, [editedResume]);
+
   if (!editedResume) {
     return <div>Resume not found</div>;
   }
@@ -79,243 +116,215 @@ const ResumeDetails: React.FC = () => {
         <ChevronLeft className="mr-2 h-4 w-4" /> Back to Resumes
       </Button>
 
-      <Breadcrumb>
-        <BreadcrumbItem>
-          <Link
-            to="/resumes"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Resumes
-          </Link>
-        </BreadcrumbItem>
-        <BreadcrumbItem>{editedResume.positionName}</BreadcrumbItem>
-      </Breadcrumb>
-
       <div className="flex gap-6">
-        <div className="w-1/2 space-y-6">
+        <div className="w-1/2 space-y-8">
           <h1 className="text-2xl font-bold">{editedResume.positionName}</h1>
 
+          {/* Personal Information Section */}
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                value={editedResume.fullName || ""}
-                onChange={(e) => handleInputChange("fullName", e.target.value)}
-              />
+            <h2 className="text-xl font-semibold">Personal Information</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={editedResume.fullName || ""}
+                  onChange={(e) =>
+                    handleInputChange("fullName", e.target.value)
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  value={editedResume.email || ""}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Input
+                  id="phoneNumber"
+                  value={editedResume.phoneNumber || ""}
+                  onChange={(e) =>
+                    handleInputChange("phoneNumber", e.target.value)
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={editedResume.address || ""}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  value={editedResume.city || ""}
+                  onChange={(e) => handleInputChange("city", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="country">Country</Label>
+                <Input
+                  id="country"
+                  value={editedResume.country || ""}
+                  onChange={(e) => handleInputChange("country", e.target.value)}
+                />
+              </div>
             </div>
+          </div>
 
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                value={editedResume.email || ""}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-              />
-            </div>
+          {/* Position Name */}
+          <div>
+            <Label htmlFor="positionName">Position Name</Label>
+            <Input
+              id="positionName"
+              value={editedResume.positionName || ""}
+              onChange={(e) =>
+                handleInputChange("positionName", e.target.value)
+              }
+            />
+          </div>
 
-            <div>
-              <Label htmlFor="phoneNumber">Phone Number</Label>
-              <Input
-                id="phoneNumber"
-                value={editedResume.phoneNumber || ""}
-                onChange={(e) =>
-                  handleInputChange("phoneNumber", e.target.value)
-                }
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                value={editedResume.address || ""}
-                onChange={(e) => handleInputChange("address", e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="city">City</Label>
-              <Input
-                id="city"
-                value={editedResume.city || ""}
-                onChange={(e) => handleInputChange("city", e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="country">Country</Label>
-              <Input
-                id="country"
-                value={editedResume.country || ""}
-                onChange={(e) => handleInputChange("country", e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="positionName">Position Name</Label>
-              <Input
-                id="positionName"
-                value={editedResume.positionName || ""}
-                onChange={(e) =>
-                  handleInputChange("positionName", e.target.value)
-                }
-              />
-            </div>
-
-            <div>
-              <Label className="text-lg font-semibold">Experience</Label>
-              {editedResume.experience?.map((exp, index) => (
-                <div key={index} className="my-4">
-                  <Separator className="my-4" />
-                  <div className="space-y-2">
-                    <Input
-                      placeholder="Position Title"
-                      value={exp.positionTitle || ""}
-                      onChange={(e) =>
-                        handleExperienceChange(
-                          index,
-                          "positionTitle",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <Input
-                      placeholder="Company"
-                      value={exp.company || ""}
-                      onChange={(e) =>
-                        handleExperienceChange(index, "company", e.target.value)
-                      }
-                    />
-                    <div className="flex gap-2">
-                      <DatePicker
-                        placeholder="Start Date"
-                        value={parseResumeDate(exp.startDate)}
-                        onChange={(date) =>
-                          handleExperienceChange(
-                            index,
-                            "startDate",
-                            date?.toISOString()
-                          )
-                        }
-                      />
-                      <DatePicker
-                        placeholder="End Date"
-                        value={parseResumeDate(exp.endDate)}
-                        onChange={(date) =>
-                          handleExperienceChange(
-                            index,
-                            "endDate",
-                            date?.toISOString()
-                          )
-                        }
-                      />
-                    </div>
-                    <Textarea
-                      placeholder="Contributions (one per line)"
-                      value={exp.contributions?.join("\n") || ""}
-                      onChange={(e) =>
-                        handleExperienceChange(
-                          index,
-                          "contributions",
-                          e.target.value.split("\n")
-                        )
-                      }
-                    />
-                  </div>
-                  {index === (editedResume.experience?.length || 0) - 1 && (
-                    <Separator className="my-4" />
-                  )}
+          {/* Experience Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Experience</h2>
+            {editedResume.experience?.map((exp, index) => (
+              <div key={index} className="space-y-2 border p-4 rounded">
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    placeholder="Position Title"
+                    value={exp.positionTitle || ""}
+                    onChange={(e) =>
+                      handleExperienceChange(
+                        index,
+                        "positionTitle",
+                        e.target.value
+                      )
+                    }
+                  />
+                  <Input
+                    placeholder="Company"
+                    value={exp.company || ""}
+                    onChange={(e) =>
+                      handleExperienceChange(index, "company", e.target.value)
+                    }
+                  />
+                  <DatePicker
+                    placeholder="Start Date"
+                    value={parseResumeDate(exp.startDate)}
+                    onChange={(date) =>
+                      handleExperienceChange(
+                        index,
+                        "startDate",
+                        date?.toISOString()
+                      )
+                    }
+                  />
+                  <DatePicker
+                    placeholder="End Date"
+                    value={parseResumeDate(exp.endDate)}
+                    onChange={(date) =>
+                      handleExperienceChange(
+                        index,
+                        "endDate",
+                        date?.toISOString()
+                      )
+                    }
+                  />
                 </div>
-              ))}
-            </div>
+                <Textarea
+                  placeholder="Contributions (one per line)"
+                  value={exp.contributions?.join("\n") || ""}
+                  onChange={(e) =>
+                    handleExperienceChange(
+                      index,
+                      "contributions",
+                      e.target.value.split("\n")
+                    )
+                  }
+                />
+              </div>
+            ))}
+            <Button onClick={() => handleAddExperience()}>
+              Add Experience
+            </Button>
+          </div>
 
-            <div>
-              <Label className="text-lg font-semibold">Education</Label>
-              {editedResume.education?.map((edu, index) => (
-                <div key={index} className="my-4">
-                  <Separator className="my-4" />
-                  <div className="space-y-2">
-                    <Input
-                      placeholder="University"
-                      value={edu.university || ""}
-                      onChange={(e) =>
-                        handleEducationChange(
-                          index,
-                          "university",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <Input
-                      placeholder="Degree"
-                      value={edu.degree || ""}
-                      onChange={(e) =>
-                        handleEducationChange(index, "degree", e.target.value)
-                      }
-                    />
-                    <div className="flex gap-2">
-                      <DatePicker
-                        placeholder="Start Date"
-                        value={parseResumeDate(edu.startDate)}
-                        onChange={(date) =>
-                          handleEducationChange(
-                            index,
-                            "startDate",
-                            date?.toISOString()
-                          )
-                        }
-                      />
-                      <DatePicker
-                        placeholder="End Date"
-                        value={parseResumeDate(edu.endDate)}
-                        onChange={(date) =>
-                          handleEducationChange(
-                            index,
-                            "endDate",
-                            date?.toISOString()
-                          )
-                        }
-                      />
-                    </div>
-                  </div>
-                  {index === (editedResume.education?.length || 0) - 1 && (
-                    <Separator className="my-4" />
-                  )}
+          {/* Education Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Education</h2>
+            {editedResume.education?.map((edu, index) => (
+              <div key={index} className="space-y-2 border p-4 rounded">
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    placeholder="University"
+                    value={edu.university || ""}
+                    onChange={(e) =>
+                      handleEducationChange(index, "university", e.target.value)
+                    }
+                  />
+                  <Input
+                    placeholder="Degree"
+                    value={edu.degree || ""}
+                    onChange={(e) =>
+                      handleEducationChange(index, "degree", e.target.value)
+                    }
+                  />
+                  <DatePicker
+                    placeholder="Start Date"
+                    value={parseResumeDate(edu.startDate)}
+                    onChange={(date) =>
+                      handleEducationChange(
+                        index,
+                        "startDate",
+                        date?.toISOString()
+                      )
+                    }
+                  />
+                  <DatePicker
+                    placeholder="End Date"
+                    value={parseResumeDate(edu.endDate)}
+                    onChange={(date) =>
+                      handleEducationChange(
+                        index,
+                        "endDate",
+                        date?.toISOString()
+                      )
+                    }
+                  />
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
+            <Button onClick={() => handleAddEducation()}>Add Education</Button>
+          </div>
 
-            <div>
-              <Label>Skills</Label>
+          {/* Skills Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Skills</h2>
+            <div className="flex flex-wrap gap-2">
               {editedResume.skills?.map((skill, index) => (
                 <Input
                   key={index}
-                  className="mb-2"
+                  className="w-auto"
                   value={skill}
                   onChange={(e) => handleSkillChange(index, e.target.value)}
                 />
               ))}
+              <Button onClick={() => handleAddSkill()}>Add Skill</Button>
             </div>
-
-            <Button>Save Changes</Button>
           </div>
+
+          <Button onClick={handleSaveChanges}>Save Changes</Button>
         </div>
 
-        <div className="w-1/2 border p-4 relative">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-            <DialogTrigger asChild>
-              <Button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                Click to preview
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-[90vw] w-[90vw] max-h-[90vh] h-[90vh] overflow-auto">
-              {editedResume && (
-                <ResumePreviewProfessional resume={editedResume} />
-              )}
-            </DialogContent>
-          </Dialog>
+        <div className="w-1/2 border p-4">
+          <ResumePreviewProfessional resume={editedResume} />
         </div>
       </div>
     </div>
