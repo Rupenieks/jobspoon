@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import axiosInstance from "@/utils/axiosConfig";
 import { TUser } from "@redundant/common";
 
@@ -113,6 +113,32 @@ export const useAuth = () => {
     }
   }, []);
 
+  const checkAuth = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await axiosInstance.get(
+          "http://localhost:3000/auth/check"
+        );
+        if (response.data.isAuthenticated) {
+          setUser(response.data.user);
+          setIsAuthenticated(true);
+        } else {
+          throw new Error("Token invalid");
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        localStorage.removeItem("token");
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return {
     user,
     loading,
@@ -123,5 +149,6 @@ export const useAuth = () => {
     signInWithGoogle,
     signOut,
     refreshTokens,
+    checkAuth,
   };
 };

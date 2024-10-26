@@ -1,5 +1,14 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
+  Get,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -30,5 +39,11 @@ export class AuthController {
   @Post('refresh')
   async refreshTokens(@Body('refresh_token') refreshToken: string) {
     return this.authService.refreshTokens(refreshToken);
+  }
+
+  @Get('check')
+  @UseGuards(JwtAuthGuard)
+  async checkAuth(@Request() req) {
+    return { isAuthenticated: true, user: req.user };
   }
 }
