@@ -1,15 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useReadResumes } from "@/hooks/useReadResumes";
 import { parseResumeDate } from "@/utils/dateUtils";
 import { TResume } from "@redundant/common/src";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Download, X } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ResumePreviewProfessional from "./resumes/ResumePreviewProfessional";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const ResumeDetails: React.FC = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -23,6 +35,8 @@ const ResumeDetails: React.FC = () => {
   const [editedResume, setEditedResume] = useState<TResume | null>(
     initialResume
   );
+
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const handleInputChange = useCallback((field: keyof TResume, value: any) => {
     setEditedResume((prev) => (prev ? { ...prev, [field]: value } : null));
@@ -101,6 +115,9 @@ const ResumeDetails: React.FC = () => {
     // Implement the logic to save the changes to the backend
     console.log("Saving changes:", editedResume);
   }, [editedResume]);
+
+  const handleOpenPreview = useCallback(() => setIsPreviewOpen(true), []);
+  const handleClosePreview = useCallback(() => setIsPreviewOpen(false), []);
 
   if (!editedResume) {
     return <div>Resume not found</div>;
@@ -323,10 +340,45 @@ const ResumeDetails: React.FC = () => {
           <Button onClick={handleSaveChanges}>Save Changes</Button>
         </div>
 
-        <div className="w-1/2 border p-4">
-          <ResumePreviewProfessional resume={editedResume} />
+        <div className="w-1/2">
+          <Button onClick={handleOpenPreview} className="mb-4">
+            Preview
+          </Button>
+          <div className="border p-4">
+            <ResumePreviewProfessional resume={editedResume} />
+          </div>
         </div>
       </div>
+
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-[210mm] h-[297mm] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              Resume Preview{" "}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => console.log("Download PDF")}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Download PDF</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </DialogTitle>
+            <div className="flex justify-end space-x-2"></div>
+          </DialogHeader>
+          <div className="mt-4">
+            <ResumePreviewProfessional resume={editedResume} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

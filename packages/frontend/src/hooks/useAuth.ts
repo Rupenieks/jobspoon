@@ -14,8 +14,6 @@ export const useAuth = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  console.log("Is Authenticated", isAuthenticated);
-
   const signIn = useCallback(async (credentials: AuthCredentials) => {
     setLoading(true);
     setError(null);
@@ -136,8 +134,10 @@ export const useAuth = () => {
   }, []);
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    if (!isAuthenticated && !!localStorage.getItem("token")) {
+      checkAuth();
+    }
+  }, [isAuthenticated, checkAuth]);
 
   return {
     user,

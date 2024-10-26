@@ -15,7 +15,7 @@ const ResumePreviewProfessional: React.FC<ResumePreviewProfessionalProps> = ({
       <div className="w-2/3 p-8">
         <header className="mb-6">
           <div className="flex items-center">
-            <Avatar className="w-24 h-24 mr-6">
+            <Avatar className="w-20 h-20 mr-6">
               <AvatarImage src={resume.picture} alt={resume.fullName} />
               <AvatarFallback>
                 {resume.fullName
@@ -25,8 +25,8 @@ const ResumePreviewProfessional: React.FC<ResumePreviewProfessionalProps> = ({
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-4xl font-bold">{resume.fullName}</h1>
-              <p className="text-xl text-gray-600 mt-2">
+              <h1 className="text-3xl font-bold">{resume.fullName}</h1>
+              <p className="text-lg text-gray-600 mt-2">
                 {resume.positionName}
               </p>
             </div>
@@ -34,20 +34,20 @@ const ResumePreviewProfessional: React.FC<ResumePreviewProfessionalProps> = ({
         </header>
 
         <section className="mb-6">
-          <h2 className="text-2xl font-semibold mb-3">Profile</h2>
+          <h2 className="text-xl font-semibold mb-3">Profile</h2>
         </section>
 
         <section className="mb-6">
-          <h2 className="text-2xl font-semibold mb-3">Employment History</h2>
+          <h2 className="text-xl font-semibold mb-3">Employment History</h2>
           {resume.experience?.map((job, index) => (
             <div key={index} className="mb-4">
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-base font-semibold">
                 {job.positionTitle}, {job.company}
               </h3>
-              <p className="text-gray-600 mb-2">
+              <p className="text-sm text-gray-600 mb-2">
                 {job.startDate} — {job.endDate || "PRESENT"}
               </p>
-              <ul className="list-disc list-inside">
+              <ul className="list-disc list-inside text-sm">
                 {job.contributions?.map((contribution, i) => (
                   <li key={i}>{contribution}</li>
                 ))}
@@ -57,11 +57,11 @@ const ResumePreviewProfessional: React.FC<ResumePreviewProfessionalProps> = ({
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-3">Education</h2>
+          <h2 className="text-xl font-semibold mb-3">Education</h2>
           {resume.education?.map((edu, index) => (
             <div key={index} className="mb-2">
-              <h3 className="text-lg font-semibold">{edu.degree}</h3>
-              <p>
+              <h3 className="text-base font-semibold">{edu.degree}</h3>
+              <p className="text-sm">
                 {edu.university}, {edu.startDate} - {edu.endDate}
               </p>
             </div>
@@ -71,27 +71,27 @@ const ResumePreviewProfessional: React.FC<ResumePreviewProfessionalProps> = ({
 
       <div className="w-1/3 bg-gray-900 text-white p-8">
         <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-3">Details</h2>
-          <p>
+          <h2 className="text-lg font-semibold mb-3">Details</h2>
+          <p className="text-sm">
             {resume.city}, {resume.country}
           </p>
-          <p>{resume.phoneNumber}</p>
-          <p>{resume.email}</p>
+          <p className="text-sm">{resume.phoneNumber}</p>
+          <p className="text-sm">{resume.email}</p>
         </section>
 
         <Separator className="bg-gray-700 my-6" />
 
         <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-3">Links</h2>
-          <p>LinkedIn</p>
-          <p>GitHub</p>
+          <h2 className="text-lg font-semibold mb-3">Links</h2>
+          <p className="text-sm">LinkedIn</p>
+          <p className="text-sm">GitHub</p>
         </section>
 
         <Separator className="bg-gray-700 my-6" />
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">Skills</h2>
-          <ul>
+          <h2 className="text-lg font-semibold mb-3">Skills</h2>
+          <ul className="text-sm">
             {resume.skills?.map((skill, index) => (
               <li key={index} className="mb-1">
                 {skill}

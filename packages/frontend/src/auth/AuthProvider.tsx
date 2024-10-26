@@ -8,10 +8,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const auth = useAuthHook();
 
-  useEffect(() => {
-    auth.checkAuth();
-  }, [auth]);
-
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 
