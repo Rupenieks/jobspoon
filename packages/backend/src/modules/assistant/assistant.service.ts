@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TResume, ResumeSchema } from '@redundant/common';
 import OpenAI from 'openai';
+import { mockOutput } from '../resume-parser/mockData/assistantResumeOutput';
 
 @Injectable()
 export class AssistantService {
@@ -15,6 +16,7 @@ export class AssistantService {
   }
 
   async parseResume(resumeText: string): Promise<TResume> {
+    return mockOutput;
     try {
       const output = await this.getAssistantOutput({
         assistantId: this.resumeParserAssistantId,
