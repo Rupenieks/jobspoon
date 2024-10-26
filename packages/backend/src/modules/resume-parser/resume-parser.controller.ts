@@ -7,14 +7,15 @@ import {
   InternalServerErrorException,
   UseGuards,
   Request,
+  Get,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResumeParserService } from './resume-parser.service';
 import { TResume } from '@redundant/common';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('resume-parser')
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard('jwt'))
 export class ResumeParserController {
   constructor(private readonly resumeParserService: ResumeParserService) {}
 
@@ -37,6 +38,19 @@ export class ResumeParserController {
     } catch (error) {
       console.error('Error processing resume:', error);
       throw new InternalServerErrorException('Error processing resume');
+    }
+  }
+
+  @Get('all')
+  async getAllResumes(@Request() req): Promise<TResume[]> {
+    try {
+      const resumes = await this.resumeParserService.getAllResumesForUser(
+        req.user.id,
+      );
+      return resumes;
+    } catch (error) {
+      console.error('Error fetching resumes:', error);
+      throw new InternalServerErrorException('Error fetching resumes');
     }
   }
 }

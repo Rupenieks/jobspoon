@@ -45,4 +45,23 @@ export class ResumeParserService {
       },
     });
   }
+
+  async getAllResumesForUser(userId: string): Promise<TResume[]> {
+    const resumes = await this.prismaService.resume.findMany({
+      where: { userId },
+    });
+
+    return resumes.map((resume) => ({
+      ...resume,
+      experience: resume.experience
+        ? JSON.parse(resume.experience as string)
+        : null,
+      education: resume.education
+        ? JSON.parse(resume.education as string)
+        : null,
+      references: resume.references
+        ? JSON.parse(resume.references as string)
+        : null,
+    }));
+  }
 }
