@@ -17,16 +17,21 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  console.log("Is Authenticated", isAuthenticated);
 
   const signIn = useCallback(async (credentials: AuthCredentials) => {
     setLoading(true);
     setError(null);
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/signin",
+        "http://localhost:3000/auth/login",
         credentials
       );
+      localStorage.setItem("token", response.data.access_token);
       setUser(response.data.user);
+      setIsAuthenticated(true);
     } catch (err) {
       setError("Failed to sign in");
       console.error(err);
@@ -40,10 +45,12 @@ export const useAuth = () => {
     setError(null);
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/signup",
+        "http://localhost:3000/auth/register",
         credentials
       );
+      localStorage.setItem("token", response.data.access_token);
       setUser(response.data.user);
+      setIsAuthenticated(true);
     } catch (err) {
       setError("Failed to sign up");
       console.error(err);
@@ -59,7 +66,11 @@ export const useAuth = () => {
       const response = await axios.post("http://localhost:3000/auth/google", {
         credential,
       });
+
+      console.log(response.data);
+      localStorage.setItem("token", response.data.access_token);
       setUser(response.data.user);
+      setIsAuthenticated(true);
     } catch (err) {
       setError("Failed to sign in with Google");
       console.error(err);
@@ -72,8 +83,9 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      await axios.post("http://localhost:3000/auth/signout");
+      localStorage.removeItem("token");
       setUser(null);
+      setIsAuthenticated(false);
     } catch (err) {
       setError("Failed to sign out");
       console.error(err);
@@ -86,6 +98,7 @@ export const useAuth = () => {
     user,
     loading,
     error,
+    isAuthenticated,
     signIn,
     signUp,
     signInWithGoogle,

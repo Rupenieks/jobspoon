@@ -5,6 +5,7 @@ import "./index.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { pdfjs } from "react-pdf";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { AuthProvider } from "./auth/AuthProvider";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -14,7 +15,9 @@ ReactDOM.render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId="96181930048-a9rhifdd7k1ntuntkia0ldtvulr30i34.apps.googleusercontent.com">
       <QueryClientProvider client={queryClient}>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </QueryClientProvider>
     </GoogleOAuthProvider>
   </React.StrictMode>,

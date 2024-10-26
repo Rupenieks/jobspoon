@@ -1,17 +1,17 @@
 import React, { useMemo } from "react";
 import Dashboard from "./components/Dashboard";
 import LoginScreen from "./components/LoginScreen";
-import { useAuth } from "./hooks/useAuth";
+import { useAuth } from "./auth/AuthProvider";
 
 const App: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { loading, isAuthenticated } = useAuth();
 
   const content = useMemo(() => {
     if (loading) {
       return <div>Loading...</div>;
     }
-    return user ? <Dashboard /> : <LoginScreen />;
-  }, [user, loading]);
+    return isAuthenticated ? <Dashboard /> : <LoginScreen />;
+  }, [loading, isAuthenticated]);
 
   return content;
 };

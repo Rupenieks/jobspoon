@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/hooks/useAuth";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { useAuth } from "@/auth/AuthProvider";
 
 const LoginScreen: React.FC = () => {
   const [isRegistering, setIsRegistering] = useState(false);
