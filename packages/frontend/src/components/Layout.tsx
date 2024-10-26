@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -18,31 +18,46 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, signOut } = useAuth();
   const location = useLocation();
 
-  const navItems = [
-    { name: "Start", path: "/", icon: <HomeIcon className="w-4 h-4 mr-2" /> },
-    {
-      name: "Resumes",
-      path: "/resumes",
-      icon: <FileTextIcon className="w-4 h-4 mr-2" />,
-    },
-    {
-      name: "Jobs",
-      path: "/jobs",
-      icon: <FileIcon className="w-4 h-4 mr-2" />,
-    },
-  ];
+  const navItems = useMemo(
+    () => [
+      { name: "Start", path: "/", icon: <HomeIcon className="w-4 h-4 mr-2" /> },
+      {
+        name: "Resumes",
+        path: "/resumes",
+        icon: <FileTextIcon className="w-4 h-4 mr-2" />,
+      },
+      {
+        name: "Jobs",
+        path: "/jobs",
+        icon: <FileIcon className="w-4 h-4 mr-2" />,
+      },
+    ],
+    []
+  );
 
   const handleSignOut = useCallback(() => {
     signOut();
   }, [signOut]);
 
-  const userInitials = user?.fullName
-    ? user.fullName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-    : "";
+  const userInitials = useMemo(() => {
+    return user?.fullName
+      ? user.fullName
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+      : "";
+  }, [user?.fullName]);
+
+  const isNavItemActive = useCallback(
+    (itemPath: string) => {
+      if (itemPath === "/") {
+        return location.pathname === "/";
+      }
+      return location.pathname.startsWith(itemPath);
+    },
+    [location.pathname]
+  );
 
   return (
     <div className="flex flex-col h-screen">
@@ -78,7 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Link
                   to={item.path}
                   className={`flex items-center p-2 gap-2 rounded ${
-                    location.pathname === item.path
+                    isNavItemActive(item.path)
                       ? "bg-gray-200 font-semibold"
                       : "hover:bg-gray-200"
                   }`}

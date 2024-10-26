@@ -1,82 +1,22 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useReadResumes } from "@/hooks/useReadResumes";
-import React, { useMemo, useState } from "react";
-import CreateResumeDialog from "./CreateResumeDialog";
+import React from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Resumes: React.FC = () => {
-  const { data: resumes, isLoading, error } = useReadResumes();
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const ResumeCards = useMemo(() => {
-    if (isLoading) {
-      return Array(6)
-        .fill(0)
-        .map((_, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <Skeleton className="h-4 w-3/4" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-4 w-1/2 mb-2" />
-              <Skeleton className="h-4 w-2/3" />
-            </CardContent>
-          </Card>
-        ));
-    }
-
-    if (error) {
-      return (
-        <div className="col-span-full text-center text-red-500">
-          Error loading resumes. Please try again later.
-        </div>
-      );
-    }
-
-    return resumes?.map((resume) => (
-      <Card key={resume.id}>
-        <CardHeader>
-          <CardTitle>{resume.fullName}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>{resume.positionName}</p>
-          <p>{resume.email}</p>
-        </CardContent>
-      </Card>
-    ));
-  }, [resumes, isLoading, error]);
+  const location = useLocation();
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Resumes</h1>
-        <div className="flex items-center space-x-4">
-          <Tabs
-            value={viewMode}
-            onValueChange={(value) => setViewMode(value as "list" | "grid")}
-          >
-            <TabsList>
-              <TabsTrigger value="grid">Grid</TabsTrigger>
-              <TabsTrigger value="list">List</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <CreateResumeDialog
-            isOpen={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-          />
-        </div>
-      </div>
-      <div
-        className={
-          viewMode === "grid"
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            : "space-y-4"
-        }
-      >
-        {ResumeCards}
-      </div>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Outlet />
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

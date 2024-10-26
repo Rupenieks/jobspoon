@@ -6,6 +6,8 @@ import { useAuth } from "./auth/AuthProvider";
 import Layout from "./components/Layout";
 import Jobs from "./components/Jobs";
 import Resumes from "./components/Resumes";
+import ResumeList from "./components/ResumeList";
+import ResumeDetails from "./components/ResumeDetails";
 
 const App: React.FC = () => {
   const { loading, isAuthenticated } = useAuth();
@@ -18,7 +20,10 @@ const App: React.FC = () => {
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/resumes" element={<Resumes />} />
+          <Route path="/resumes" element={<Resumes />}>
+            <Route index element={<ResumeList />} />
+            <Route path=":resumeId" element={<ResumeDetails />} />
+          </Route>
           <Route path="/jobs" element={<Jobs />} />
         </Routes>
       </Layout>
