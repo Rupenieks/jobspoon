@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 const processResume = async (file: File) => {
@@ -19,7 +19,11 @@ const processResume = async (file: File) => {
 };
 
 export const useProcessResume = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: processResume,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    },
   });
 };
