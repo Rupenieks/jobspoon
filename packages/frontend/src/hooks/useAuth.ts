@@ -52,14 +52,14 @@ export const useAuth = () => {
     }
   }, []);
 
-  const signInWithGoogle = useCallback(async () => {
+  const signInWithGoogle = useCallback(async (credential: string) => {
     setLoading(true);
     setError(null);
     try {
-      // Implement Google Sign-In logic here
-      // This will typically involve opening a popup window for Google authentication
-      // and then sending the received token to your backend
-      console.log("Google Sign-In not implemented yet");
+      const response = await axios.post("http://localhost:3000/auth/google", {
+        credential,
+      });
+      setUser(response.data.user);
     } catch (err) {
       setError("Failed to sign in with Google");
       console.error(err);

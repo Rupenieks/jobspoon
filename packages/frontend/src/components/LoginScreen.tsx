@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
 const LoginScreen: React.FC = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -97,13 +98,19 @@ const LoginScreen: React.FC = () => {
           {isRegistering ? "Create an Account" : "Sign In"}
         </h2>
         <form onSubmit={handleSubmit}>{formContent}</form>
-        <Button
-          variant="outline"
-          className="w-full mb-4"
-          onClick={signInWithGoogle}
-        >
-          Sign in with Google
-        </Button>
+
+        <div className="flex justify-center mb-4 w-full">
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              if (credentialResponse.credential) {
+                signInWithGoogle(credentialResponse.credential);
+              }
+            }}
+            onError={() => {
+              console.log("Sign in error");
+            }}
+          />
+        </div>
         <p className="text-center">
           {isRegistering
             ? "Already have an account?"
