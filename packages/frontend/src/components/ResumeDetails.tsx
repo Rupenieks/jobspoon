@@ -11,11 +11,14 @@ import { TResume } from "@redundant/common/src";
 import { ChevronLeft } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import ResumePreviewProfessional from "./resumes/ResumePreviewProfessional";
 
 const ResumeDetails: React.FC = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resumes } = useReadResumes();
   const navigate = useNavigate();
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const initialResume = useMemo(() => {
     return resumes?.find((r) => r.id === resumeId) || null;
@@ -220,7 +223,7 @@ const ResumeDetails: React.FC = () => {
                       }
                     />
                   </div>
-                  {index === editedResume.experience.length - 1 && (
+                  {index === (editedResume.experience?.length || 0) - 1 && (
                     <Separator className="my-4" />
                   )}
                 </div>
@@ -276,7 +279,7 @@ const ResumeDetails: React.FC = () => {
                       />
                     </div>
                   </div>
-                  {index === editedResume.education.length - 1 && (
+                  {index === (editedResume.education?.length || 0) - 1 && (
                     <Separator className="my-4" />
                   )}
                 </div>
@@ -299,9 +302,20 @@ const ResumeDetails: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-1/2 border p-4">
+        <div className="w-1/2 border p-4 relative">
           <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          <p>Preview content will be added here later.</p>
+          <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+            <DialogTrigger asChild>
+              <Button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                Click to preview
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-[90vw] w-[90vw] max-h-[90vh] h-[90vh] overflow-auto">
+              {editedResume && (
+                <ResumePreviewProfessional resume={editedResume} />
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>
