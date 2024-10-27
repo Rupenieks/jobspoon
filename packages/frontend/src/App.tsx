@@ -12,6 +12,8 @@ import LoginScreen from "./components/LoginScreen";
 import ResumeDetails from "./components/ResumeDetails";
 import ResumeList from "./components/ResumeList";
 import Resumes from "./components/Resumes";
+import Start from "./components/Start";
+import Applications from "./components/Applications";
 
 const App: React.FC = () => {
   const { loading, isAuthenticated } = useAuth();
@@ -23,11 +25,13 @@ const App: React.FC = () => {
     return isAuthenticated ? (
       <Layout>
         <Routes>
+          <Route path="/" element={<Start />} />
           <Route path="/resumes" element={<Resumes />}>
             <Route index element={<ResumeList />} />
             <Route path=":resumeId" element={<ResumeDetails />} />
           </Route>
           <Route path="/matches" element={<Matches />} />
+          <Route path="/applications" element={<Applications />} />
           <Route path="*" element={<Navigate to="/resumes" replace />} />
         </Routes>
       </Layout>

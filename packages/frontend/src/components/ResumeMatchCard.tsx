@@ -111,7 +111,11 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
               ) : resume.matches && resume.matches.length > 0 ? (
                 <ul className="space-y-4">
                   {resume.matches.map((match) => (
-                    <ResumeMatchJobCard key={match.id} match={match} />
+                    <ResumeMatchJobCard
+                      key={match.id}
+                      match={match}
+                      resumeId={resume.id}
+                    />
                   ))}
                 </ul>
               ) : (

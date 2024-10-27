@@ -1,6 +1,6 @@
 import { useAuth } from "@/auth/AuthProvider";
 import { cn } from "@/lib/utils";
-import { FileIcon, FileTextIcon, MenuIcon } from "lucide-react";
+import { FileIcon, FileTextIcon, Home, MenuIcon } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -30,14 +30,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navItems = useMemo(
     () => [
       {
+        name: "Start",
+        path: "/",
+        icon: <Home className="w-4 h-4" />,
+        label: "Start",
+      },
+      {
         name: "Resumes",
         path: "/resumes",
         icon: <FileTextIcon className="w-4 h-4" />,
+        label: "Resumes",
       },
       {
         name: "Matches",
         path: "/matches",
         icon: <FileIcon className="w-4 h-4" />,
+        label: "Matches",
+      },
+      {
+        name: "Applications",
+        path: "/applications",
+        icon: <FileIcon className="w-4 h-4" />,
+        label: "Applications",
       },
     ],
     []
@@ -114,7 +128,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         >
           <ul className="space-y-2 p-4">
             {navItems.map((item) => (
-              <li key={item.name} className="relative">
+              <li key={item.label} className="relative">
                 <TooltipProvider>
                   {isCollapsed ? (
                     <Tooltip>
@@ -132,7 +146,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         </Link>
                       </TooltipTrigger>
                       <TooltipContent side="right">
-                        <p>{item.name}</p>
+                        <p>{item.label}</p>
                       </TooltipContent>
                     </Tooltip>
                   ) : (
@@ -147,7 +161,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     >
                       <span className="flex-shrink-0">{item.icon}</span>
                       <span className="ml-2 whitespace-nowrap transition-all duration-300 ease-in-out opacity-100 w-auto">
-                        {item.name}
+                        {item.label}
                       </span>
                     </Link>
                   )}

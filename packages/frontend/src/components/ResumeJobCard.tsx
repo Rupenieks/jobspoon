@@ -1,11 +1,18 @@
 import React from "react";
 import { TMatch } from "@redundant/common";
+import { Button } from "@/components/ui/button";
+import { useCreateApplication } from "@/hooks/useCreateApplication";
 
 interface ResumeMatchJobCardProps {
   match: TMatch;
+  resumeId: string;
 }
 
-const ResumeMatchJobCard: React.FC<ResumeMatchJobCardProps> = ({ match }) => {
+const ResumeMatchJobCard: React.FC<ResumeMatchJobCardProps> = ({
+  match,
+  resumeId,
+}) => {
+  const { mutate: createApplication } = useCreateApplication();
   return (
     <li className="border-b pb-4">
       <h3 className="font-semibold text-lg">{match.positionTitle}</h3>
@@ -14,16 +21,13 @@ const ResumeMatchJobCard: React.FC<ResumeMatchJobCardProps> = ({ match }) => {
         {match.city}, {match.country}
       </p>
       {match.description && <p className="text-sm mt-2">{match.description}</p>}
-      {match.applyUrl && (
-        <a
-          href={match.applyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-500 hover:underline text-sm mt-2 inline-block"
+      <div className="mt-4 flex  items-center justify-end">
+        <Button
+          onClick={() => createApplication({ resumeId, matchId: match.id })}
         >
-          Apply Now
-        </a>
-      )}
+          Create Application
+        </Button>
+      </div>
     </li>
   );
 };

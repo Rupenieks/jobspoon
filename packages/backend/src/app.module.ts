@@ -6,6 +6,7 @@ import { ResumeParserModule } from './modules/resume-parser/resume-parser.module
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { JobsModule } from './modules/jobs/jobs.module';
+import { ApplicationModule } from './modules/application/application.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { JobsModule } from './modules/jobs/jobs.module';
     AuthModule,
     PrismaModule,
     JobsModule,
+    ApplicationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
