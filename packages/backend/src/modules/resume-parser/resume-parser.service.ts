@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { TResume } from '@redundant/common';
 import * as pdf from 'pdf-parse';
 import { parseResumeFields } from 'src/utils/resumeParser';
@@ -71,5 +71,70 @@ export class ResumeParserService {
     const parsedResume = await this.assistantService.parseResume(text);
     await this.storeResume(parsedResume, userId);
     return parsedResume;
+  }
+
+  async updateResume(
+    id: string,
+    resumeData: Partial<TResume>,
+    userId: string,
+  ): Promise<TResume> {
+    const resume = await this.prismaService.resume.findUnique({
+      where: { id },
+      include: {
+        matches: true,
+        application: true,
+      },
+    });
+
+    if (!resume || resume.userId !== userId) {
+      throw new NotFoundException(
+        `Resume with ID ${id} not found or unauthorized`,
+      );
+    }
+
+    const updatedResume = await this.prismaService.resume.update({
+      where: { id },
+      data: {
+        ...resumeData,
+        experience: resumeData.experience
+          ? JSON.stringify(resumeData.experience)
+          : undefined,
+        education: resumeData.education
+          ? JSON.stringify(resumeData.education)
+          : undefined,
+        matches: {
+          connect: resume.matches.map((match) => ({ id: match.id })),
+        },
+        application: {
+          connect: resume.application
+            ? { id: resume.application.id }
+            : undefined,
+        },
+      },
+    });
+
+    return parseResumeFields(updatedResume as unknown as TResume);
+  }
+
+  async getResumeById(id: string, userId: string): Promise<TResume> {
+    const resume = await this.prismaService.resume.findUnique({
+      where: { id },
+      include: {
+        matches: {
+          include: {
+            application: true,
+          },
+        },
+        application: true,
+      },
+    });
+
+    if (!resume || resume.userId !== userId) {
+      throw new NotFoundException(
+        `Resume with ID ${id} not found or unauthorized`,
+      );
+    }
+
+    return parseResumeFields(resume as unknown as TResume);
   }
 }

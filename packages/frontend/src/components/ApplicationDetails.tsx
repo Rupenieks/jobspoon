@@ -5,11 +5,12 @@ import { useReadApplication } from "@/hooks/useReadApplication";
 import { TResume } from "@redundant/common/src";
 import { formatDistanceToNow } from "date-fns";
 import { ChevronLeft } from "lucide-react";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ResumeEditor from "./ResumeEditor";
 import ResumePDFPreviewLoadingWrapper from "./resumes/ResumePDFPreviewLoadingWrapper";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
+import { useUpdateResume } from "@/hooks/useUpdateResume";
 
 const LoadingSkeleton: React.FC = React.memo(() => (
   <div className="container mx-auto p-4">
@@ -39,8 +40,25 @@ const ApplicationDetails: React.FC = () => {
     isLoading,
     error,
   } = useReadApplication(applicationId);
+  const { mutate: updateResume } = useUpdateResume();
 
   const [editedResume, setEditedResume] = useState<TResume | null>(null);
+
+  // Debounce the editedResume to reduce the number of updates
+  const debouncedResume = useDebouncedValue(editedResume, 1000);
+
+  useEffect(() => {
+    if (application?.resume) {
+      setEditedResume(application.resume as TResume);
+    }
+  }, [application?.resume]);
+
+  useEffect(() => {
+    if (debouncedResume && debouncedResume.id) {
+      const { matches, application, ...resumeToUpdate } = debouncedResume;
+      updateResume({ id: debouncedResume.id, resume: resumeToUpdate });
+    }
+  }, [debouncedResume, updateResume]);
 
   const handleGoBack = useCallback(() => {
     navigate("/applications");
@@ -55,12 +73,6 @@ const ApplicationDetails: React.FC = () => {
     return "";
   }, [application?.match.createdAt]);
 
-  useMemo(() => {
-    if (application?.resume) {
-      setEditedResume(application.resume as TResume);
-    }
-  }, [application?.resume]);
-
   if (isLoading) {
     return <LoadingSkeleton />;
   }
@@ -68,8 +80,6 @@ const ApplicationDetails: React.FC = () => {
   if (error || !application) {
     return <div>Error loading application details</div>;
   }
-
-  console.log("Application", application);
 
   return (
     <div className="container mx-auto p-4">

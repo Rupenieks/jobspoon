@@ -9,6 +9,8 @@ import {
   Request,
   Body,
   Get,
+  Put,
+  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResumeParserService } from './resume-parser.service';
@@ -61,6 +63,39 @@ export class ResumeParserController {
     } catch (error) {
       console.error('Error fetching resumes:', error);
       throw new InternalServerErrorException('Error fetching resumes');
+    }
+  }
+
+  @Put(':id')
+  async updateResume(
+    @Param('id') id: string,
+    @Body() resumeData: Partial<TResume>,
+    @Request() req,
+  ): Promise<TResume> {
+    try {
+      const updatedResume = await this.resumeParserService.updateResume(
+        id,
+        resumeData,
+        req.user.id,
+      );
+      return updatedResume;
+    } catch (error) {
+      console.error('Error updating resume:', error);
+      throw new InternalServerErrorException('Error updating resume');
+    }
+  }
+
+  @Get(':id')
+  async getResume(@Param('id') id: string, @Request() req): Promise<TResume> {
+    try {
+      const resume = await this.resumeParserService.getResumeById(
+        id,
+        req.user.userId,
+      );
+      return resume;
+    } catch (error) {
+      console.error('Error fetching resume:', error);
+      throw new InternalServerErrorException('Error fetching resume');
     }
   }
 }
