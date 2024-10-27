@@ -1,11 +1,15 @@
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { TResume } from "@redundant/common";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ResumePDFRenderer from "./ResumePDFRenderer";
 import CustomColorRing from "../loaders/ColorRing";
 
 const ResumePDFPreviewLoadingWrapper = ({ resume }: { resume: TResume }) => {
   const debouncedResume = useDebouncedValue(resume, 500);
+
+  useEffect(() => {
+    setIsPDFLoading(true);
+  }, [resume]);
 
   const [isPDFLoading, setIsPDFLoading] = useState(true);
 
@@ -13,8 +17,8 @@ const ResumePDFPreviewLoadingWrapper = ({ resume }: { resume: TResume }) => {
     setIsPDFLoading(false);
   };
 
-  return (
-    <div className="border p-4 h-[297mm] relative">
+  const LoadingState = ({ children }: { children?: React.ReactNode }) => (
+    <div className="border p-4 h-[297mm] relative w-full">
       <div
         className={`absolute inset-0 z-10 transition-opacity duration-300 ${
           isPDFLoading || !debouncedResume
@@ -28,13 +32,21 @@ const ResumePDFPreviewLoadingWrapper = ({ resume }: { resume: TResume }) => {
           />
         </div>
       </div>
-      {debouncedResume && (
-        <ResumePDFRenderer
-          resume={debouncedResume as TResume}
-          onRenderSuccess={handlePDFRenderSuccess}
-        />
-      )}
+      {children}
     </div>
+  );
+
+  if (!debouncedResume) {
+    return <LoadingState />;
+  }
+
+  return (
+    <LoadingState>
+      <ResumePDFRenderer
+        resume={debouncedResume as TResume}
+        onRenderSuccess={handlePDFRenderSuccess}
+      />
+    </LoadingState>
   );
 };
 

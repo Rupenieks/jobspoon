@@ -6,6 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { parseResumeDate } from "@/utils/dateUtils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface ResumeEditorProps {
   resume: TResume;
@@ -92,134 +98,153 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onUpdate }) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        {personalInfoFields.map(({ label, field }) => (
-          <div key={field}>
-            <Label htmlFor={field}>{label}</Label>
-            <Input
-              id={field}
-              value={resume[field as keyof TResume] || ""}
-              onChange={(e) =>
-                handleInputChange(field as keyof TResume, e.target.value)
-              }
-            />
+    <Accordion type="multiple" className="w-full">
+      <AccordionItem value="contact-info">
+        <AccordionTrigger>Contact Info</AccordionTrigger>
+        <AccordionContent>
+          <div className="grid grid-cols-2 gap-4">
+            {personalInfoFields.map(({ label, field }) => (
+              <div key={field}>
+                <Label htmlFor={field}>{label}</Label>
+                <Input
+                  id={field}
+                  value={resume[field as keyof TResume] || ""}
+                  onChange={(e) =>
+                    handleInputChange(field as keyof TResume, e.target.value)
+                  }
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </AccordionContent>
+      </AccordionItem>
 
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Experience</h2>
-        {resume.experience?.map((exp, index) => (
-          <div key={index} className="space-y-2 border p-4 rounded mb-4">
-            <Input
-              placeholder="Position Title"
-              value={exp.positionTitle || ""}
-              onChange={(e) =>
-                handleExperienceChange(index, "positionTitle", e.target.value)
-              }
-            />
-            <Input
-              placeholder="Company"
-              value={exp.company || ""}
-              onChange={(e) =>
-                handleExperienceChange(index, "company", e.target.value)
-              }
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <DatePicker
-                placeholder="Start Date"
-                value={
-                  exp.startDate ? parseResumeDate(exp.startDate) : undefined
+      <AccordionItem value="experience">
+        <AccordionTrigger>Experience</AccordionTrigger>
+        <AccordionContent>
+          {resume.experience?.map((exp, index) => (
+            <div key={index} className="space-y-2 border p-4 rounded mb-4">
+              <Input
+                placeholder="Position Title"
+                value={exp.positionTitle || ""}
+                onChange={(e) =>
+                  handleExperienceChange(index, "positionTitle", e.target.value)
                 }
-                onChange={(date) =>
+              />
+              <Input
+                placeholder="Company"
+                value={exp.company || ""}
+                onChange={(e) =>
+                  handleExperienceChange(index, "company", e.target.value)
+                }
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <DatePicker
+                  placeholder="Start Date"
+                  value={
+                    exp.startDate ? parseResumeDate(exp.startDate) : undefined
+                  }
+                  onChange={(date) =>
+                    handleExperienceChange(
+                      index,
+                      "startDate",
+                      date?.toISOString()
+                    )
+                  }
+                />
+                <DatePicker
+                  placeholder="End Date"
+                  value={exp.endDate ? parseResumeDate(exp.endDate) : undefined}
+                  onChange={(date) =>
+                    handleExperienceChange(
+                      index,
+                      "endDate",
+                      date?.toISOString()
+                    )
+                  }
+                />
+              </div>
+              <Textarea
+                placeholder="Contributions (one per line)"
+                value={exp.contributions?.join("\n") || ""}
+                onChange={(e) =>
                   handleExperienceChange(
                     index,
-                    "startDate",
-                    date?.toISOString()
+                    "contributions",
+                    e.target.value.split("\n")
                   )
                 }
               />
-              <DatePicker
-                placeholder="End Date"
-                value={exp.endDate ? parseResumeDate(exp.endDate) : undefined}
-                onChange={(date) =>
-                  handleExperienceChange(index, "endDate", date?.toISOString())
-                }
-              />
             </div>
-            <Textarea
-              placeholder="Contributions (one per line)"
-              value={exp.contributions?.join("\n") || ""}
-              onChange={(e) =>
-                handleExperienceChange(
-                  index,
-                  "contributions",
-                  e.target.value.split("\n")
-                )
-              }
-            />
-          </div>
-        ))}
-        <Button onClick={handleAddExperience}>Add Experience</Button>
-      </div>
-
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Education</h2>
-        {resume.education?.map((edu, index) => (
-          <div key={index} className="space-y-2 border p-4 rounded mb-4">
-            <Input
-              placeholder="University"
-              value={edu.university || ""}
-              onChange={(e) =>
-                handleEducationChange(index, "university", e.target.value)
-              }
-            />
-            <Input
-              placeholder="Degree"
-              value={edu.degree || ""}
-              onChange={(e) =>
-                handleEducationChange(index, "degree", e.target.value)
-              }
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <DatePicker
-                placeholder="Start Date"
-                value={
-                  edu.startDate ? parseResumeDate(edu.startDate) : undefined
-                }
-                onChange={(date) =>
-                  handleEducationChange(index, "startDate", date?.toISOString())
-                }
-              />
-              <DatePicker
-                placeholder="End Date"
-                value={edu.endDate ? parseResumeDate(edu.endDate) : undefined}
-                onChange={(date) =>
-                  handleEducationChange(index, "endDate", date?.toISOString())
-                }
-              />
-            </div>
-          </div>
-        ))}
-        <Button onClick={handleAddEducation}>Add Education</Button>
-      </div>
-
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Skills</h2>
-        <div className="flex flex-wrap gap-2">
-          {resume.skills?.map((skill, index) => (
-            <Input
-              key={index}
-              className="w-auto"
-              value={skill}
-              onChange={(e) => handleSkillChange(index, e.target.value)}
-            />
           ))}
-          <Button onClick={handleAddSkill}>Add Skill</Button>
-        </div>
-      </div>
-    </div>
+          <Button onClick={handleAddExperience}>Add Experience</Button>
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="education">
+        <AccordionTrigger>Education</AccordionTrigger>
+        <AccordionContent>
+          {resume.education?.map((edu, index) => (
+            <div key={index} className="space-y-2 border p-4 rounded mb-4">
+              <Input
+                placeholder="University"
+                value={edu.university || ""}
+                onChange={(e) =>
+                  handleEducationChange(index, "university", e.target.value)
+                }
+              />
+              <Input
+                placeholder="Degree"
+                value={edu.degree || ""}
+                onChange={(e) =>
+                  handleEducationChange(index, "degree", e.target.value)
+                }
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <DatePicker
+                  placeholder="Start Date"
+                  value={
+                    edu.startDate ? parseResumeDate(edu.startDate) : undefined
+                  }
+                  onChange={(date) =>
+                    handleEducationChange(
+                      index,
+                      "startDate",
+                      date?.toISOString()
+                    )
+                  }
+                />
+                <DatePicker
+                  placeholder="End Date"
+                  value={edu.endDate ? parseResumeDate(edu.endDate) : undefined}
+                  onChange={(date) =>
+                    handleEducationChange(index, "endDate", date?.toISOString())
+                  }
+                />
+              </div>
+            </div>
+          ))}
+          <Button onClick={handleAddEducation}>Add Education</Button>
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="skills">
+        <AccordionTrigger>Skills</AccordionTrigger>
+        <AccordionContent>
+          <div className="flex flex-wrap gap-2">
+            {resume.skills?.map((skill, index) => (
+              <Input
+                key={index}
+                className="w-auto"
+                value={skill}
+                onChange={(e) => handleSkillChange(index, e.target.value)}
+              />
+            ))}
+            <Button onClick={handleAddSkill}>Add Skill</Button>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 };
 
