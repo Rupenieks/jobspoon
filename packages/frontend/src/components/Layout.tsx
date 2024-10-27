@@ -1,6 +1,12 @@
 import { useAuth } from "@/auth/AuthProvider";
 import { cn } from "@/lib/utils";
-import { FileIcon, FileTextIcon, Home, MenuIcon } from "lucide-react";
+import {
+  FileIcon,
+  FileTextIcon,
+  Home,
+  MenuIcon,
+  RocketIcon,
+} from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -17,6 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { Crosshair1Icon } from "@radix-ui/react-icons";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -44,13 +51,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {
         name: "Matches",
         path: "/matches",
-        icon: <FileIcon className="w-4 h-4" />,
+        icon: <Crosshair1Icon className="w-4 h-4" />,
         label: "Matches",
       },
       {
         name: "Applications",
         path: "/applications",
-        icon: <FileIcon className="w-4 h-4" />,
+        icon: <RocketIcon className="w-4 h-4" />,
         label: "Applications",
       },
     ],

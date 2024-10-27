@@ -39,11 +39,14 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
       const { matches, application, ...resumeToUpdate } = modifiedResumeData;
       updateResume({ id: resumeId, resume: resumeToUpdate });
       setShowSaveButton(false);
+      toast({
+        title: "Resume updated",
+      });
     }
   }, [modifiedResumeData, resumeId, updateResume]);
 
   const handleAutomatedModification = useCallback(() => {
-    if (resumeId && (automatedInput || includeJobDescription)) {
+    if (automatedInput !== "" || includeJobDescription) {
       console.log("Calling");
       modifyResume(
         {
@@ -63,17 +66,7 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
         }
       );
     }
-  }, [resumeId, automatedInput, modifyResume, onUpdate]);
-
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (showSaveButton) {
-      timeout = setTimeout(() => {
-        setShowSaveButton(false);
-      }, 5000);
-    }
-    return () => clearTimeout(timeout);
-  }, [showSaveButton]);
+  }, [resumeId, automatedInput, modifyResume, onUpdate, includeJobDescription]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -130,8 +123,7 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
           <Button
             onClick={handleAutomatedModification}
             disabled={
-              isModifying ||
-              (automatedInput.length === 0 && !includeJobDescription)
+              isModifying || (automatedInput !== "" && !includeJobDescription)
             }
           >
             {isModifying ? (

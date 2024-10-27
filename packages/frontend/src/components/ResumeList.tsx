@@ -131,15 +131,14 @@ const ResumeList: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Resumes</h1>
         <div className="flex items-center space-x-4">
-          {selectedResumes.size > 0 && (
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={handleDeleteClick}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={handleDeleteClick}
+            disabled={selectedResumes.size === 0}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
           <Tabs value={viewMode} onValueChange={handleViewModeChange}>
             <TabsList>
               <TabsTrigger value="grid">Grid</TabsTrigger>

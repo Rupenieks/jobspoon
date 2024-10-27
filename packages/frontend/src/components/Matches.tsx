@@ -15,7 +15,7 @@ const Matches: React.FC = () => {
   const { mutate: matchJobs, isPending } = useMatchJobs();
 
   const handleMatchJobs = async (resumeId: string) => {
-    await matchJobs(resumeId);
+    matchJobs(resumeId);
   };
 
   const ResumeList = useMemo(() => {

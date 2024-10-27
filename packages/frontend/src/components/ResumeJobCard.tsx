@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useCreateApplication } from "@/hooks/useCreateApplication";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 interface ResumeMatchJobCardProps {
   match: TMatch & { application: TApplication };
@@ -19,6 +20,9 @@ const ResumeMatchJobCard: React.FC<ResumeMatchJobCardProps> = ({
 
   const handleCreateApplication = useCallback(() => {
     createApplication({ resumeId, matchId: match.id });
+    toast({
+      title: "Application created",
+    });
   }, [createApplication, resumeId, match.id]);
 
   const handleGoToApplication = useCallback(() => {

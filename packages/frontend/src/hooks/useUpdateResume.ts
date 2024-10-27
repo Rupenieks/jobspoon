@@ -19,8 +19,8 @@ export const useUpdateResume = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateResume,
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ["resume", id] });
+    onSuccess: (resume: TResume) => {
+      queryClient.invalidateQueries({ queryKey: ["resume", resume.id] });
       toast({
         title: "Resume updated",
       });
