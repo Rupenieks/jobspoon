@@ -5,11 +5,17 @@ export function parseResumeFields(
 ): TResume {
   return {
     ...resume,
-    experience: Array.isArray(resume.experience)
-      ? resume.experience
-      : JSON.parse(resume.experience as unknown as string),
-    education: Array.isArray(resume.education)
-      ? resume.education
-      : JSON.parse(resume.education as unknown as string),
+    experience: parseJsonField(resume.experience as unknown as string),
+    education: parseJsonField(resume.education as unknown as string),
   };
+}
+
+function parseJsonField(field: string): any[] {
+  try {
+    const parsed = JSON.parse(field);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error('Error parsing JSON field:', error);
+    return [];
+  }
 }

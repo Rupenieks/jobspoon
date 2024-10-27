@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
@@ -17,23 +17,33 @@ const ResumeDetails: React.FC = () => {
   const { data: resume, isLoading, error } = useReadResume(resumeId!);
   const { mutate: updateResume } = useUpdateResume();
 
-  const debouncedResume = useDebouncedValue(resume, 1000);
+  const [editedResume, setEditedResume] = useState<TResume | null>(null);
 
-  const handleResumeUpdate = useCallback(
-    (updatedResume: TResume) => {
-      if (resumeId) {
-        const { matches, application, ...resumeToUpdate } = updatedResume;
-        updateResume({ id: resumeId, resume: resumeToUpdate });
-      }
-    },
-    [resumeId, updateResume]
-  );
+  useEffect(() => {
+    if (resume) {
+      setEditedResume(resume);
+    }
+  }, [resume]);
 
-  if (isLoading) {
+  const debouncedResume = useDebouncedValue(editedResume, 1000);
+  const debouncedUpdateResume = useDebouncedValue(editedResume, 3000);
+
+  useEffect(() => {
+    if (debouncedUpdateResume && resumeId) {
+      const { matches, application, ...resumeToUpdate } = debouncedUpdateResume;
+      updateResume({ id: resumeId, resume: resumeToUpdate });
+    }
+  }, [debouncedUpdateResume, resumeId, updateResume]);
+
+  const handleResumeUpdate = useCallback((updatedResume: TResume) => {
+    setEditedResume(updatedResume);
+  }, []);
+
+  if (isLoading || !editedResume) {
     return <ResumeSkeleton />;
   }
 
-  if (error || !resume) {
+  if (error || !editedResume) {
     return <div>Error loading resume</div>;
   }
 
@@ -47,11 +57,11 @@ const ResumeDetails: React.FC = () => {
         <ChevronLeft className="mr-2 h-4 w-4" /> Back to Resumes
       </Button>
 
-      <h1 className="text-2xl font-bold">{resume.positionName}</h1>
+      <h1 className="text-2xl font-bold">{editedResume.positionName}</h1>
 
       <div className="flex gap-6">
         <div className="w-1/2 space-y-8">
-          <ResumeEditor resume={resume} onUpdate={handleResumeUpdate} />
+          <ResumeEditor resume={editedResume} onUpdate={handleResumeUpdate} />
         </div>
 
         <Separator orientation="vertical" />

@@ -76,7 +76,7 @@ export class ResumeParserController {
       const updatedResume = await this.resumeParserService.updateResume(
         id,
         resumeData,
-        req.user.id,
+        req.user.userId,
       );
       return updatedResume;
     } catch (error) {

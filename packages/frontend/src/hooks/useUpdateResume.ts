@@ -9,12 +9,7 @@ const updateResume = async ({
   id: string;
   resume: Omit<TResume, "matches" | "application">;
 }) => {
-  const { experience, education, ...rest } = resume;
-  const response = await axiosInstance.put(`/resume-parser/${id}`, {
-    ...rest,
-    experience: JSON.stringify(experience),
-    education: JSON.stringify(education),
-  });
+  const response = await axiosInstance.put(`/resume-parser/${id}`, resume);
   return response.data;
 };
 

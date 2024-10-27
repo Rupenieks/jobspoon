@@ -93,6 +93,8 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onUpdate }) => {
     []
   );
 
+  console.log(resume);
+
   if (!resume) {
     return null;
   }
@@ -122,7 +124,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onUpdate }) => {
       <AccordionItem value="experience">
         <AccordionTrigger>Experience</AccordionTrigger>
         <AccordionContent>
-          {resume.experience?.map((exp, index) => (
+          {resume?.experience?.map((exp, index) => (
             <div key={index} className="space-y-2 border p-4 rounded mb-4">
               <Input
                 placeholder="Position Title"
