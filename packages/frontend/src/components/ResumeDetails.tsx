@@ -8,6 +8,7 @@ import useDebouncedValue from "@/hooks/useDebouncedValue";
 import ResumeEditor from "./ResumeEditor";
 import { Separator } from "@/components/ui/separator";
 import ResumePDFRenderer from "./resumes/ResumePDFRenderer";
+import ResumePDFPreviewLoadingWrapper from "./resumes/ResumePDFPreviewLoadingWrapper";
 
 const ResumeDetails: React.FC = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -63,10 +64,7 @@ const ResumeDetails: React.FC = () => {
         <Separator orientation="vertical" />
 
         <div className="w-1/2">
-          <ResumePDFRenderer
-            resume={debouncedResume as TResume}
-            onRenderSuccess={() => {}}
-          />
+          <ResumePDFPreviewLoadingWrapper resume={debouncedResume as TResume} />
         </div>
       </div>
     </div>

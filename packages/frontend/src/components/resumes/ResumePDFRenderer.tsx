@@ -7,6 +7,8 @@ import {
   View,
   StyleSheet,
   Font,
+  PDFRenderer,
+  PDFViewer,
 } from "@react-pdf/renderer";
 
 // Register custom fonts if needed
@@ -96,7 +98,6 @@ interface ResumePDFRendererProps {
 
 const ResumePDFRenderer: React.FC<ResumePDFRendererProps> = React.memo(
   ({ resume, onRenderSuccess }) => {
-    console.log("Resume: ", resume);
     const renderIfNotEmpty = useMemo(
       () => (content: string | undefined, component: JSX.Element) => {
         return content && content.trim() !== "" ? component : null;
@@ -112,103 +113,107 @@ const ResumePDFRenderer: React.FC<ResumePDFRendererProps> = React.memo(
     }, [resume.address, resume.city, resume.country]);
 
     return (
-      <Document onRender={onRenderSuccess}>
-        <Page size="A4" style={styles.page}>
-          <View style={styles.leftSection}>
-            <View style={styles.header}>
-              <View>
-                {renderIfNotEmpty(
-                  resume.fullName,
-                  <Text style={styles.name}>{resume.fullName}</Text>
-                )}
-                {renderIfNotEmpty(
-                  resume.positionName,
-                  <Text style={styles.position}>{resume.positionName}</Text>
-                )}
+      <PDFViewer>
+        <Document onRender={onRenderSuccess}>
+          <Page size="A4" style={styles.page}>
+            <View style={styles.leftSection}>
+              <View style={styles.header}>
+                <View>
+                  {renderIfNotEmpty(
+                    resume.fullName,
+                    <Text style={styles.name}>{resume.fullName}</Text>
+                  )}
+                  {renderIfNotEmpty(
+                    resume.positionName,
+                    <Text style={styles.position}>{resume.positionName}</Text>
+                  )}
+                </View>
               </View>
+
+              {renderIfNotEmpty(
+                formatAddress,
+                <Text style={styles.address}>{formatAddress}</Text>
+              )}
+
+              <Text style={styles.sectionTitle}>Profile</Text>
+              {/* Add profile content here */}
+
+              <Text style={styles.sectionTitle}>Employment History</Text>
+              {resume.experience?.map((job, index) => (
+                <View key={index} style={{ marginBottom: 10 }}>
+                  {renderIfNotEmpty(
+                    job.positionTitle || job.company,
+                    <Text style={styles.jobTitle}>
+                      {job.positionTitle}
+                      {job.company && `, ${job.company}`}
+                    </Text>
+                  )}
+                  {renderIfNotEmpty(
+                    job.startDate || job.endDate,
+                    <Text style={styles.jobDetails}>
+                      {job.startDate}{" "}
+                      {job.endDate && `— ${job.endDate || "PRESENT"}`}
+                    </Text>
+                  )}
+                  {job.contributions?.filter(Boolean).map((contribution, i) => (
+                    <Text key={i} style={styles.bulletPoint}>
+                      • {contribution}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+
+              <Text style={styles.sectionTitle}>Education</Text>
+              {resume.education?.map((edu, index) => (
+                <View key={index} style={{ marginBottom: 5 }}>
+                  {renderIfNotEmpty(
+                    edu.degree,
+                    <Text style={styles.jobTitle}>{edu.degree}</Text>
+                  )}
+                  {renderIfNotEmpty(
+                    edu.university || edu.startDate || edu.endDate,
+                    <Text style={styles.jobDetails}>
+                      {edu.university}
+                      {edu.startDate && `, ${edu.startDate}`}
+                      {edu.endDate && ` - ${edu.endDate}`}
+                    </Text>
+                  )}
+                </View>
+              ))}
             </View>
 
-            {renderIfNotEmpty(
-              formatAddress,
-              <Text style={styles.address}>{formatAddress}</Text>
-            )}
+            <View style={styles.rightSection}>
+              <Text style={styles.rightSectionTitle}>Details</Text>
+              {renderIfNotEmpty(
+                resume.city || resume.country,
+                <Text style={styles.rightSectionText}>
+                  {resume.city}
+                  {resume.country && `, ${resume.country}`}
+                </Text>
+              )}
+              {renderIfNotEmpty(
+                resume.phoneNumber,
+                <Text style={styles.rightSectionText}>
+                  {resume.phoneNumber}
+                </Text>
+              )}
+              {renderIfNotEmpty(
+                resume.email,
+                <Text style={styles.rightSectionText}>{resume.email}</Text>
+              )}
 
-            <Text style={styles.sectionTitle}>Profile</Text>
-            {/* Add profile content here */}
+              <View style={styles.separator} />
 
-            <Text style={styles.sectionTitle}>Employment History</Text>
-            {resume.experience?.map((job, index) => (
-              <View key={index} style={{ marginBottom: 10 }}>
-                {renderIfNotEmpty(
-                  job.positionTitle || job.company,
-                  <Text style={styles.jobTitle}>
-                    {job.positionTitle}
-                    {job.company && `, ${job.company}`}
-                  </Text>
-                )}
-                {renderIfNotEmpty(
-                  job.startDate || job.endDate,
-                  <Text style={styles.jobDetails}>
-                    {job.startDate}{" "}
-                    {job.endDate && `— ${job.endDate || "PRESENT"}`}
-                  </Text>
-                )}
-                {job.contributions?.filter(Boolean).map((contribution, i) => (
-                  <Text key={i} style={styles.bulletPoint}>
-                    • {contribution}
-                  </Text>
-                ))}
-              </View>
-            ))}
-
-            <Text style={styles.sectionTitle}>Education</Text>
-            {resume.education?.map((edu, index) => (
-              <View key={index} style={{ marginBottom: 5 }}>
-                {renderIfNotEmpty(
-                  edu.degree,
-                  <Text style={styles.jobTitle}>{edu.degree}</Text>
-                )}
-                {renderIfNotEmpty(
-                  edu.university || edu.startDate || edu.endDate,
-                  <Text style={styles.jobDetails}>
-                    {edu.university}
-                    {edu.startDate && `, ${edu.startDate}`}
-                    {edu.endDate && ` - ${edu.endDate}`}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.rightSection}>
-            <Text style={styles.rightSectionTitle}>Details</Text>
-            {renderIfNotEmpty(
-              resume.city || resume.country,
-              <Text style={styles.rightSectionText}>
-                {resume.city}
-                {resume.country && `, ${resume.country}`}
-              </Text>
-            )}
-            {renderIfNotEmpty(
-              resume.phoneNumber,
-              <Text style={styles.rightSectionText}>{resume.phoneNumber}</Text>
-            )}
-            {renderIfNotEmpty(
-              resume.email,
-              <Text style={styles.rightSectionText}>{resume.email}</Text>
-            )}
-
-            <View style={styles.separator} />
-
-            <Text style={styles.rightSectionTitle}>Skills</Text>
-            {resume.skills?.filter(Boolean).map((skill, index) => (
-              <Text key={index} style={styles.rightSectionText}>
-                {skill}
-              </Text>
-            ))}
-          </View>
-        </Page>
-      </Document>
+              <Text style={styles.rightSectionTitle}>Skills</Text>
+              {resume.skills?.filter(Boolean).map((skill, index) => (
+                <Text key={index} style={styles.rightSectionText}>
+                  {skill}
+                </Text>
+              ))}
+            </View>
+          </Page>
+        </Document>
+      </PDFViewer>
     );
   }
 );

@@ -87,6 +87,10 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onUpdate }) => {
     []
   );
 
+  if (!resume) {
+    return null;
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">

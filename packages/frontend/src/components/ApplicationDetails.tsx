@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -7,6 +7,8 @@ import { formatDistanceToNow } from "date-fns";
 import { useReadApplication } from "@/hooks/useReadApplication";
 import ResumeEditor from "./ResumeEditor";
 import ResumePDFRenderer from "./resumes/ResumePDFRenderer";
+import ResumePDFPreviewLoadingWrapper from "./resumes/ResumePDFPreviewLoadingWrapper";
+import { TResume } from "@redundant/common/src";
 
 const ApplicationDetails: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
@@ -16,7 +18,9 @@ const ApplicationDetails: React.FC = () => {
     isLoading,
     error,
   } = useReadApplication(applicationId);
-
+  const [editedResume, setEditedResume] = useState<TResume>(
+    application?.resume as TResume
+  );
   const handleGoBack = useCallback(() => {
     navigate("/applications");
   }, [navigate]);
@@ -62,15 +66,12 @@ const ApplicationDetails: React.FC = () => {
 
       <Separator className="my-6" />
 
-      <div className="flex gap-6">
+      <div className="flex gap-6 h-full">
         <div className="w-1/2">
-          <ResumeEditor resume={application.resume} onUpdate={() => {}} />
+          <ResumeEditor resume={editedResume} onUpdate={setEditedResume} />
         </div>
-        <div className="w-1/2">
-          <ResumePDFRenderer
-            resume={application.resume}
-            onRenderSuccess={() => {}}
-          />
+        <div className="w-1/2 h-full">
+          <ResumePDFPreviewLoadingWrapper resume={editedResume} />
         </div>
       </div>
     </div>
