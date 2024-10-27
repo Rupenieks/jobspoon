@@ -7,6 +7,7 @@ export class JobsController {
 
   @Post('search/:resumeId')
   async searchJobs(@Param('resumeId') resumeId: string) {
-    return this.jobsService.fetchJobs(resumeId);
+    const count = await this.jobsService.fetchJobs(resumeId);
+    return { message: 'Job matching completed', count };
   }
 }

@@ -6,7 +6,7 @@ import {
   Routes,
 } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
-import Jobs from "./components/Jobs";
+import Matches from "./components/Matches";
 import Layout from "./components/Layout";
 import LoginScreen from "./components/LoginScreen";
 import ResumeDetails from "./components/ResumeDetails";
@@ -27,7 +27,7 @@ const App: React.FC = () => {
             <Route index element={<ResumeList />} />
             <Route path=":resumeId" element={<ResumeDetails />} />
           </Route>
-          <Route path="/jobs" element={<Jobs />} />
+          <Route path="/matches" element={<Matches />} />
           <Route path="*" element={<Navigate to="/resumes" replace />} />
         </Routes>
       </Layout>

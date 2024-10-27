@@ -42,6 +42,29 @@ model Resume {
   references   Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  matches      Match[]
 
   @@index([userId])
+}
+
+model Match {
+  id              String   @id @default(uuid())
+  resumeId        String
+  resume          Resume   @relation(fields: [resumeId], references: [id])
+  integrationId   String
+  companyName     String?
+  companyUrl      String?
+  seniority       String?
+  positionTitle   String
+  description     String?
+  longDescription String?
+  country         String
+  city            String
+  applyUrl        String?
+  provider        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([resumeId, integrationId])
+  @@index([resumeId])
 }

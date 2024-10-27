@@ -366,7 +366,7 @@ const ResumeDetails: React.FC = () => {
             </div>
             <PDFViewer showToolbar={false} width="100%" height="100%">
               <ResumePDFRenderer
-                resume={debouncedResume}
+                resume={debouncedResume as TResume}
                 onRenderSuccess={handlePDFRenderSuccess}
               />
             </PDFViewer>

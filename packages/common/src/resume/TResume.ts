@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MatchSchema } from "../match";
 
 export const ExperienceSchema = z.object({
   positionTitle: z.string().optional(),
@@ -24,6 +25,7 @@ export const ReferenceSchema = z.object({
 
 export const ResumeSchema = z
   .object({
+    id: z.string(),
     fullName: z.string().optional(),
     country: z.string().optional(),
     city: z.string().optional(),
@@ -35,6 +37,7 @@ export const ResumeSchema = z
     education: z.array(EducationSchema).optional(),
     skills: z.array(z.string()).optional(),
     references: z.array(ReferenceSchema).optional(),
+    matches: z.array(MatchSchema).optional(),
   })
   .passthrough();
 

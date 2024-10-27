@@ -34,7 +34,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         path: "/resumes",
         icon: <FileTextIcon className="w-4 h-4" />,
       },
-      { name: "Jobs", path: "/jobs", icon: <FileIcon className="w-4 h-4" /> },
+      {
+        name: "Matches",
+        path: "/matches",
+        icon: <FileIcon className="w-4 h-4" />,
+      },
     ],
     []
   );

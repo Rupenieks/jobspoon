@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { TResume } from '@redundant/common';
+import { TMatch, TResume } from '@redundant/common';
 import axios from 'axios';
 import { TheirStackMockResponse } from './mockData/TheirStackMockJobs';
+import { TTheirStackJobsResponse } from './types/TTheirStackJobsResponse';
 
 @Injectable()
 export class TheirStackService {
@@ -9,7 +10,10 @@ export class TheirStackService {
   private readonly apiKey = process.env.THEIRSTACK_API_KEY;
 
   async searchJobs(resume: TResume) {
-    return TheirStackMockResponse.data;
+    return this.convertResponseToMatches({
+      resumeId: resume.id,
+      jobs: TheirStackMockResponse.data,
+    });
     const query = this.buildJobQuery(resume);
     const options = {
       method: 'POST',
@@ -30,6 +34,29 @@ export class TheirStackService {
       console.error('Error searching jobs:', error);
       throw error;
     }
+  }
+
+  private convertResponseToMatches({
+    resumeId,
+    jobs,
+  }: {
+    resumeId: string;
+    jobs: TTheirStackJobsResponse['data'];
+  }): Omit<TMatch, 'id'>[] {
+    return jobs.map((job) => ({
+      integrationId: job.id.toString(),
+      companyName: job.company,
+      companyUrl: job.company_object.url,
+      seniority: job.seniority,
+      positionTitle: job.job_title,
+      description: job.description,
+      longDescription: job.company_object.long_description,
+      country: job.country,
+      city: job.cities[0] || '',
+      applyUrl: job.final_url,
+      provider: 'TheirStack',
+      resumeId,
+    }));
   }
 
   private buildJobQuery(resume: TResume) {
