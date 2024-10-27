@@ -1,29 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useReadResumes } from "@/hooks/useReadResumes";
 import { parseResumeDate } from "@/utils/dateUtils";
 import { PDFViewer } from "@react-pdf/renderer";
 import { TResume } from "@redundant/common/src";
-import { ChevronLeft, Download } from "lucide-react";
-import React, { useCallback, useMemo, useState } from "react";
+import { ChevronLeft } from "lucide-react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import CustomColorRing from "./loaders/ColorRing";
 import ResumePDFRenderer from "./resumes/ResumePDFRenderer";
-import ResumePreviewProfessional from "./resumes/ResumePreviewProfessional";
 
 const ResumeDetails: React.FC = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -38,7 +27,19 @@ const ResumeDetails: React.FC = () => {
     initialResume
   );
 
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isPDFLoading, setIsPDFLoading] = useState(true);
+
+  const handlePDFRenderSuccess = useCallback(() => {
+    setIsPDFLoading(false);
+  }, []);
+
+  // Debounce the editedResume to reduce the number of re-renders
+  const debouncedResume = useDebouncedValue(editedResume, 300);
+
+  // Reset loading state when resume changes
+  useEffect(() => {
+    setIsPDFLoading(true);
+  }, [debouncedResume]);
 
   const handleInputChange = useCallback((field: keyof TResume, value: any) => {
     setEditedResume((prev) => (prev ? { ...prev, [field]: value } : null));
@@ -117,17 +118,6 @@ const ResumeDetails: React.FC = () => {
     // Implement the logic to save the changes to the backend
     console.log("Saving changes:", editedResume);
   }, [editedResume]);
-
-  const handleOpenPreview = useCallback(() => setIsPreviewOpen(true), []);
-  const handleClosePreview = useCallback(() => setIsPreviewOpen(false), []);
-
-  const [isPDFPreviewOpen, setIsPDFPreviewOpen] = useState(false);
-
-  const handleOpenPDFPreview = useCallback(() => setIsPDFPreviewOpen(true), []);
-  const handleClosePDFPreview = useCallback(
-    () => setIsPDFPreviewOpen(false),
-    []
-  );
 
   if (!editedResume) {
     return <div>Resume not found</div>;
@@ -351,60 +341,33 @@ const ResumeDetails: React.FC = () => {
         </div>
 
         <div className="w-1/2">
-          <div className="flex gap-2 mb-4">
-            <Button onClick={handleOpenPreview}>Preview</Button>
-            <Button onClick={handleOpenPDFPreview}>Preview as PDF</Button>
-          </div>
-          <div className="border p-4">
-            <ResumePreviewProfessional resume={editedResume} />
+          <div className="border p-4 h-[297mm] relative">
+            <div
+              className={`absolute inset-0 z-10 transition-opacity duration-300 ${
+                isPDFLoading ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
+            >
+              <div className="w-full h-full flex items-center justify-center bg-white bg-opacity-60 backdrop-blur-sm">
+                <CustomColorRing
+                  colors={[
+                    "#e15b64",
+                    "#f47e60",
+                    "#f8b26a",
+                    "#abbd81",
+                    "#849b87",
+                  ]}
+                />
+              </div>
+            </div>
+            <PDFViewer showToolbar={false} width="100%" height="100%">
+              <ResumePDFRenderer
+                resume={debouncedResume}
+                onRenderSuccess={handlePDFRenderSuccess}
+              />
+            </PDFViewer>
           </div>
         </div>
       </div>
-
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-[210mm] h-[297mm] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              Resume Preview{" "}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => console.log("Download PDF")}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Download PDF</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </DialogTitle>
-            <div className="flex justify-end space-x-2"></div>
-          </DialogHeader>
-          <div className="mt-4">
-            <ResumePreviewProfessional resume={editedResume} />
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isPDFPreviewOpen} onOpenChange={setIsPDFPreviewOpen}>
-        <DialogContent className="max-w-[210mm] h-[297mm] max-h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>PDF Preview</span>
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex-grow overflow-hidden">
-            <PDFViewer width="100%" height="100%">
-              <ResumePDFRenderer resume={editedResume} />
-            </PDFViewer>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

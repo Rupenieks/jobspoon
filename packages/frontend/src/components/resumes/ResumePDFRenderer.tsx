@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { TResume } from "@redundant/common/src";
 import {
   Document,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Font,
   Image,
+  PDFViewer,
 } from "@react-pdf/renderer";
 
 // Register custom fonts if needed
@@ -88,75 +89,76 @@ const styles = StyleSheet.create({
 
 interface ResumePDFRendererProps {
   resume: TResume;
+  onRenderSuccess: () => void;
 }
 
-const ResumePDFRenderer: React.FC<ResumePDFRendererProps> = ({ resume }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.leftSection}>
-        <View style={styles.header}>
-          <Image
-            style={styles.avatar}
-            src={(resume.picture as string) || "https://via.placeholder.com/60"}
-          />
-          <View>
-            <Text style={styles.name}>{resume.fullName}</Text>
-            <Text style={styles.position}>{resume.positionName}</Text>
+const ResumePDFRenderer: React.FC<ResumePDFRendererProps> = React.memo(
+  ({ resume, onRenderSuccess }) => {
+    return (
+      <Document onRender={onRenderSuccess}>
+        <Page size="A4" style={styles.page}>
+          <View style={styles.leftSection}>
+            <View style={styles.header}>
+              <View>
+                <Text style={styles.name}>{resume.fullName}</Text>
+                <Text style={styles.position}>{resume.positionName}</Text>
+              </View>
+            </View>
+
+            <Text style={styles.sectionTitle}>Profile</Text>
+            {/* Add profile content here */}
+
+            <Text style={styles.sectionTitle}>Employment History</Text>
+            {resume.experience?.map((job, index) => (
+              <View key={index} style={{ marginBottom: 10 }}>
+                <Text style={styles.jobTitle}>
+                  {job.positionTitle}, {job.company}
+                </Text>
+                <Text style={styles.jobDetails}>
+                  {job.startDate} — {job.endDate || "PRESENT"}
+                </Text>
+                {job.contributions?.map((contribution, i) => (
+                  <Text key={i} style={styles.bulletPoint}>
+                    • {contribution}
+                  </Text>
+                ))}
+              </View>
+            ))}
+
+            <Text style={styles.sectionTitle}>Education</Text>
+            {resume.education?.map((edu, index) => (
+              <View key={index} style={{ marginBottom: 5 }}>
+                <Text style={styles.jobTitle}>{edu.degree}</Text>
+                <Text style={styles.jobDetails}>
+                  {edu.university}, {edu.startDate} - {edu.endDate}
+                </Text>
+              </View>
+            ))}
           </View>
-        </View>
 
-        <Text style={styles.sectionTitle}>Profile</Text>
-        {/* Add profile content here */}
+          <View style={styles.rightSection}>
+            <Text style={styles.rightSectionTitle}>Details</Text>
+            <Text style={styles.rightSectionText}>
+              {resume.city}, {resume.country}
+            </Text>
+            <Text style={styles.rightSectionText}>{resume.phoneNumber}</Text>
+            <Text style={styles.rightSectionText}>{resume.email}</Text>
 
-        <Text style={styles.sectionTitle}>Employment History</Text>
-        {resume.experience?.map((job, index) => (
-          <View key={index} style={{ marginBottom: 10 }}>
-            <Text style={styles.jobTitle}>
-              {job.positionTitle}, {job.company}
-            </Text>
-            <Text style={styles.jobDetails}>
-              {job.startDate} — {job.endDate || "PRESENT"}
-            </Text>
-            {job.contributions?.map((contribution, i) => (
-              <Text key={i} style={styles.bulletPoint}>
-                • {contribution}
+            <View style={styles.separator} />
+
+            <View style={styles.separator} />
+
+            <Text style={styles.rightSectionTitle}>Skills</Text>
+            {resume.skills?.map((skill, index) => (
+              <Text key={index} style={styles.rightSectionText}>
+                {skill}
               </Text>
             ))}
           </View>
-        ))}
-
-        <Text style={styles.sectionTitle}>Education</Text>
-        {resume.education?.map((edu, index) => (
-          <View key={index} style={{ marginBottom: 5 }}>
-            <Text style={styles.jobTitle}>{edu.degree}</Text>
-            <Text style={styles.jobDetails}>
-              {edu.university}, {edu.startDate} - {edu.endDate}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.rightSection}>
-        <Text style={styles.rightSectionTitle}>Details</Text>
-        <Text style={styles.rightSectionText}>
-          {resume.city}, {resume.country}
-        </Text>
-        <Text style={styles.rightSectionText}>{resume.phoneNumber}</Text>
-        <Text style={styles.rightSectionText}>{resume.email}</Text>
-
-        <View style={styles.separator} />
-
-        <View style={styles.separator} />
-
-        <Text style={styles.rightSectionTitle}>Skills</Text>
-        {resume.skills?.map((skill, index) => (
-          <Text key={index} style={styles.rightSectionText}>
-            {skill}
-          </Text>
-        ))}
-      </View>
-    </Page>
-  </Document>
+        </Page>
+      </Document>
+    );
+  }
 );
 
 export default ResumePDFRenderer;

@@ -8,6 +8,7 @@ import { Document, Page } from "react-pdf";
 import { TResume } from "@redundant/common/src";
 import { useProcessResume } from "@/hooks/useProcessResume";
 import { ColorRing } from "react-loader-spinner";
+import CustomColorRing from "./loaders/ColorRing";
 
 interface CreateResumeDialogProps {
   isOpen: boolean;
@@ -86,13 +87,7 @@ const CreateResumeDialog: React.FC<CreateResumeDialogProps> = ({
         <h2 className="text-lg font-semibold mb-4">Create New Resume</h2>
         {isPending ? (
           <div className="flex justify-center items-center h-[400px]">
-            <ColorRing
-              visible={true}
-              height="80"
-              width="80"
-              ariaLabel="color-ring-loading"
-              wrapperStyle={{}}
-              wrapperClass="color-ring-wrapper"
+            <CustomColorRing
               colors={
                 colorRingColors as [string, string, string, string, string]
               }
