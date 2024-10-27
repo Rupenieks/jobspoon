@@ -1,17 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { ResumeSchema, TResume } from '@redundant/common';
 import OpenAI from 'openai';
+import { PrismaService } from '../prisma/prisma.service';
+import { parseResumeFields } from 'src/utils/resumeParser';
 
 @Injectable()
 export class AssistantService {
   private openai: OpenAI;
   private resumeParserAssistantId: string =
     process.env.RESUME_PARSER_ASSISTANT_ID ?? '';
+  private resumeModifierAssistantId: string =
+    process.env.RESUME_MODIFIER_ASSISTANT_ID ?? '';
 
-  constructor() {
+  constructor(private readonly prismaService: PrismaService) {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+  }
+
+  private cleanOutput(output: string): string {
+    return output
+      .replace(/\\n/g, '')
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
   }
 
   async parseResume(resumeText: string): Promise<TResume> {
@@ -21,11 +33,7 @@ export class AssistantService {
         userInput: resumeText,
       });
 
-      const cleanedOutput = output
-        .replace(/\\n/g, '')
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .trim();
+      const cleanedOutput = this.cleanOutput(output);
 
       const parsedOutput = JSON.parse(cleanedOutput);
       const validatedOutput = ResumeSchema.parse(parsedOutput);
@@ -34,6 +42,38 @@ export class AssistantService {
       console.error('Error parsing resume:', err);
       throw new Error('Failed to parse resume');
     }
+  }
+
+  async getAssistantModifications({
+    resumeId,
+    input,
+  }: {
+    resumeId: string;
+    input: string;
+  }): Promise<TResume> {
+    const resume = await this.prismaService.resume.findUnique({
+      where: { id: resumeId },
+    });
+
+    const intputPayload = `
+      Here is the resume I want to modify:
+      ${JSON.stringify(resume)}
+
+      Here is the user's input:
+      ${input}
+    `;
+
+    const output = await this.getAssistantOutput({
+      assistantId: this.resumeModifierAssistantId,
+      userInput: intputPayload,
+    });
+
+    const cleanedOutput = this.cleanOutput(output);
+
+    const parsedOutput = JSON.parse(cleanedOutput);
+    const normalisedResume = parseResumeFields(parsedOutput);
+    const validatedOutput = ResumeSchema.parse(normalisedResume);
+    return validatedOutput;
   }
 
   async getAssistantOutput({
