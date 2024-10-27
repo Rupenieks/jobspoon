@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ResumeSchema, TResume } from '@redundant/common';
+import { ResumeSchema, ResumeSchemaDTO, TResume } from '@redundant/common';
 import OpenAI from 'openai';
 import { PrismaService } from '../prisma/prisma.service';
 import { parseResumeFields } from 'src/utils/resumeParser';
@@ -71,9 +71,14 @@ export class AssistantService {
     const cleanedOutput = this.cleanOutput(output);
 
     const parsedOutput = JSON.parse(cleanedOutput);
+    delete parsedOutput.id;
+    delete parsedOutput.matches;
     const normalisedResume = parseResumeFields(parsedOutput);
-    const validatedOutput = ResumeSchema.parse(normalisedResume);
-    return validatedOutput;
+    const validatedOutput = ResumeSchemaDTO.parse(normalisedResume);
+    return {
+      ...validatedOutput,
+      id: resume.id,
+    };
   }
 
   async getAssistantOutput({

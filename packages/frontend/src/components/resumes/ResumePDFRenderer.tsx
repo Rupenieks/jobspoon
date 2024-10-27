@@ -113,7 +113,7 @@ const ResumePDFRenderer: React.FC<ResumePDFRendererProps> = React.memo(
     }, [resume.address, resume.city, resume.country]);
 
     return (
-      <PDFViewer showToolbar={false} className="w-full h-full">
+      <PDFViewer className="w-full h-full">
         <Document onRender={onRenderSuccess}>
           <Page size="A4" style={styles.page}>
             <View style={styles.leftSection}>

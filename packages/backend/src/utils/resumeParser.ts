@@ -5,8 +5,24 @@ export function parseResumeFields(
 ): TResume {
   return {
     ...resume,
-    experience: parseJsonField(resume.experience as unknown as string),
-    education: parseJsonField(resume.education as unknown as string),
+    experience:
+      typeof resume.experience === 'string'
+        ? parseJsonField(resume.experience)
+        : Array.isArray(resume.experience)
+          ? resume.experience
+          : [],
+    education:
+      typeof resume.education === 'string'
+        ? parseJsonField(resume.education)
+        : Array.isArray(resume.education)
+          ? resume.education
+          : [],
+    references:
+      typeof resume.references === 'string'
+        ? parseJsonField(resume.references)
+        : Array.isArray(resume.references)
+          ? resume.references
+          : [],
   };
 }
 

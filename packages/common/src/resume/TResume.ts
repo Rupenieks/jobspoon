@@ -42,7 +42,6 @@ export const ResumeSchema = z
   })
   .passthrough();
 
-// New ResumeSchemaDTO
 export const ResumeSchemaDTO = ResumeSchema.omit({ id: true, matches: true });
 
 export type TResume = z.infer<typeof ResumeSchema>;

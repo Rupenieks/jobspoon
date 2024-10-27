@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { TMatch, TResume } from '@redundant/common';
 import { TheirStackService } from '../jobs-integration/their-stack.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { parseResumeFields } from 'src/utils/resumeParser';
 
 @Injectable()
 export class JobsService {
@@ -19,18 +20,7 @@ export class JobsService {
       throw new NotFoundException(`Resume with ID ${resumeId} not found`);
     }
 
-    const parsedResume: TResume = {
-      ...resume,
-      experience: resume.experience
-        ? JSON.parse(resume.experience as string)
-        : null,
-      education: resume.education
-        ? JSON.parse(resume.education as string)
-        : null,
-      references: resume.references
-        ? JSON.parse(resume.references as string)
-        : null,
-    };
+    const parsedResume = parseResumeFields(resume as TResume);
 
     try {
       const jobs = await this.theirStackService.searchJobs(parsedResume);

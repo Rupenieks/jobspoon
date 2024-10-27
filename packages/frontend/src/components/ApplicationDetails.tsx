@@ -1,17 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useReadApplication } from "@/hooks/useReadApplication";
 import { TResume } from "@redundant/common/src";
 import { formatDistanceToNow } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ResumeEditor from "./ResumeEditor";
-import ResumePDFPreviewLoadingWrapper from "./resumes/ResumePDFPreviewLoadingWrapper";
-import useDebouncedValue from "@/hooks/useDebouncedValue";
+import ResumeEditorTabs from "./resumes/ResumeEditorTabs";
 import { useUpdateResume } from "@/hooks/useUpdateResume";
-
+import useDebouncedCallback from "@/hooks/useDebouncedCallback";
+import { Skeleton } from "@/components/ui/skeleton";
 const LoadingSkeleton: React.FC = React.memo(() => (
   <div className="container mx-auto p-4">
     <Skeleton className="w-40 h-10 mb-4" />
@@ -44,21 +42,30 @@ const ApplicationDetails: React.FC = () => {
 
   const [editedResume, setEditedResume] = useState<TResume | null>(null);
 
-  // Debounce the editedResume to reduce the number of updates
-  const debouncedResume = useDebouncedValue(editedResume, 1000);
-
   useEffect(() => {
     if (application?.resume) {
       setEditedResume(application.resume as TResume);
     }
   }, [application?.resume]);
 
-  useEffect(() => {
-    if (debouncedResume && debouncedResume.id) {
-      const { matches, application, ...resumeToUpdate } = debouncedResume;
-      updateResume({ id: debouncedResume.id, resume: resumeToUpdate });
-    }
-  }, [debouncedResume, updateResume]);
+  const debouncedSave = useDebouncedCallback(
+    (resumeToUpdate: TResume) => {
+      if (resumeToUpdate.id) {
+        const { matches, application, ...resumeData } = resumeToUpdate;
+        updateResume({ id: resumeToUpdate.id, resume: resumeData });
+      }
+    },
+    1000,
+    []
+  );
+
+  const handleResumeUpdate = useMemo(
+    () => (updatedResume: TResume) => {
+      setEditedResume(updatedResume);
+      debouncedSave(updatedResume);
+    },
+    [debouncedSave]
+  );
 
   const handleGoBack = useCallback(() => {
     navigate("/applications");
@@ -77,7 +84,7 @@ const ApplicationDetails: React.FC = () => {
     return <LoadingSkeleton />;
   }
 
-  if (error || !application) {
+  if (error || !application || !editedResume) {
     return <div>Error loading application details</div>;
   }
 
@@ -105,17 +112,11 @@ const ApplicationDetails: React.FC = () => {
 
       <Separator className="my-6" />
 
-      <div className="flex gap-6 h-full">
-        <div className="w-1/2">
-          <ResumeEditor
-            resume={editedResume as TResume}
-            onUpdate={setEditedResume}
-          />
-        </div>
-        <div className="w-1/2 h-full">
-          <ResumePDFPreviewLoadingWrapper resume={editedResume as TResume} />
-        </div>
-      </div>
+      <ResumeEditorTabs
+        resume={editedResume}
+        resumeId={editedResume.id}
+        onUpdate={handleResumeUpdate}
+      />
     </div>
   );
 };
