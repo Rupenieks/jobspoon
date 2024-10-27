@@ -23,29 +23,29 @@ const App: React.FC = () => {
     if (loading) {
       return <div>Loading...</div>;
     }
-    return isAuthenticated ? (
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Start />} />
-          <Route path="/resumes" element={<Resumes />}>
-            <Route index element={<ResumeList />} />
-            <Route path=":resumeId" element={<ResumeDetails />} />
-          </Route>
-          <Route path="/matches" element={<Matches />} />
-          <Route path="/applications" element={<Applications />} />
-          <Route
-            path="/applications/:applicationId"
-            element={<ApplicationDetails />}
-          />
-          <Route path="*" element={<Navigate to="/start" replace />} />
-        </Routes>
-      </Layout>
-    ) : (
-      <LoginScreen />
-    );
+    return isAuthenticated ? <LayoutWrapper /> : <LoginScreen />;
   }, [loading, isAuthenticated]);
 
   return <Router>{content}</Router>;
 };
+
+const LayoutWrapper = React.memo(() => (
+  <Layout>
+    <Routes>
+      <Route path="/" element={<Start />} />
+      <Route path="/resumes" element={<Resumes />}>
+        <Route index element={<ResumeList />} />
+        <Route path=":resumeId" element={<ResumeDetails />} />
+      </Route>
+      <Route path="/matches" element={<Matches />} />
+      <Route path="/applications" element={<Applications />} />
+      <Route
+        path="/applications/:applicationId"
+        element={<ApplicationDetails />}
+      />
+      <Route path="*" element={<Navigate to="/start" replace />} />
+    </Routes>
+  </Layout>
+));
 
 export default App;

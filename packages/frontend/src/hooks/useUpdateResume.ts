@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/utils/axiosConfig";
 import { TResume } from "@redundant/common";
+import { useToast } from "./use-toast";
 
 const updateResume = async ({
   id,
@@ -14,12 +15,13 @@ const updateResume = async ({
 };
 
 export const useUpdateResume = () => {
-  const queryClient = useQueryClient();
-
+  const { toast } = useToast();
   return useMutation({
     mutationFn: updateResume,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+      toast({
+        title: "Resume updated",
+      });
     },
   });
 };

@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { pdfjs } from "react-pdf";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./auth/AuthProvider";
+import { Toaster } from "./components/ui/toaster";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -17,6 +18,7 @@ ReactDOM.render(
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <App />
+          <Toaster />
         </AuthProvider>
       </QueryClientProvider>
     </GoogleOAuthProvider>
