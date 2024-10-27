@@ -30,16 +30,21 @@ const ResumeDetails: React.FC = () => {
   const [isPDFLoading, setIsPDFLoading] = useState(true);
 
   const handlePDFRenderSuccess = useCallback(() => {
+    console.log("Success");
     setIsPDFLoading(false);
   }, []);
 
   // Debounce the editedResume to reduce the number of re-renders
-  const debouncedResume = useDebouncedValue(editedResume, 300);
+  const debouncedResume = useDebouncedValue(editedResume, 1000);
+
+  useEffect(() => {
+    console.log("Debounced resume changed", debouncedResume);
+  }, [debouncedResume]);
 
   // Reset loading state when resume changes
   useEffect(() => {
     setIsPDFLoading(true);
-  }, [debouncedResume]);
+  }, [editedResume]);
 
   const handleInputChange = useCallback((field: keyof TResume, value: any) => {
     setEditedResume((prev) => (prev ? { ...prev, [field]: value } : null));
