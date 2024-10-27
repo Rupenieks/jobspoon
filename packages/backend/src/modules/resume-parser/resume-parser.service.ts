@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { TResume } from '@redundant/common';
+import * as pdf from 'pdf-parse';
+import { parseResumeFields } from 'src/utils/resumeParser';
 import { AssistantService } from '../assistant/assistant.service';
 import { PrismaService } from '../prisma/prisma.service';
-import * as pdf from 'pdf-parse';
-import { TApplication, TMatch, TResume } from '@redundant/common';
-import { parseResumeFields } from 'src/utils/resumeParser';
 
 @Injectable()
 export class ResumeParserService {

@@ -3,6 +3,7 @@ import { TApplication, TMatch } from "@redundant/common";
 import { Button } from "@/components/ui/button";
 import { useCreateApplication } from "@/hooks/useCreateApplication";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface ResumeMatchJobCardProps {
   match: TMatch & { application: TApplication };
@@ -14,18 +15,18 @@ const ResumeMatchJobCard: React.FC<ResumeMatchJobCardProps> = ({
   resumeId,
 }) => {
   const { mutate: createApplication } = useCreateApplication();
-
-  const cardClasses = useMemo(
-    () => cn("border-b  pb-4", match.application && "bg-gray-100 opacity-75"),
-    [match.application]
-  );
+  const navigate = useNavigate();
 
   const handleCreateApplication = useCallback(() => {
     createApplication({ resumeId, matchId: match.id });
   }, [createApplication, resumeId, match.id]);
 
+  const handleGoToApplication = useCallback(() => {
+    navigate(`/applications/${match.application?.id}`);
+  }, [navigate, match.application?.id]);
+
   return (
-    <li className={cardClasses}>
+    <li>
       <h3 className="font-semibold text-lg">{match.positionTitle}</h3>
       <p className="text-sm text-gray-600">{match.companyName}</p>
       <p className="text-sm">
@@ -36,7 +37,9 @@ const ResumeMatchJobCard: React.FC<ResumeMatchJobCardProps> = ({
         {!match.application ? (
           <Button onClick={handleCreateApplication}>Create Application</Button>
         ) : (
-          <Button disabled>Application already created</Button>
+          <Button variant="outline" onClick={handleGoToApplication}>
+            Go to Application
+          </Button>
         )}
       </div>
     </li>
