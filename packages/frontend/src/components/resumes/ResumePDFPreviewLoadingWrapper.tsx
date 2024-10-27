@@ -22,7 +22,7 @@ const ResumePDFPreviewLoadingWrapper = React.memo(
         <div className="border p-4 h-[297mm] relative w-full">
           <div
             className={`absolute inset-0 z-10 transition-opacity duration-300 ${
-              true ? "opacity-100" : "opacity-0 pointer-events-none"
+              isPDFLoading ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
             <div className="w-full h-full flex items-center justify-center bg-white bg-opacity-60 backdrop-blur-sm">
