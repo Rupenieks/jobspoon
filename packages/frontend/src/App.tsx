@@ -1,13 +1,17 @@
 import React, { useMemo } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Dashboard from "./components/Dashboard";
-import LoginScreen from "./components/LoginScreen";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
-import Layout from "./components/Layout";
 import Jobs from "./components/Jobs";
-import Resumes from "./components/Resumes";
-import ResumeList from "./components/ResumeList";
+import Layout from "./components/Layout";
+import LoginScreen from "./components/LoginScreen";
 import ResumeDetails from "./components/ResumeDetails";
+import ResumeList from "./components/ResumeList";
+import Resumes from "./components/Resumes";
 
 const App: React.FC = () => {
   const { loading, isAuthenticated } = useAuth();
@@ -19,12 +23,12 @@ const App: React.FC = () => {
     return isAuthenticated ? (
       <Layout>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
           <Route path="/resumes" element={<Resumes />}>
             <Route index element={<ResumeList />} />
             <Route path=":resumeId" element={<ResumeDetails />} />
           </Route>
           <Route path="/jobs" element={<Jobs />} />
+          <Route path="*" element={<Navigate to="/resumes" replace />} />
         </Routes>
       </Layout>
     ) : (

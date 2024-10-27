@@ -1,7 +1,10 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/auth/AuthProvider";
+import { cn } from "@/lib/utils";
+import { FileIcon, FileTextIcon, MenuIcon } from "lucide-react";
+import React, { useCallback, useMemo, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,16 +17,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
-import { Button } from "./ui/button";
-import {
-  HomeIcon,
-  FileTextIcon,
-  FileIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  MenuIcon,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -36,7 +29,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const navItems = useMemo(
     () => [
-      { name: "Start", path: "/", icon: <HomeIcon className="w-4 h-4" /> },
       {
         name: "Resumes",
         path: "/resumes",
