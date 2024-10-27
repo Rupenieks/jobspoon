@@ -297,13 +297,13 @@ export const TheirStackMockResponse: TTheirStackJobsResponse = {
     },
     {
       id: 1213,
-      job_title: 'DevOps Engineer',
+      job_title: 'Senior Backend Engineer',
       url: 'https://example.com/job/1213',
       date_posted: '2024-03-18',
       has_blurred_data: false,
-      company: 'CloudScale',
-      final_url: 'https://cloudscale.com/careers/devops-engineer',
-      source_url: 'https://cloudscale.com/careers',
+      company: 'BirdsView',
+      final_url: 'https://birdsview.com/careers/senior-backend-engineer',
+      source_url: 'https://birdsview.com/careers',
       location: 'Austin, TX',
       short_location: 'Austin',
       long_location: 'Austin, Texas, United States',
@@ -341,8 +341,35 @@ export const TheirStackMockResponse: TTheirStackJobsResponse = {
       company_domain: 'cloudscale.com',
       reposted: false,
       date_reposted: null,
-      description:
-        'We are looking for a skilled DevOps Engineer to help us scale our cloud infrastructure...',
+      description: `About Birdsview
+
+At BirdsView, we don't sell software - we sell work. Avis - our AI-driven CRM Agent - is transforming the e-commerce landscape by automating customer loyalty and driving repeat purchases with unparalleled efficiency & performance.
+
+
+
+Birdsview Culture
+
+We are a small and agile team, so you will have maximum autonomy from day one. You will wear many hats and have to adapt quickly. This is not your typical 9-5 job and comes with the opportunity to shape the mission of our company, as well as important technical decisions right from the beginning. Your decisions have a direct impact on the success of Birdsview.
+
+
+
+Examples of what you could work on
+
+AI agents
+Database scaling and optimisation problems
+Help architect and implement our Billing platform
+Architect and implement new skill for our AI CRM agent, Avis
+Contribute to the development and maintenance of tools for monitoring, logging, and debugging
+
+
+Who you are
+
+You enjoy solving highly complex problems
+You have experience with cloud infrastructure providers, preferably AWS
+You have extensive backend engineering experience
+You like to work hard
+You despise a bad developer experience
+You are comfortable in a fast-paced environment`,
       company_object: {
         name: 'CloudScale',
         domain: 'cloudscale.com',

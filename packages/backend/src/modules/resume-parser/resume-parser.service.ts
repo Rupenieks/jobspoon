@@ -137,4 +137,13 @@ export class ResumeParserService {
 
     return parseResumeFields(resume as unknown as TResume);
   }
+
+  async deleteResumes(ids: string[], userId: string): Promise<void> {
+    await this.prismaService.resume.deleteMany({
+      where: {
+        id: { in: ids },
+        userId,
+      },
+    });
+  }
 }

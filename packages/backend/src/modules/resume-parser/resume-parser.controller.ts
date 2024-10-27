@@ -11,6 +11,7 @@ import {
   Get,
   Put,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResumeParserService } from './resume-parser.service';
@@ -96,6 +97,17 @@ export class ResumeParserController {
     } catch (error) {
       console.error('Error fetching resume:', error);
       throw new InternalServerErrorException('Error fetching resume');
+    }
+  }
+
+  @Delete()
+  async deleteResumes(@Body('ids') ids: string[], @Request() req) {
+    try {
+      await this.resumeParserService.deleteResumes(ids, req.user.userId);
+      return { message: 'Resumes deleted successfully' };
+    } catch (error) {
+      console.error('Error deleting resumes:', error);
+      throw new InternalServerErrorException('Error deleting resumes');
     }
   }
 }

@@ -116,6 +116,7 @@ const ApplicationDetails: React.FC = () => {
         resume={editedResume}
         resumeId={editedResume.id}
         onUpdate={handleResumeUpdate}
+        application={application}
       />
     </div>
   );

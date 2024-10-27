@@ -26,9 +26,11 @@ model User {
 }
 
 model Resume {
-  id           String   @id @default(uuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
+  id          String        @id @default(uuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  matches     Match[]      @relation("ResumeToMatch")
+  application Application? @relation("ResumeToApplication")
   fullName     String?
   country      String?
   city         String?
@@ -42,16 +44,12 @@ model Resume {
   references   Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  application  Application?
-  matches      Match[]
-
-  @@index([userId])
 }
 
 model Match {
   id              String   @id @default(uuid())
   resumeId        String
-  resume          Resume   @relation(fields: [resumeId], references: [id])
+  resume          Resume   @relation("ResumeToMatch", fields: [resumeId], references: [id], onDelete: Cascade)
   integrationId   String
   companyName     String?
   companyUrl      String?
@@ -74,7 +72,7 @@ model Match {
 model Application {
   id        String   @id @default(uuid())
   resumeId  String   @unique
-  resume    Resume   @relation(fields: [resumeId], references: [id])
+  resume    Resume   @relation("ResumeToApplication", fields: [resumeId], references: [id], onDelete: Cascade)
   matchId   String   @unique
   match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
   status    String   @default("pending")
