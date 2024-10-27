@@ -14,6 +14,7 @@ import ResumeList from "./components/ResumeList";
 import Resumes from "./components/Resumes";
 import Start from "./components/Start";
 import Applications from "./components/Applications";
+import ApplicationDetails from "./components/ApplicationDetails";
 
 const App: React.FC = () => {
   const { loading, isAuthenticated } = useAuth();
@@ -32,7 +33,11 @@ const App: React.FC = () => {
           </Route>
           <Route path="/matches" element={<Matches />} />
           <Route path="/applications" element={<Applications />} />
-          <Route path="*" element={<Navigate to="/resumes" replace />} />
+          <Route
+            path="/applications/:applicationId"
+            element={<ApplicationDetails />}
+          />
+          <Route path="*" element={<Navigate to="/start" replace />} />
         </Routes>
       </Layout>
     ) : (

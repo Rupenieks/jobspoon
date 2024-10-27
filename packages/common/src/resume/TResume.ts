@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { MatchSchema } from "../match";
+import { ApplicationSchema } from "../application";
 
 export const ExperienceSchema = z.object({
   positionTitle: z.string().optional(),

@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { parseResumeFields } from 'src/utils/resumeParser';
+import { TResume } from '@redundant/common';
 
 @Injectable()
 export class ApplicationService {
@@ -69,10 +71,15 @@ export class ApplicationService {
       include: { resume: true, match: true },
     });
 
-    if (!application) {
+    const parsedApplication = {
+      ...application,
+      resume: parseResumeFields(application.resume as TResume),
+    };
+
+    if (!parsedApplication) {
       throw new NotFoundException(`Application with ID ${id} not found`);
     }
 
-    return application;
+    return parsedApplication;
   }
 }

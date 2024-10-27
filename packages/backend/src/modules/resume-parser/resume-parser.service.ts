@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { AssistantService } from '../assistant/assistant.service';
 import { PrismaService } from '../prisma/prisma.service';
 import * as pdf from 'pdf-parse';
-import { TResume } from '@redundant/common';
+import { TApplication, TMatch, TResume } from '@redundant/common';
+import { parseResumeFields } from 'src/utils/resumeParser';
 
 @Injectable()
 export class ResumeParserService {
@@ -51,21 +52,19 @@ export class ResumeParserService {
   async getAllResumesForUser(userId: string): Promise<TResume[]> {
     const resumes = await this.prismaService.resume.findMany({
       where: { userId },
-      include: { matches: true },
+      include: {
+        matches: {
+          include: {
+            application: true,
+          },
+        },
+        application: true,
+      },
     });
 
-    return resumes.map((resume) => ({
-      ...resume,
-      experience: resume.experience
-        ? JSON.parse(resume.experience as string)
-        : null,
-      education: resume.education
-        ? JSON.parse(resume.education as string)
-        : null,
-      references: resume.references
-        ? JSON.parse(resume.references as string)
-        : null,
-    }));
+    return resumes.map((resume) =>
+      parseResumeFields(resume as unknown as TResume),
+    );
   }
 
   async parseResumeText(text: string, userId: string): Promise<TResume> {

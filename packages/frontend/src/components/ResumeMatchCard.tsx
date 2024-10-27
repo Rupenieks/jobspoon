@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TResume } from "@redundant/common";
+import { TApplication, TMatch, TResume } from "@redundant/common";
 import { formatDistanceToNow } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import { RefreshCw, Crosshair } from "lucide-react";
@@ -113,7 +113,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                   {resume.matches.map((match) => (
                     <ResumeMatchJobCard
                       key={match.id}
-                      match={match}
+                      match={match as TMatch & { application: TApplication }}
                       resumeId={resume.id}
                     />
                   ))}

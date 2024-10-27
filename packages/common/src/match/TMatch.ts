@@ -14,6 +14,8 @@ export const MatchSchema = z.object({
   applyUrl: z.string().optional(),
   provider: z.string(),
   resumeId: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 export type TMatch = z.infer<typeof MatchSchema>;
