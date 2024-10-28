@@ -82,4 +82,12 @@ export class ApplicationService {
 
     return parsedApplication;
   }
+
+  async deleteApplications(ids: string[]): Promise<void> {
+    await this.prisma.application.deleteMany({
+      where: {
+        id: { in: ids },
+      },
+    });
+  }
 }

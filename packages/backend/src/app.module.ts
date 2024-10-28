@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { JobsModule } from './modules/jobs/jobs.module';
 import { ApplicationModule } from './modules/application/application.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ApplicationModule } from './modules/application/application.module';
     PrismaModule,
     JobsModule,
     ApplicationModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
 import { ApplicationService } from './application.service';
 
 @Controller('applications')
@@ -21,5 +21,11 @@ export class ApplicationController {
   @Get(':id')
   async getApplication(@Param('id') id: string) {
     return this.applicationService.getApplication(id);
+  }
+
+  @Delete()
+  async deleteApplications(@Body() data: { ids: string[] }) {
+    await this.applicationService.deleteApplications(data.ids);
+    return { message: 'Applications deleted successfully' };
   }
 }

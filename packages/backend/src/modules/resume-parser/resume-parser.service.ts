@@ -4,12 +4,14 @@ import * as pdf from 'pdf-parse';
 import { parseResumeFields } from 'src/utils/resumeParser';
 import { AssistantService } from '../assistant/assistant.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class ResumeParserService {
   constructor(
     private readonly assistantService: AssistantService,
     private readonly prismaService: PrismaService,
+    private readonly storageService: StorageService,
   ) {}
 
   async parseResume(buffer: Buffer, userId: string): Promise<TResume> {
@@ -145,5 +147,37 @@ export class ResumeParserService {
         userId,
       },
     });
+  }
+
+  async updateResumeImages(
+    id: string,
+    userId: string,
+    profileImage?: Express.Multer.File,
+  ): Promise<TResume> {
+    const resume = await this.prismaService.resume.findUnique({
+      where: { id },
+    });
+
+    if (!resume || resume.userId !== userId) {
+      throw new NotFoundException('Resume not found or unauthorized');
+    }
+
+    const updateData: any = {};
+
+    if (profileImage) {
+      // Delete old profile image if exists
+      await this.storageService.deleteImage(resume.profileImage);
+      updateData.profileImage = await this.storageService.uploadImage(
+        profileImage,
+        'profile',
+      );
+    }
+
+    const updatedResume = await this.prismaService.resume.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return parseResumeFields(updatedResume as unknown as TResume);
   }
 }

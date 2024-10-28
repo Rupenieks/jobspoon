@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ResumeSchema, ResumeSchemaDTO, TResume } from '@redundant/common';
+import { ResumeSchemaDTO, TResume } from '@redundant/common';
 import OpenAI from 'openai';
-import { PrismaService } from '../prisma/prisma.service';
 import { parseResumeFields } from 'src/utils/resumeParser';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AssistantService {
@@ -36,7 +36,7 @@ export class AssistantService {
       const cleanedOutput = this.cleanOutput(output);
 
       const parsedOutput = JSON.parse(cleanedOutput);
-      const validatedOutput = ResumeSchema.parse(parsedOutput);
+      const validatedOutput = ResumeSchemaDTO.parse(parsedOutput);
       return validatedOutput;
     } catch (err) {
       console.error('Error parsing resume:', err);

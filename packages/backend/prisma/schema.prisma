@@ -26,24 +26,26 @@ model User {
 }
 
 model Resume {
-  id          String        @id @default(uuid())
-  userId      String
-  user        User         @relation(fields: [userId], references: [id])
-  matches     Match[]      @relation("ResumeToMatch")
-  application Application? @relation("ResumeToApplication")
-  fullName     String?
-  country      String?
-  city         String?
-  address      String?
-  email        String?
-  phoneNumber  String?
-  positionName String?
-  experience   Json?
-  education    Json?
-  skills       String[]
-  references   Json?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String        @id @default(uuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  matches       Match[]      @relation("ResumeToMatch")
+  application   Application? @relation("ResumeToApplication")
+  fullName      String?
+  country       String?
+  city          String?
+  address       String?
+  email         String?
+  phoneNumber   String?
+  positionName  String?
+  experience    Json?
+  education     Json?
+  skills        String[]
+  references    Json?
+  previewImage  String?    
+  profileImage  String?      
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model Match {
