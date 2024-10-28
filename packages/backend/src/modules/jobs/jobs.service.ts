@@ -40,9 +40,9 @@ export class JobsService {
     matches: TMatch[];
   }): Promise<void> {
     for (const match of matches) {
-      if (!match.integrationId || !match.resumeId) {
+      if (!match.integrationId) {
         console.error('Job is missing integrationId:', match);
-        continue; // Skip this job if integrationId is missing
+        continue;
       }
 
       await this.prismaService.match.upsert({
@@ -57,7 +57,6 @@ export class JobsService {
         },
         create: {
           integrationId: match.integrationId,
-          resumeId: resumeId,
           country: match.country,
           city: match.city,
           positionTitle: match.positionTitle,
@@ -68,6 +67,11 @@ export class JobsService {
           longDescription: match.longDescription,
           applyUrl: match.applyUrl,
           provider: match.provider,
+          resume: {
+            connect: {
+              id: resumeId,
+            },
+          },
         },
       });
     }

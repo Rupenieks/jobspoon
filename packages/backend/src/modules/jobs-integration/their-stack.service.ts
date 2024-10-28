@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { TMatch, TResume } from '@redundant/common';
 import axios from 'axios';
-import { TheirStackMockResponse } from './mockData/TheirStackMockJobs';
 import { TTheirStackJobsResponse } from './types/TTheirStackJobsResponse';
+import { TTechnologyResponse } from './types/TTheirStackTechnologyResponse';
 
 @Injectable()
 export class TheirStackService {
@@ -10,11 +10,7 @@ export class TheirStackService {
   private readonly apiKey = process.env.THEIRSTACK_API_KEY;
 
   async searchJobs(resume: TResume) {
-    return this.convertResponseToMatches({
-      resumeId: resume.id,
-      jobs: TheirStackMockResponse.data,
-    });
-    const query = this.buildJobQuery(resume);
+    const query = await this.buildJobQuery(resume);
     const options = {
       method: 'POST',
       url: `${this.apiUrl}/jobs/search`,
@@ -29,7 +25,10 @@ export class TheirStackService {
 
     try {
       const { data } = await axios.request(options);
-      return data;
+      return this.convertResponseToMatches({
+        resumeId: resume.id,
+        jobs: data.data,
+      });
     } catch (error) {
       console.error('Error searching jobs:', error);
       throw error;
@@ -51,57 +50,93 @@ export class TheirStackService {
       positionTitle: job.job_title,
       description: job.description,
       longDescription: job.company_object.long_description,
-      country: job.country,
-      city: job.cities[0] || '',
+      country: job.country
+        ? job.country
+        : job.company_object.country
+          ? job.company_object.country
+          : job.country_code,
+      city:
+        job.cities.length > 0
+          ? job.cities[0]
+          : job.company_object.city || job.location,
       applyUrl: job.final_url,
+      domain: job.company_object.domain
+        ? job.company_object.domain
+        : job.company_domain,
       provider: 'TheirStack',
+      longitude: job.longitude,
+      latitude: job.latitude,
       resumeId,
     }));
   }
 
-  private buildJobQuery(resume: TResume) {
+  private countryToISO(country: string): string {
+    const countryMap: Record<string, string> = {
+      germany: 'DE',
+      england: 'GB',
+      'united kingdom': 'GB',
+      uk: 'GB',
+      france: 'FR',
+      spain: 'ES',
+      italy: 'IT',
+      netherlands: 'NL',
+      poland: 'PL',
+      ireland: 'IE',
+      // Add more mappings as needed
+    };
+
+    const normalizedCountry = country.trim().toLowerCase();
+    return countryMap[normalizedCountry] || normalizedCountry.toUpperCase();
+  }
+
+  private async buildJobQuery(resume: TResume) {
     const query: any = {
       posted_at_max_age_days: 7, // Required filter
     };
 
     if (resume.country) {
-      query.job_country_code_or = [resume.country];
+      query.job_country_code_or = [this.countryToISO(resume.country)];
+    }
+
+    if (resume.positionName) {
+      // Split the position name into words and create patterns
+      const words = resume.positionName
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((word) => word.length > 2); // Filter out small words
+
+      if (words.length > 0) {
+        query.job_title_pattern_and = words.map((word) => `.*${word}.*`);
+      }
     }
 
     if (resume.skills && resume.skills.length > 0) {
-      query.job_technology_slug_or = this.getSkillSlugs(resume.skills);
+      query.job_technology_slug_or = await this.getSkillSlugs(resume.skills);
     }
 
     return query;
   }
 
   private async getSkillSlugs(skills: string[]) {
-    const slugs = [];
+    const slugs: string[] = [];
+
     for (const skill of skills) {
-      const slug = await this.getTechnologySlug(skill);
-      if (slug) {
-        slugs.push(slug);
+      const options = {
+        method: 'GET',
+        url: `https://api.theirstack.com/v0/catalog/technologies`,
+        params: { name_pattern: skill },
+      };
+
+      try {
+        const { data } = await axios.request<TTechnologyResponse>(options);
+        if (data && data.length > 0) {
+          slugs.push(...data.map((tech) => tech.slug));
+        }
+      } catch (error) {
+        console.error(`Error fetching technology slug for ${skill}:`, error);
       }
     }
+
     return slugs;
-  }
-
-  private async getTechnologySlug(skillName: string) {
-    const options = {
-      method: 'GET',
-      url: `${this.apiUrl}/catalog/technologies`,
-      params: { name_pattern: skillName },
-    };
-
-    try {
-      const { data } = await axios.request(options);
-      if (data.technologies && data.technologies.length > 0) {
-        return data.technologies[0].slug;
-      }
-    } catch (error) {
-      console.error(`Error fetching technology slug for ${skillName}:`, error);
-    }
-
-    return null;
   }
 }
