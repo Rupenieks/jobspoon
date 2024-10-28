@@ -123,7 +123,7 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
           <Button
             onClick={handleAutomatedModification}
             disabled={
-              isModifying || (automatedInput !== "" && !includeJobDescription)
+              isModifying || (automatedInput === "" && !includeJobDescription)
             }
           >
             {isModifying ? (
