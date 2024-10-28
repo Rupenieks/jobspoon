@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -11,15 +11,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TApplication, TMatch, TResume } from "@redundant/common";
 import { formatDistanceToNow } from "date-fns";
 import { Separator } from "@/components/ui/separator";
-import { RefreshCw, Crosshair } from "lucide-react";
+import { RefreshCw, Crosshair, Pencil } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
 import ResumeMatchJobCard from "./ResumeJobCard";
+import { useNavigate } from "react-router-dom";
 
 interface ResumeMatchCardProps {
   resume: TResume;
@@ -40,7 +40,15 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
   isPending,
   onMatchJobs,
 }) => {
-  const matchCount = resume.matches?.length || 0;
+  const navigate = useNavigate();
+  const matchCount = useMemo(
+    () => resume.matches?.length || 0,
+    [resume.matches]
+  );
+
+  const handleEditResume = useCallback(() => {
+    navigate(`/resumes/${resume.id}`);
+  }, [navigate, resume.id]);
 
   return (
     <Accordion type="single" collapsible className="mb-4">
@@ -59,6 +67,25 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
               </p>
             </div>
             <div className="flex items-center space-x-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditResume();
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit Resume</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -109,15 +136,16 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                     ))}
                 </div>
               ) : resume.matches && resume.matches.length > 0 ? (
-                <ul className="space-y-4">
+                <div className="space-y-4">
                   {resume.matches.map((match) => (
-                    <ResumeMatchJobCard
-                      key={match.id}
-                      match={match as TMatch & { application: TApplication }}
-                      resumeId={resume.id}
-                    />
+                    <Card key={match.id} className="p-4">
+                      <ResumeMatchJobCard
+                        match={match as TMatch & { application: TApplication }}
+                        resumeId={resume.id}
+                      />
+                    </Card>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <p>
                   No matches found. Click the refresh button to find potential
