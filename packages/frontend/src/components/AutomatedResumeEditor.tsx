@@ -8,7 +8,6 @@ import { AnimatePresence } from "framer-motion";
 import { Check, Terminal } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import CustomColorRing from "./loaders/ColorRing";
-import ResumePDFPreviewLoadingWrapper from "./resumes/ResumePDFPreviewLoadingWrapper";
 import { useResumeState } from "./resumes/ResumeStateContext";
 
 interface AutomatedResumeEditorProps {
@@ -18,25 +17,24 @@ interface AutomatedResumeEditorProps {
 const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
   application,
 }) => {
-  const { resume, updateEntireResume } = useResumeState();
+  const { resume, temporaryResume, setTemporaryResume, applyTemporaryResume } =
+    useResumeState();
   const [automatedInput, setAutomatedInput] = useState("");
-  const [showSaveButton, setShowSaveButton] = useState(false);
-  const [modifiedResumeData, setModifiedResumeData] = useState<TResume | null>(
-    resume
-  );
   const [includeJobDescription, setIncludeJobDescription] = useState(false);
   const { mutate: modifyResume, isPending: isModifying } =
     useAssistantModifications();
 
   const handleSaveChanges = useCallback(() => {
-    if (modifiedResumeData) {
-      updateEntireResume(modifiedResumeData);
-      setShowSaveButton(false);
-      toast({
-        title: "Resume updated",
-      });
-    }
-  }, [modifiedResumeData, updateEntireResume]);
+    applyTemporaryResume();
+    toast({
+      title: "Resume updated",
+    });
+  }, [applyTemporaryResume]);
+
+  const handleUndoChanges = useCallback(() => {
+    setTemporaryResume(null);
+    setAutomatedInput("");
+  }, [setTemporaryResume]);
 
   const handleAutomatedModification = useCallback(() => {
     if (!resume?.id || (automatedInput === "" && !includeJobDescription))
@@ -57,18 +55,22 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
       },
       {
         onSuccess: (modifiedResume) => {
-          setModifiedResumeData(modifiedResume);
-          setShowSaveButton(true);
+          setTemporaryResume(modifiedResume);
           setAutomatedInput("");
         },
       }
     );
-  }, [resume, automatedInput, modifyResume, includeJobDescription]);
+  }, [
+    resume,
+    automatedInput,
+    modifyResume,
+    includeJobDescription,
+    setTemporaryResume,
+  ]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setAutomatedInput(e.target.value);
-      setShowSaveButton(false);
     },
     []
   );
@@ -134,10 +136,15 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
             )}
           </Button>
           <AnimatePresence>
-            {showSaveButton && (
-              <Button onClick={handleSaveChanges}>
-                <Check className="mr-2 h-4 w-4" /> Save Changes
-              </Button>
+            {temporaryResume && (
+              <>
+                <Button onClick={handleSaveChanges} variant="default">
+                  <Check className="mr-2 h-4 w-4" /> Save Changes
+                </Button>
+                <Button onClick={handleUndoChanges} variant="outline">
+                  Undo Changes
+                </Button>
+              </>
             )}
           </AnimatePresence>
           {application && (

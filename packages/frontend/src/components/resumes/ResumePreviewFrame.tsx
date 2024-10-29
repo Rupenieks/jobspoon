@@ -2,14 +2,17 @@ import { useResumeState } from "./ResumeStateContext";
 import { useCallback, useEffect, useRef } from "react";
 
 const ResumePreviewFrame = () => {
-  const { resume } = useResumeState();
+  const { resume, temporaryResume } = useResumeState();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const updateResumeInFrame = useCallback(() => {
     if (!iframeRef.current?.contentWindow) return;
-    const message = { type: "SET_RESUME", payload: resume };
+    const message = {
+      type: "SET_RESUME",
+      payload: temporaryResume || resume,
+    };
     iframeRef.current.contentWindow.postMessage(message, "*");
-  }, [resume]);
+  }, [resume, temporaryResume]);
 
   useEffect(() => {
     if (!iframeRef.current) return;

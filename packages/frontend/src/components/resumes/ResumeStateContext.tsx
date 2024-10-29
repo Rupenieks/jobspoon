@@ -2,10 +2,17 @@ import useDebouncedCallback from "@/hooks/useDebouncedCallback";
 import { useReadResume } from "@/hooks/useReadResume";
 import { useUpdateResume } from "@/hooks/useUpdateResume";
 import { TResume } from "@redundant/common/src";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+} from "react";
 
 interface ResumeStateContextType {
   resume: TResume | null;
+  temporaryResume: TResume | null;
   isLoading: boolean;
   error: Error | null;
   updateResumeField: <K extends keyof TResume>(
@@ -27,6 +34,8 @@ interface ResumeStateContextType {
   updateSkill: (index: number, value: string) => void;
   addSkill: () => void;
   updateEntireResume: (newResume: TResume) => void;
+  setTemporaryResume: (resume: TResume | null) => void;
+  applyTemporaryResume: () => void;
 }
 
 const ResumeStateContext = React.createContext<ResumeStateContextType>(
@@ -45,7 +54,8 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({
   const { data: initialResume, isLoading, error } = useReadResume(resumeId);
   const [resume, setResume] = useState<TResume | null>(null);
   const { mutate: updateResume } = useUpdateResume();
-
+  const [temporaryResume, setTemporaryResume] = useState<TResume | null>(null);
+  console.log("Is Loading in hook", isLoading);
   useEffect(() => {
     if (initialResume) {
       setResume(initialResume);
@@ -169,19 +179,60 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({
     });
   }, [debouncedSave]);
 
-  const value = {
-    resume,
-    isLoading,
-    error,
-    updateResumeField,
-    updateExperience,
-    updateEducation,
-    addExperience,
-    addEducation,
-    updateSkill,
-    addSkill,
-    updateEntireResume,
-  };
+  const applyTemporaryResume = useCallback(() => {
+    if (temporaryResume) {
+      updateEntireResume(temporaryResume);
+      setTemporaryResume(null);
+    }
+  }, [temporaryResume, updateEntireResume]);
+
+  useEffect(() => {
+    if (temporaryResume && resume) {
+      const handler = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("input") || target.closest("textarea")) {
+          applyTemporaryResume();
+        }
+      };
+      document.addEventListener("mousedown", handler);
+      return () => document.removeEventListener("mousedown", handler);
+    }
+  }, [temporaryResume, resume, applyTemporaryResume]);
+
+  const value = useMemo(
+    () => ({
+      resume,
+      temporaryResume,
+      isLoading,
+      error,
+      updateResumeField,
+      updateExperience,
+      updateEducation,
+      addExperience,
+      addEducation,
+      updateSkill,
+      addSkill,
+      updateEntireResume,
+      setTemporaryResume,
+      applyTemporaryResume,
+    }),
+    [
+      resume,
+      temporaryResume,
+      isLoading,
+      error,
+      updateResumeField,
+      updateExperience,
+      updateEducation,
+      addExperience,
+      addEducation,
+      updateSkill,
+      addSkill,
+      updateEntireResume,
+      setTemporaryResume,
+      applyTemporaryResume,
+    ]
+  );
 
   return (
     <ResumeStateContext.Provider value={value}>

@@ -11,6 +11,8 @@ const ResumeDetails: React.FC = () => {
   const navigate = useNavigate();
   const { resume, isLoading, error } = useResumeState();
 
+  console.log(resume);
+  console.log(isLoading);
   if (isLoading) {
     return <ResumeSkeleton />;
   }
