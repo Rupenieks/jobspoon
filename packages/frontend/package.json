@@ -5,8 +5,12 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite & VITE_PORT=3001 vite --config vite.resume-preview.config.ts",
+    "dev:main": "vite",
+    "dev:preview": "VITE_PORT=3001 vite --config vite.resume-preview.config.ts",
+    "build": "tsc && vite build && vite build --config vite.resume-preview.config.ts",
+    "build:main": "tsc && vite build",
+    "build:preview": "tsc && vite build --config vite.resume-preview.config.ts",
     "preview": "vite preview"
   },
   "keywords": [],
@@ -57,6 +61,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
     "eslint-plugin-react-hooks": "^5.0.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",

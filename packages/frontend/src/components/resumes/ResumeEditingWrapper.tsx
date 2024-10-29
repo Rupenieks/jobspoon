@@ -1,12 +1,12 @@
 import AutomatedResumeEditor from "../AutomatedResumeEditor";
 import ResumeEditor from "../ResumeEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import ResumePDFPreviewLoadingWrapper from "./ResumePDFPreviewLoadingWrapper";
+import ResumePreviewFrame from "./ResumePreviewFrame";
 
 const ResumeEditingWrapper = () => {
   return (
     <div className="flex gap-6">
-      <div className="w-1/2">
+      <div className="w-1/3">
         <Tabs defaultValue="manual">
           <TabsList>
             <TabsTrigger value="manual">Manual</TabsTrigger>
@@ -20,8 +20,8 @@ const ResumeEditingWrapper = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <div className="w-1/2">
-        <ResumePDFPreviewLoadingWrapper />
+      <div className="w-2/3">
+        <ResumePreviewFrame />
       </div>
     </div>
   );
