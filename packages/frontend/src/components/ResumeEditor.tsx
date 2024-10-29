@@ -1,99 +1,38 @@
-import React, { useCallback, useMemo } from "react";
-import { TResume } from "@redundant/common/src";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { DatePicker } from "@/components/ui/date-picker";
-import { Button } from "@/components/ui/button";
-import { parseResumeDate } from "@/utils/dateUtils";
+import React, { useMemo } from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useResumeState } from "./resumes/ResumeStateContext";
 
-interface ResumeEditorProps {
-  resume: TResume;
-  onUpdate: (updatedResume: TResume) => void;
-}
-
-const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onUpdate }) => {
-  const handleInputChange = useCallback(
-    (field: keyof TResume, value: any) => {
-      onUpdate({ ...resume, [field]: value });
-    },
-    [resume, onUpdate]
-  );
-
-  const handleExperienceChange = useCallback(
-    (index: number, field: keyof TResume["experience"][0], value: any) => {
-      const newExperience = [...(resume.experience || [])];
-      newExperience[index] = { ...newExperience[index], [field]: value };
-      onUpdate({ ...resume, experience: newExperience });
-    },
-    [resume, onUpdate]
-  );
-
-  const handleEducationChange = useCallback(
-    (index: number, field: keyof TResume["education"][0], value: any) => {
-      const newEducation = [...(resume.education || [])];
-      newEducation[index] = { ...newEducation[index], [field]: value };
-      onUpdate({ ...resume, education: newEducation });
-    },
-    [resume, onUpdate]
-  );
-
-  const handleAddExperience = useCallback(() => {
-    const newExperience = [
-      ...(resume.experience || []),
-      {
-        positionTitle: "",
-        company: "",
-        startDate: "",
-        endDate: "",
-        contributions: [],
-      },
-    ];
-    onUpdate({ ...resume, experience: newExperience });
-  }, [resume, onUpdate]);
-
-  const handleAddEducation = useCallback(() => {
-    const newEducation = [
-      ...(resume.education || []),
-      { university: "", degree: "", startDate: "", endDate: "" },
-    ];
-    onUpdate({ ...resume, education: newEducation });
-  }, [resume, onUpdate]);
-
-  const handleSkillChange = useCallback(
-    (index: number, value: string) => {
-      const newSkills = [...(resume.skills || [])];
-      newSkills[index] = value;
-      onUpdate({ ...resume, skills: newSkills });
-    },
-    [resume, onUpdate]
-  );
-
-  const handleAddSkill = useCallback(() => {
-    const newSkills = [...(resume.skills || []), ""];
-    onUpdate({ ...resume, skills: newSkills });
-  }, [resume, onUpdate]);
+const ResumeEditor: React.FC = () => {
+  const {
+    resume,
+    updateResumeField,
+    updateExperience,
+    updateEducation,
+    addExperience,
+    addEducation,
+    updateSkill,
+    addSkill,
+  } = useResumeState();
 
   const personalInfoFields = useMemo(
     () => [
-      { label: "Full Name", field: "fullName" },
-      { label: "Email", field: "email" },
-      { label: "Phone Number", field: "phoneNumber" },
-      { label: "Address", field: "address" },
-      { label: "City", field: "city" },
-      { label: "Country", field: "country" },
-      { label: "Position Name", field: "positionName" },
+      { label: "Full Name", field: "fullName" as const },
+      { label: "Email", field: "email" as const },
+      { label: "Phone Number", field: "phoneNumber" as const },
+      { label: "Address", field: "address" as const },
+      { label: "City", field: "city" as const },
+      { label: "Country", field: "country" as const },
+      { label: "Position Name", field: "positionName" as const },
     ],
     []
   );
-
-  console.log(resume);
 
   if (!resume) {
     return null;
@@ -101,85 +40,61 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onUpdate }) => {
 
   return (
     <Accordion type="multiple" className="w-full">
-      <AccordionItem value="contact-info">
-        <AccordionTrigger>Contact Info</AccordionTrigger>
+      <AccordionItem value="personal-info">
+        <AccordionTrigger>Personal Information</AccordionTrigger>
         <AccordionContent>
-          <div className="grid grid-cols-2 gap-4">
-            {personalInfoFields.map(({ label, field }) => (
-              <div key={field}>
-                <Label htmlFor={field}>{label}</Label>
-                <Input
-                  id={field}
-                  value={resume[field as keyof TResume] || ""}
-                  onChange={(e) =>
-                    handleInputChange(field as keyof TResume, e.target.value)
-                  }
-                />
-              </div>
-            ))}
-          </div>
+          {personalInfoFields.map(({ label, field }) => (
+            <div key={field} className="mb-4">
+              <label className="block text-sm font-medium mb-1">{label}</label>
+              <Input
+                value={resume[field] || ""}
+                onChange={(e) => updateResumeField(field, e.target.value)}
+              />
+            </div>
+          ))}
         </AccordionContent>
       </AccordionItem>
 
       <AccordionItem value="experience">
         <AccordionTrigger>Experience</AccordionTrigger>
         <AccordionContent>
-          {resume?.experience?.map((exp, index) => (
-            <div key={index} className="space-y-2 border p-4 rounded mb-4">
+          {resume.experience?.map((exp, index) => (
+            <div key={index} className="mb-6 p-4 border rounded">
               <Input
+                className="mb-2"
                 placeholder="Position Title"
                 value={exp.positionTitle || ""}
                 onChange={(e) =>
-                  handleExperienceChange(index, "positionTitle", e.target.value)
+                  updateExperience(index, "positionTitle", e.target.value)
                 }
               />
               <Input
+                className="mb-2"
                 placeholder="Company"
                 value={exp.company || ""}
                 onChange={(e) =>
-                  handleExperienceChange(index, "company", e.target.value)
+                  updateExperience(index, "company", e.target.value)
                 }
               />
-              <div className="grid grid-cols-2 gap-4">
-                <DatePicker
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <Input
                   placeholder="Start Date"
-                  value={
-                    exp.startDate ? parseResumeDate(exp.startDate) : undefined
-                  }
-                  onChange={(date) =>
-                    handleExperienceChange(
-                      index,
-                      "startDate",
-                      date?.toISOString()
-                    )
+                  value={exp.startDate || ""}
+                  onChange={(e) =>
+                    updateExperience(index, "startDate", e.target.value)
                   }
                 />
-                <DatePicker
+                <Input
                   placeholder="End Date"
-                  value={exp.endDate ? parseResumeDate(exp.endDate) : undefined}
-                  onChange={(date) =>
-                    handleExperienceChange(
-                      index,
-                      "endDate",
-                      date?.toISOString()
-                    )
+                  value={exp.endDate || ""}
+                  onChange={(e) =>
+                    updateExperience(index, "endDate", e.target.value)
                   }
                 />
               </div>
-              <Textarea
-                placeholder="Contributions (one per line)"
-                value={exp.contributions?.join("\n") || ""}
-                onChange={(e) =>
-                  handleExperienceChange(
-                    index,
-                    "contributions",
-                    e.target.value.split("\n")
-                  )
-                }
-              />
             </div>
           ))}
-          <Button onClick={handleAddExperience}>Add Experience</Button>
+          <Button onClick={addExperience}>Add Experience</Button>
         </AccordionContent>
       </AccordionItem>
 
@@ -187,63 +102,58 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onUpdate }) => {
         <AccordionTrigger>Education</AccordionTrigger>
         <AccordionContent>
           {resume.education?.map((edu, index) => (
-            <div key={index} className="space-y-2 border p-4 rounded mb-4">
+            <div key={index} className="mb-6 p-4 border rounded">
               <Input
+                className="mb-2"
                 placeholder="University"
                 value={edu.university || ""}
                 onChange={(e) =>
-                  handleEducationChange(index, "university", e.target.value)
+                  updateEducation(index, "university", e.target.value)
                 }
               />
               <Input
+                className="mb-2"
                 placeholder="Degree"
                 value={edu.degree || ""}
                 onChange={(e) =>
-                  handleEducationChange(index, "degree", e.target.value)
+                  updateEducation(index, "degree", e.target.value)
                 }
               />
-              <div className="grid grid-cols-2 gap-4">
-                <DatePicker
+              <div className="grid grid-cols-2 gap-2">
+                <Input
                   placeholder="Start Date"
-                  value={
-                    edu.startDate ? parseResumeDate(edu.startDate) : undefined
-                  }
-                  onChange={(date) =>
-                    handleEducationChange(
-                      index,
-                      "startDate",
-                      date?.toISOString()
-                    )
+                  value={edu.startDate || ""}
+                  onChange={(e) =>
+                    updateEducation(index, "startDate", e.target.value)
                   }
                 />
-                <DatePicker
+                <Input
                   placeholder="End Date"
-                  value={edu.endDate ? parseResumeDate(edu.endDate) : undefined}
-                  onChange={(date) =>
-                    handleEducationChange(index, "endDate", date?.toISOString())
+                  value={edu.endDate || ""}
+                  onChange={(e) =>
+                    updateEducation(index, "endDate", e.target.value)
                   }
                 />
               </div>
             </div>
           ))}
-          <Button onClick={handleAddEducation}>Add Education</Button>
+          <Button onClick={addEducation}>Add Education</Button>
         </AccordionContent>
       </AccordionItem>
 
       <AccordionItem value="skills">
         <AccordionTrigger>Skills</AccordionTrigger>
         <AccordionContent>
-          <div className="flex flex-wrap gap-2">
-            {resume.skills?.map((skill, index) => (
+          {resume.skills?.map((skill, index) => (
+            <div key={index} className="mb-2">
               <Input
-                key={index}
-                className="w-auto"
                 value={skill}
-                onChange={(e) => handleSkillChange(index, e.target.value)}
+                onChange={(e) => updateSkill(index, e.target.value)}
+                placeholder="Skill"
               />
-            ))}
-            <Button onClick={handleAddSkill}>Add Skill</Button>
-          </div>
+            </div>
+          ))}
+          <Button onClick={addSkill}>Add Skill</Button>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

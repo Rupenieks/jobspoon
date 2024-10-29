@@ -1,0 +1,28 @@
+{
+  "name": "resume-preview-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:artboard": "vite --config vite.artboard.config.ts",
+    "build": "tsc && vite build",
+    "build:artboard": "tsc && vite build --config vite.artboard.config.ts",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "html2pdf.js": "^0.10.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.64",
+    "@types/react-dom": "^18.2.21",
+    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/parser": "^7.1.1",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6"
+  }
+}

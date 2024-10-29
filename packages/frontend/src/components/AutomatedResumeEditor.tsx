@@ -1,29 +1,24 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { TApplication, TResume } from "@redundant/common/src";
-import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Terminal, Check } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { useAssistantModifications } from "@/hooks/useAssistantModifications";
+import { TApplication, TResume } from "@redundant/common/src";
+import { AnimatePresence } from "framer-motion";
+import { Check, Terminal } from "lucide-react";
+import React, { useCallback, useMemo, useState } from "react";
 import CustomColorRing from "./loaders/ColorRing";
 import ResumePDFPreviewLoadingWrapper from "./resumes/ResumePDFPreviewLoadingWrapper";
-import { useAssistantModifications } from "@/hooks/useAssistantModifications";
-import { useUpdateResume } from "@/hooks/useUpdateResume";
-import { AnimatePresence, motion } from "framer-motion";
-import { toast } from "@/hooks/use-toast";
+import { useResumeState } from "./resumes/ResumeStateContext";
 
 interface AutomatedResumeEditorProps {
-  resume: TResume;
-  resumeId: string;
-  onUpdate: (resume: TResume) => void;
   application?: TApplication;
 }
 
 const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
-  resume,
-  resumeId,
-  onUpdate,
   application,
 }) => {
+  const { resume, updateEntireResume } = useResumeState();
   const [automatedInput, setAutomatedInput] = useState("");
   const [showSaveButton, setShowSaveButton] = useState(false);
   const [modifiedResumeData, setModifiedResumeData] = useState<TResume | null>(
@@ -32,41 +27,43 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
   const [includeJobDescription, setIncludeJobDescription] = useState(false);
   const { mutate: modifyResume, isPending: isModifying } =
     useAssistantModifications();
-  const { mutate: updateResume } = useUpdateResume();
 
   const handleSaveChanges = useCallback(() => {
     if (modifiedResumeData) {
-      const { matches, application, ...resumeToUpdate } = modifiedResumeData;
-      updateResume({ id: resumeId, resume: resumeToUpdate });
+      updateEntireResume(modifiedResumeData);
       setShowSaveButton(false);
       toast({
         title: "Resume updated",
       });
     }
-  }, [modifiedResumeData, resumeId, updateResume]);
+  }, [modifiedResumeData, updateEntireResume]);
 
   const handleAutomatedModification = useCallback(() => {
-    if (automatedInput !== "" || includeJobDescription) {
-      console.log("Calling");
-      modifyResume(
-        {
-          resumeId,
-          input: `user: ${automatedInput}${
-            includeJobDescription
-              ? `\n\nCompany: ${application?.match.companyName}\nPosition: ${application?.match.positionTitle}\nSeniority: ${application?.match.seniority}\nDescription: ${application?.match.description}\nDetailed Description: ${application?.match.longDescription}`
-              : ""
-          }`,
+    if (!resume?.id || (automatedInput === "" && !includeJobDescription))
+      return;
+
+    modifyResume(
+      {
+        resumeId: resume.id,
+        input: `user: ${automatedInput}${
+          includeJobDescription && application?.match
+            ? `\n\nCompany: ${application.match.companyName}
+               \nPosition: ${application.match.positionTitle}
+               \nSeniority: ${application.match.seniority}
+               \nDescription: ${application.match.description}
+               \nDetailed Description: ${application.match.longDescription}`
+            : ""
+        }`,
+      },
+      {
+        onSuccess: (modifiedResume) => {
+          setModifiedResumeData(modifiedResume);
+          setShowSaveButton(true);
+          setAutomatedInput("");
         },
-        {
-          onSuccess: (modifiedResume) => {
-            setModifiedResumeData(modifiedResume);
-            setShowSaveButton(true);
-            setAutomatedInput("");
-          },
-        }
-      );
-    }
-  }, [resumeId, automatedInput, modifyResume, onUpdate, includeJobDescription]);
+      }
+    );
+  }, [resume, automatedInput, modifyResume, includeJobDescription]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -153,9 +150,7 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
         </div>
       </div>
       <div className="w-1/2">
-        <ResumePDFPreviewLoadingWrapper
-          resume={modifiedResumeData as TResume}
-        />
+        <ResumePDFPreviewLoadingWrapper />
       </div>
     </div>
   );

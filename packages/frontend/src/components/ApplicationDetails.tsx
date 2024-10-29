@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useReadApplication } from "@/hooks/useReadApplication";
-import { TResume } from "@redundant/common/src";
 import { formatDistanceToNow } from "date-fns";
 import { ChevronLeft } from "lucide-react";
-import React, { useCallback, useMemo, useState, useEffect } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ResumeEditorTabs from "./resumes/ResumeEditorTabs";
-import { useUpdateResume } from "@/hooks/useUpdateResume";
-import useDebouncedCallback from "@/hooks/useDebouncedCallback";
-import { Skeleton } from "@/components/ui/skeleton";
+import ResumeEditingWrapper from "./resumes/ResumeEditingWrapper";
+import { ResumeStateProvider } from "./resumes/ResumeStateContext";
+import { withResumeState } from "./resumes/withResumeState";
 const LoadingSkeleton: React.FC = React.memo(() => (
   <div className="container mx-auto p-4">
     <Skeleton className="w-40 h-10 mb-4" />
@@ -38,33 +37,9 @@ const ApplicationDetails: React.FC = () => {
     isLoading,
     error,
   } = useReadApplication(applicationId);
-  const { mutate: updateResume } = useUpdateResume();
-
-  const [editedResume, setEditedResume] = useState<TResume | null>(null);
-
-  useEffect(() => {
-    if (application?.resume) {
-      setEditedResume(application.resume as TResume);
-    }
-  }, [application?.resume]);
-
-  const debouncedSave = useDebouncedCallback(
-    (resumeToUpdate: TResume) => {
-      if (resumeToUpdate.id) {
-        const { matches, application, ...resumeData } = resumeToUpdate;
-        updateResume({ id: resumeToUpdate.id, resume: resumeData });
-      }
-    },
-    1000,
-    []
-  );
-
-  const handleResumeUpdate = useMemo(
-    () => (updatedResume: TResume) => {
-      setEditedResume(updatedResume);
-      debouncedSave(updatedResume);
-    },
-    [debouncedSave]
+  const resumeId = useMemo(
+    () => application?.resume.id,
+    [application?.resume.id]
   );
 
   const handleGoBack = useCallback(() => {
@@ -84,7 +59,7 @@ const ApplicationDetails: React.FC = () => {
     return <LoadingSkeleton />;
   }
 
-  if (error || !application || !editedResume) {
+  if (error || !application || !resumeId) {
     return <div>Error loading application details</div>;
   }
 
@@ -111,13 +86,9 @@ const ApplicationDetails: React.FC = () => {
       </div>
 
       <Separator className="my-6" />
-
-      <ResumeEditorTabs
-        resume={editedResume}
-        resumeId={editedResume.id}
-        onUpdate={handleResumeUpdate}
-        application={application}
-      />
+      <ResumeStateProvider resumeId={resumeId}>
+        <ResumeEditingWrapper />
+      </ResumeStateProvider>
     </div>
   );
 };
