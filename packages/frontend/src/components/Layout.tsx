@@ -138,7 +138,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <li key={item.label} className="relative">
                 <TooltipProvider>
                   {isCollapsed ? (
-                    <Tooltip>
+                    <Tooltip delayDuration={0}>
                       <TooltipTrigger asChild>
                         <Link
                           to={item.path}
