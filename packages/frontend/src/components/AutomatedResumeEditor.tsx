@@ -92,7 +92,7 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
 
   return (
     <div className="flex gap-6">
-      <div className="w-1/2 space-y-4">
+      <div className="space-y-4">
         <Textarea
           placeholder="Write what you want to change about the resume or paste in a job description"
           value={automatedInput}
@@ -148,9 +148,6 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
             </Button>
           )}
         </div>
-      </div>
-      <div className="w-1/2">
-        <ResumePDFPreviewLoadingWrapper />
       </div>
     </div>
   );

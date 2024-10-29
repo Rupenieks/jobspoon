@@ -1,6 +1,6 @@
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import AutomatedResumeEditor from "../AutomatedResumeEditor";
 import ResumeEditor from "../ResumeEditor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import ResumePDFPreviewLoadingWrapper from "./ResumePDFPreviewLoadingWrapper";
 
 const ResumeEditingWrapper = () => {
