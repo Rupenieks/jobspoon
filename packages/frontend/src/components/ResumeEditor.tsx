@@ -43,15 +43,19 @@ const ResumeEditor: React.FC = () => {
       <AccordionItem value="personal-info">
         <AccordionTrigger>Personal Information</AccordionTrigger>
         <AccordionContent>
-          {personalInfoFields.map(({ label, field }) => (
-            <div key={field} className="mb-4">
-              <label className="block text-sm font-medium mb-1">{label}</label>
-              <Input
-                value={resume[field] || ""}
-                onChange={(e) => updateResumeField(field, e.target.value)}
-              />
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-4">
+            {personalInfoFields.map(({ label, field }) => (
+              <div key={field}>
+                <label className="block text-sm font-medium mb-1">
+                  {label}
+                </label>
+                <Input
+                  value={resume[field] || ""}
+                  onChange={(e) => updateResumeField(field, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
         </AccordionContent>
       </AccordionItem>
 
