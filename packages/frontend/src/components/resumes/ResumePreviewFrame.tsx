@@ -28,7 +28,7 @@ const ResumePreviewFrame = () => {
       ref={iframeRef}
       title="Resume Preview"
       src="http://localhost:3001"
-      className="w-full h-[297mm] border border-gray-200 rounded-md"
+      className="w-full h-full border border-gray-200 rounded-md"
     />
   );
 };
