@@ -148,15 +148,17 @@ const ResumeEditor: React.FC = () => {
       <AccordionItem value="skills">
         <AccordionTrigger>Skills</AccordionTrigger>
         <AccordionContent>
-          {resume.skills?.map((skill, index) => (
-            <div key={index} className="mb-2">
-              <Input
-                value={skill}
-                onChange={(e) => updateSkill(index, e.target.value)}
-                placeholder="Skill"
-              />
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            {resume.skills?.map((skill, index) => (
+              <div key={index} className="mb-2">
+                <Input
+                  value={skill}
+                  onChange={(e) => updateSkill(index, e.target.value)}
+                  placeholder="Skill"
+                />
+              </div>
+            ))}
+          </div>
           <Button onClick={addSkill}>Add Skill</Button>
         </AccordionContent>
       </AccordionItem>

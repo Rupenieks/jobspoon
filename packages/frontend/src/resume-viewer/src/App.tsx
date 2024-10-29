@@ -1,5 +1,5 @@
 import { TResume } from "@redundant/common";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { StandardTemplate } from "./templates/StandardTemplate";
 
@@ -33,14 +33,15 @@ export const App = () => {
   return (
     <div className="h-full w-full bg-gray-100">
       <TransformWrapper
-        initialScale={1}
+        initialScale={0.5}
         minScale={0.5}
         maxScale={2}
         centerOnInit
+        centerZoomedOut={false}
         wheel={{ wheelDisabled: false }}
       >
         <TransformComponent>
-          <div className="preview bg-white rounded-lg p-8 w-[210mm] h-[297mm] mx-auto">
+          <div className="preview bg-white rounded-lg p-8 w-[210mm] min-h-[297mm] h-fit mx-auto">
             <StandardTemplate resume={resume} />
           </div>
         </TransformComponent>

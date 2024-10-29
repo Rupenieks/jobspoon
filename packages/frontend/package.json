@@ -42,6 +42,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.11.10",
+    "html2pdf.js": "^0.10.2",
     "lucide-react": "^0.453.0",
     "pdfjs-dist": "^4.7.76",
     "react": "^18.3.1",
