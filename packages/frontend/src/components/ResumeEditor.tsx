@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useResumeState } from "./resumes/ResumeStateContext";
-import { Textarea } from "./ui/textarea";
+import { TrashIcon } from "lucide-react";
 
 const ResumeEditor: React.FC = () => {
   const {
@@ -97,14 +97,53 @@ const ResumeEditor: React.FC = () => {
                   }
                 />
               </div>
-              <Textarea
-                className="w-full"
-                placeholder="Contributions"
-                value={exp.contributions ? exp.contributions.join("\n") : ""}
-                onChange={(e) =>
-                  updateExperience(index, "contributions", e.target.value)
-                }
-              />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium mb-1">
+                  Contributions
+                </label>
+                {exp.contributions?.map((contribution, contribIndex) => (
+                  <div key={contribIndex} className="flex gap-2">
+                    <Input
+                      value={contribution}
+                      onChange={(e) => {
+                        const newContributions = [...(exp.contributions || [])];
+                        newContributions[contribIndex] = e.target.value;
+                        updateExperience(
+                          index,
+                          "contributions",
+                          newContributions
+                        );
+                      }}
+                      placeholder={`Contribution ${contribIndex + 1}`}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        const newContributions = [...(exp.contributions || [])];
+                        newContributions.splice(contribIndex, 1);
+                        updateExperience(
+                          index,
+                          "contributions",
+                          newContributions
+                        );
+                      }}
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newContributions = [...(exp.contributions || []), ""];
+                    updateExperience(index, "contributions", newContributions);
+                  }}
+                >
+                  Add Contribution
+                </Button>
+              </div>
             </div>
           ))}
           <Button onClick={addExperience}>Add Experience</Button>
