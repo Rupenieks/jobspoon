@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TMatch, TResume } from '@redundant/common';
+import { TMatch, TResumeModel } from '@redundant/common';
 import axios from 'axios';
 import { TTheirStackJobsResponse } from './types/TTheirStackJobsResponse';
 import { TTechnologyResponse } from './types/TTheirStackTechnologyResponse';
@@ -9,7 +9,7 @@ export class TheirStackService {
   private readonly apiUrl = 'https://api.theirstack.com/v1';
   private readonly apiKey = process.env.THEIRSTACK_API_KEY;
 
-  async searchJobs(resume: TResume) {
+  async searchJobs(resume: TResumeModel) {
     const query = await this.buildJobQuery(resume);
     const options = {
       method: 'POST',
@@ -89,18 +89,19 @@ export class TheirStackService {
     return countryMap[normalizedCountry] || normalizedCountry.toUpperCase();
   }
 
-  private async buildJobQuery(resume: TResume) {
+  private async buildJobQuery(resume: TResumeModel) {
+    const resumeData = resume.data;
     const query: any = {
       posted_at_max_age_days: 7, // Required filter
     };
 
-    if (resume.country) {
-      query.job_country_code_or = [this.countryToISO(resume.country)];
+    if (resumeData.country) {
+      query.job_country_code_or = [this.countryToISO(resumeData.country)];
     }
 
-    if (resume.positionName) {
+    if (resumeData.positionName) {
       // Split the position name into words and create patterns
-      const words = resume.positionName
+      const words = resumeData.positionName
         .toLowerCase()
         .split(/\s+/)
         .filter((word) => word.length > 2); // Filter out small words
@@ -110,8 +111,10 @@ export class TheirStackService {
       }
     }
 
-    if (resume.skills && resume.skills.length > 0) {
-      query.job_technology_slug_or = await this.getSkillSlugs(resume.skills);
+    if (resumeData.skills && resumeData.skills.length > 0) {
+      query.job_technology_slug_or = await this.getSkillSlugs(
+        resumeData.skills,
+      );
     }
 
     return query;

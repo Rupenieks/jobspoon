@@ -1,9 +1,9 @@
-import { TResume } from "@redundant/common";
+import { TResumeModel } from "@redundant/common";
 import { useQuery } from "@tanstack/react-query";
 
 import axiosInstance from "@/utils/axiosConfig";
 
-const fetchResumes = async (): Promise<TResume[]> => {
+const fetchResumes = async (): Promise<TResumeModel[]> => {
   const response = await axiosInstance.get(
     "http://localhost:3000/resume-parser/all",
     {

@@ -1,14 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/utils/axiosConfig";
-import { TResume } from "@redundant/common";
 import { useToast } from "./use-toast";
+import { TResumeModel, TResumeUpdateDTO } from "@redundant/common/src";
 
 const updateResume = async ({
   id,
   resume,
 }: {
   id: string;
-  resume: Omit<TResume, "matches" | "application">;
+  resume: TResumeUpdateDTO;
 }) => {
   const response = await axiosInstance.put(`/resume-parser/${id}`, resume);
   return response.data;
@@ -19,7 +19,7 @@ export const useUpdateResume = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateResume,
-    onSuccess: (resume: TResume) => {
+    onSuccess: (resume: TResumeModel) => {
       queryClient.invalidateQueries({ queryKey: ["resume", resume.id] });
       toast({
         title: "Resume updated",

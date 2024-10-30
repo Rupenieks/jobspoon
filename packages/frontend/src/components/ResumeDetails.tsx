@@ -11,8 +11,6 @@ const ResumeDetails: React.FC = () => {
   const navigate = useNavigate();
   const { resume, isLoading, error } = useResumeState();
 
-  console.log(resume);
-  console.log(isLoading);
   if (isLoading) {
     return <ResumeSkeleton />;
   }
@@ -31,7 +29,7 @@ const ResumeDetails: React.FC = () => {
         <ChevronLeft className="mr-2 h-4 w-4" /> Back to Resumes
       </Button>
 
-      <h1 className="text-2xl font-bold">{resume.positionName}</h1>
+      <h1 className="text-2xl font-bold">{resume.data.positionName}</h1>
 
       <ResumeEditingWrapper />
     </div>

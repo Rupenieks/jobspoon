@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ApplicationSchema } from "../application";
 
 export const MatchSchema = z.object({
   id: z.string(),
@@ -19,7 +20,7 @@ export const MatchSchema = z.object({
   provider: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  application: z.object({}).optional(),
+  application: ApplicationSchema.nullish(),
 });
 
 export type TMatch = z.infer<typeof MatchSchema>;

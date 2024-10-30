@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ResumeSchema } from "../resume/TResume";
+import { ResumeModelSchema } from "../resume/TResume";
 
 export const UserSchema = z.object({
   id: z.string().uuid(),
@@ -8,9 +8,9 @@ export const UserSchema = z.object({
   fullName: z.string(),
   googleId: z.string().nullable(),
   picture: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  resumes: z.array(ResumeSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  resumes: z.array(ResumeModelSchema),
 });
 
 export type TUser = z.infer<typeof UserSchema>;

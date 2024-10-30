@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { useAssistantModifications } from "@/hooks/useAssistantModifications";
-import { TApplication, TResume } from "@redundant/common/src";
+import { TApplication } from "@redundant/common/src";
 import { AnimatePresence } from "framer-motion";
 import { Check, Terminal } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";

@@ -108,11 +108,11 @@ const ResumeList: React.FC = () => {
         </div>
         <div onClick={() => handleResumeClick(resume.id)}>
           <CardHeader>
-            <CardTitle>{resume.fullName}</CardTitle>
+            <CardTitle>{resume.data.fullName}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>{resume.positionName}</p>
-            <p>{resume.email}</p>
+            <p>{resume.data.positionName}</p>
+            <p>{resume.data.email}</p>
           </CardContent>
         </div>
       </Card>

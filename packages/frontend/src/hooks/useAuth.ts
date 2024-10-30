@@ -64,7 +64,6 @@ export const useAuth = () => {
         }
       );
 
-      console.log(response.data);
       localStorage.setItem("token", response.data.access_token);
       localStorage.setItem("refresh_token", response.data.refresh_token);
       setUser(response.data.user);

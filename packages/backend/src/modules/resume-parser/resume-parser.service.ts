@@ -1,24 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TResume } from '@redundant/common';
+import {
+  deserializeResume,
+  ResumeRawModelSchema,
+  serializeResume,
+  TResumeData,
+  TResumeModel,
+} from '@redundant/common';
 import * as pdf from 'pdf-parse';
-import { parseResumeFields } from 'src/utils/resumeParser';
 import { AssistantService } from '../assistant/assistant.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class ResumeParserService {
   constructor(
     private readonly assistantService: AssistantService,
     private readonly prismaService: PrismaService,
-    private readonly storageService: StorageService,
   ) {}
 
-  async parseResume(buffer: Buffer, userId: string): Promise<TResume> {
+  async parseResume(buffer: Buffer, userId: string): Promise<TResumeModel> {
     const text = await this.parsePdfToText(buffer);
     const parsedResume = await this.assistantService.parseResume(text);
-    await this.storeResume(parsedResume, userId);
-    return parsedResume;
+    const storedResume = await this.storeResume(parsedResume, userId);
+    return storedResume;
   }
 
   private async parsePdfToText(buffer: Buffer): Promise<string> {
@@ -26,32 +29,31 @@ export class ResumeParserService {
     return data.text;
   }
 
-  private async storeResume(resume: TResume, userId: string): Promise<void> {
-    await this.prismaService.resume.create({
+  async storeResume(
+    resumeData: TResumeData,
+    userId: string,
+  ): Promise<TResumeModel> {
+    const stored = await this.prismaService.resume.create({
       data: {
-        user: {
-          connect: { id: userId },
+        userId,
+        data: serializeResume(resumeData),
+      },
+      include: {
+        matches: {
+          include: {
+            application: true,
+          },
         },
-        fullName: resume.fullName,
-        country: resume.country,
-        city: resume.city,
-        address: resume.address,
-        email: resume.email,
-        phoneNumber: resume.phoneNumber,
-        positionName: resume.positionName,
-        experience: resume.experience
-          ? JSON.stringify(resume.experience)
-          : null,
-        education: resume.education ? JSON.stringify(resume.education) : null,
-        skills: resume.skills || [],
-        references: resume.references
-          ? JSON.stringify(resume.references)
-          : null,
+        application: true,
       },
     });
+
+    const parsed = ResumeRawModelSchema.parse(stored);
+
+    return deserializeResume(parsed);
   }
 
-  async getAllResumesForUser(userId: string): Promise<TResume[]> {
+  async getAllResumesForUser(userId: string): Promise<TResumeModel[]> {
     const resumes = await this.prismaService.resume.findMany({
       where: { userId },
       include: {
@@ -64,61 +66,21 @@ export class ResumeParserService {
       },
     });
 
-    return resumes.map((resume) =>
-      parseResumeFields(resume as unknown as TResume),
-    );
+    const parsed = resumes.map((resume) => ResumeRawModelSchema.parse(resume));
+
+    return parsed.map((resume) => deserializeResume(resume));
   }
 
-  async parseResumeText(text: string, userId: string): Promise<TResume> {
+  async parseResumeText(text: string, userId: string): Promise<TResumeModel> {
     const parsedResume = await this.assistantService.parseResume(text);
-    await this.storeResume(parsedResume, userId);
-    return parsedResume;
+    return await this.storeResume(parsedResume, userId);
   }
 
   async updateResume(
     id: string,
-    resumeData: Partial<TResume>,
+    resumeData: Partial<TResumeData>,
     userId: string,
-  ): Promise<TResume> {
-    const resume = await this.prismaService.resume.findUnique({
-      where: { id },
-      include: {
-        matches: true,
-        application: true,
-      },
-    });
-
-    if (!resume || resume.userId !== userId) {
-      throw new NotFoundException(
-        `Resume with ID ${id} not found or unauthorized`,
-      );
-    }
-
-    const updatedResume = await this.prismaService.resume.update({
-      where: { id },
-      data: {
-        ...resumeData,
-        experience: resumeData.experience
-          ? JSON.stringify(resumeData.experience)
-          : undefined,
-        education: resumeData.education
-          ? JSON.stringify(resumeData.education)
-          : undefined,
-        matches: {
-          connect: resume.matches.map((match) => ({ id: match.id })),
-        },
-        application: {
-          connect: resume.application
-            ? { id: resume.application.id }
-            : undefined,
-        },
-      },
-    });
-
-    return parseResumeFields(updatedResume as unknown as TResume);
-  }
-
-  async getResumeById(id: string, userId: string): Promise<TResume> {
+  ): Promise<TResumeModel> {
     const resume = await this.prismaService.resume.findUnique({
       where: { id },
       include: {
@@ -131,13 +93,62 @@ export class ResumeParserService {
       },
     });
 
+    const parsed = ResumeRawModelSchema.parse(resume);
+
     if (!resume || resume.userId !== userId) {
       throw new NotFoundException(
         `Resume with ID ${id} not found or unauthorized`,
       );
     }
 
-    return parseResumeFields(resume as unknown as TResume);
+    const currentData = parsed.data;
+    const newData = {
+      ...currentData,
+      ...resumeData,
+    };
+
+    const updatedResume = await this.prismaService.resume.update({
+      where: { id },
+      data: {
+        data: serializeResume(newData),
+      },
+      include: {
+        matches: {
+          include: {
+            application: true,
+          },
+        },
+        application: true,
+      },
+    });
+
+    const parsedUpdated = ResumeRawModelSchema.parse(updatedResume);
+
+    return deserializeResume(parsedUpdated);
+  }
+
+  async getResumeById(id: string, userId: string): Promise<TResumeModel> {
+    const resume = await this.prismaService.resume.findUnique({
+      where: { id },
+      include: {
+        matches: {
+          include: {
+            application: true,
+          },
+        },
+        application: true,
+      },
+    });
+
+    const parsed = ResumeRawModelSchema.parse(resume);
+
+    if (!resume || resume.userId !== userId) {
+      throw new NotFoundException(
+        `Resume with ID ${id} not found or unauthorized`,
+      );
+    }
+
+    return deserializeResume(parsed);
   }
 
   async deleteResumes(ids: string[], userId: string): Promise<void> {
@@ -147,37 +158,5 @@ export class ResumeParserService {
         userId,
       },
     });
-  }
-
-  async updateResumeImages(
-    id: string,
-    userId: string,
-    profileImage?: Express.Multer.File,
-  ): Promise<TResume> {
-    const resume = await this.prismaService.resume.findUnique({
-      where: { id },
-    });
-
-    if (!resume || resume.userId !== userId) {
-      throw new NotFoundException('Resume not found or unauthorized');
-    }
-
-    const updateData: any = {};
-
-    if (profileImage) {
-      // Delete old profile image if exists
-      await this.storageService.deleteImage(resume.profileImage);
-      updateData.profileImage = await this.storageService.uploadImage(
-        profileImage,
-        'profile',
-      );
-    }
-
-    const updatedResume = await this.prismaService.resume.update({
-      where: { id },
-      data: updateData,
-    });
-
-    return parseResumeFields(updatedResume as unknown as TResume);
   }
 }

@@ -18,7 +18,7 @@ const ResumePreviewFrame = () => {
     if (!iframeRef.current?.contentWindow) return;
     const message = {
       type: "SET_RESUME",
-      payload: temporaryResume || resume,
+      payload: temporaryResume?.data || resume?.data,
     };
     iframeRef.current.contentWindow.postMessage(message, "*");
   }, [resume, temporaryResume]);
@@ -30,7 +30,7 @@ const ResumePreviewFrame = () => {
         const content = event.data.payload;
         if (content) {
           const filename = `${
-            temporaryResume?.fullName || resume?.fullName || "resume"
+            temporaryResume?.data.fullName || resume?.data.fullName || "resume"
           }.pdf`;
           html2pdf()
             .set({

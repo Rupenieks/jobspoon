@@ -15,8 +15,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResumeParserService } from './resume-parser.service';
-import { TResume } from '@redundant/common';
 import { AuthGuard } from '@nestjs/passport';
+import { TResumeData, TResumeModel } from '@redundant/common';
 
 @Controller('resume-parser')
 @UseGuards(AuthGuard('jwt'))
@@ -29,13 +29,13 @@ export class ResumeParserController {
     @UploadedFile() file: Express.Multer.File,
     @Body('text') text: string,
     @Request() req,
-  ): Promise<TResume> {
+  ): Promise<TResumeModel> {
     if (!file && !text) {
       throw new BadRequestException('No file or text provided');
     }
 
     try {
-      let parsedResume: TResume;
+      let parsedResume: TResumeModel;
       if (file) {
         parsedResume = await this.resumeParserService.parseResume(
           file.buffer,
@@ -55,7 +55,7 @@ export class ResumeParserController {
   }
 
   @Get('all')
-  async getAllResumes(@Request() req): Promise<TResume[]> {
+  async getAllResumes(@Request() req): Promise<TResumeModel[]> {
     try {
       const resumes = await this.resumeParserService.getAllResumesForUser(
         req.user.id,
@@ -70,9 +70,9 @@ export class ResumeParserController {
   @Put(':id')
   async updateResume(
     @Param('id') id: string,
-    @Body() resumeData: Partial<TResume>,
+    @Body() resumeData: Partial<TResumeData>,
     @Request() req,
-  ): Promise<TResume> {
+  ): Promise<TResumeModel> {
     try {
       const updatedResume = await this.resumeParserService.updateResume(
         id,
@@ -87,7 +87,10 @@ export class ResumeParserController {
   }
 
   @Get(':id')
-  async getResume(@Param('id') id: string, @Request() req): Promise<TResume> {
+  async getResume(
+    @Param('id') id: string,
+    @Request() req,
+  ): Promise<TResumeModel> {
     try {
       const resume = await this.resumeParserService.getResumeById(
         id,

@@ -31,19 +31,7 @@ model Resume {
   user          User         @relation(fields: [userId], references: [id])
   matches       Match[]      @relation("ResumeToMatch")
   application   Application? @relation("ResumeToApplication")
-  fullName      String?
-  country       String?
-  city          String?
-  address       String?
-  email         String?
-  phoneNumber   String?
-  positionName  String?
-  experience    Json?
-  education     Json?
-  skills        String[]
-  references    Json?
-  previewImage  String?    
-  profileImage  String?      
+  data          Json         // This will store all resume data
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }

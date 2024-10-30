@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ResumeSchemaDTO, TResume } from '@redundant/common';
+import {
+  ResumeDataSchema,
+  ResumeRawModelSchema,
+  TResumeData,
+  TResumeModel,
+} from '@redundant/common';
 import OpenAI from 'openai';
-import { parseResumeFields } from 'src/utils/resumeParser';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -26,7 +30,7 @@ export class AssistantService {
       .trim();
   }
 
-  async parseResume(resumeText: string): Promise<TResume> {
+  async parseResume(resumeText: string): Promise<TResumeData> {
     try {
       const output = await this.getAssistantOutput({
         assistantId: this.resumeParserAssistantId,
@@ -36,7 +40,7 @@ export class AssistantService {
       const cleanedOutput = this.cleanOutput(output);
 
       const parsedOutput = JSON.parse(cleanedOutput);
-      const validatedOutput = ResumeSchemaDTO.parse(parsedOutput);
+      const validatedOutput = ResumeDataSchema.parse(parsedOutput);
       return validatedOutput;
     } catch (err) {
       console.error('Error parsing resume:', err);
@@ -50,14 +54,16 @@ export class AssistantService {
   }: {
     resumeId: string;
     input: string;
-  }): Promise<TResume> {
+  }): Promise<TResumeModel> {
     const resume = await this.prismaService.resume.findUnique({
       where: { id: resumeId },
     });
 
+    const parsedResume = ResumeRawModelSchema.parse(resume);
+
     const intputPayload = `
       Here is the resume I want to modify:
-      ${JSON.stringify(resume)}
+      ${JSON.stringify(parsedResume.data)}
 
       Here is the user's input:
       ${input}
@@ -71,13 +77,11 @@ export class AssistantService {
     const cleanedOutput = this.cleanOutput(output);
 
     const parsedOutput = JSON.parse(cleanedOutput);
-    delete parsedOutput.id;
-    delete parsedOutput.matches;
-    const normalisedResume = parseResumeFields(parsedOutput);
-    const validatedOutput = ResumeSchemaDTO.parse(normalisedResume);
+
+    const validatedOutput = ResumeDataSchema.parse(parsedOutput);
     return {
-      ...validatedOutput,
-      id: resume.id,
+      ...parsedResume,
+      data: validatedOutput,
     };
   }
 

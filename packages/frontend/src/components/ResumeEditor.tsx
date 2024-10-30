@@ -50,7 +50,7 @@ const ResumeEditor: React.FC = () => {
                   {label}
                 </label>
                 <Input
-                  value={resume[field] || ""}
+                  value={resume.data[field] || ""}
                   onChange={(e) => updateResumeField(field, e.target.value)}
                 />
               </div>
@@ -62,7 +62,7 @@ const ResumeEditor: React.FC = () => {
       <AccordionItem value="experience">
         <AccordionTrigger>Experience</AccordionTrigger>
         <AccordionContent>
-          {resume.experience?.map((exp, index) => (
+          {resume.data.experience?.map((exp, index) => (
             <div key={index} className="mb-6 p-4 border rounded">
               <Input
                 className="mb-2"
@@ -105,7 +105,7 @@ const ResumeEditor: React.FC = () => {
       <AccordionItem value="education">
         <AccordionTrigger>Education</AccordionTrigger>
         <AccordionContent>
-          {resume.education?.map((edu, index) => (
+          {resume.data.education?.map((edu, index) => (
             <div key={index} className="mb-6 p-4 border rounded">
               <Input
                 className="mb-2"
@@ -149,7 +149,7 @@ const ResumeEditor: React.FC = () => {
         <AccordionTrigger>Skills</AccordionTrigger>
         <AccordionContent>
           <div className="grid grid-cols-2 gap-2 mb-2">
-            {resume.skills?.map((skill, index) => (
+            {resume.data.skills?.map((skill, index) => (
               <div key={index} className="mb-2">
                 <Input
                   value={skill}

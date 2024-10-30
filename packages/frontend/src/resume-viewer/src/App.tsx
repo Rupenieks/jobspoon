@@ -1,10 +1,10 @@
-import { TResume } from "@redundant/common";
-import { useCallback, useEffect, useState } from "react";
+import { TResumeData } from "@redundant/common/src";
+import { useEffect, useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { StandardTemplate } from "./templates/StandardTemplate";
 
 export const App = () => {
-  const [resume, setResume] = useState<TResume | null>(null);
+  const [resume, setResume] = useState<TResumeData | null>(null);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {

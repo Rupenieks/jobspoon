@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { deserializeResume, ResumeRawModelSchema } from '@redundant/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { parseResumeFields } from 'src/utils/resumeParser';
-import { TResume } from '@redundant/common';
 
 @Injectable()
 export class ApplicationService {
@@ -71,9 +70,10 @@ export class ApplicationService {
       include: { resume: true, match: true },
     });
 
+    const parsedResume = ResumeRawModelSchema.parse(application.resume);
     const parsedApplication = {
       ...application,
-      resume: parseResumeFields(application.resume as TResume),
+      resume: deserializeResume(parsedResume),
     };
 
     if (!parsedApplication) {

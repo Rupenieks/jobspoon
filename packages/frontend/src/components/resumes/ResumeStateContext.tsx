@@ -1,7 +1,7 @@
 import useDebouncedCallback from "@/hooks/useDebouncedCallback";
 import { useReadResume } from "@/hooks/useReadResume";
 import { useUpdateResume } from "@/hooks/useUpdateResume";
-import { TResume } from "@redundant/common/src";
+import { TResumeData, TResumeModel } from "@redundant/common/src";
 import React, {
   useCallback,
   useContext,
@@ -11,30 +11,30 @@ import React, {
 } from "react";
 
 interface ResumeStateContextType {
-  resume: TResume | null;
-  temporaryResume: TResume | null;
+  resume: TResumeModel | null;
+  temporaryResume: TResumeModel | null;
   isLoading: boolean;
   error: Error | null;
-  updateResumeField: <K extends keyof TResume>(
+  updateResumeField: <K extends keyof TResumeData>(
     field: K,
-    value: TResume[K]
+    value: TResumeData[K]
   ) => void;
   updateExperience: (
     index: number,
-    field: keyof TResume["experience"][0],
+    field: keyof TResumeData["experience"][0],
     value: any
   ) => void;
   updateEducation: (
     index: number,
-    field: keyof TResume["education"][0],
+    field: keyof TResumeData["education"][0],
     value: any
   ) => void;
   addExperience: () => void;
   addEducation: () => void;
   updateSkill: (index: number, value: string) => void;
   addSkill: () => void;
-  updateEntireResume: (newResume: TResume) => void;
-  setTemporaryResume: (resume: TResume | null) => void;
+  updateEntireResume: (newResumeData: TResumeData) => void;
+  setTemporaryResume: (resume: TResumeModel | null) => void;
   applyTemporaryResume: () => void;
 }
 
@@ -52,10 +52,11 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({
   children,
 }) => {
   const { data: initialResume, isLoading, error } = useReadResume(resumeId);
-  const [resume, setResume] = useState<TResume | null>(null);
+  const [resume, setResume] = useState<TResumeModel | null>(null);
   const { mutate: updateResume } = useUpdateResume();
-  const [temporaryResume, setTemporaryResume] = useState<TResume | null>(null);
-  console.log("Is Loading in hook", isLoading);
+  const [temporaryResume, setTemporaryResume] = useState<TResumeModel | null>(
+    null
+  );
   useEffect(() => {
     if (initialResume) {
       setResume(initialResume);
@@ -63,58 +64,57 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({
   }, [initialResume]);
 
   const debouncedSave = useDebouncedCallback(
-    (resumeToUpdate: TResume) => {
-      const { matches, application, ...resumeData } = resumeToUpdate;
-      updateResume({ id: resumeId, resume: resumeData });
+    (resumeToUpdate: TResumeData) => {
+      const data = resumeToUpdate;
+      updateResume({ id: resumeId, resume: data });
     },
     2000,
     [resumeId]
   );
 
   const updateEntireResume = useCallback(
-    (newResume: TResume) => {
-      setResume(newResume);
-      const { matches, application, ...resumeData } = newResume;
-      debouncedSave(newResume);
+    (newResumeData: TResumeData) => {
+      setResume((prev) => (prev ? { ...prev, data: newResumeData } : null));
+      debouncedSave({ ...newResumeData });
     },
     [debouncedSave]
   );
 
   const updateResumeField = useCallback(
-    <K extends keyof TResume>(field: K, value: TResume[K]) => {
+    <K extends keyof TResumeData>(field: K, value: TResumeData[K]) => {
       setResume((prev) => {
         if (!prev) return prev;
-        const updated = { ...prev, [field]: value };
-        debouncedSave(updated);
-        return updated;
+        const updatedData = { ...prev.data, [field]: value };
+        debouncedSave({ ...updatedData });
+        return { ...prev, data: updatedData };
       });
     },
     [debouncedSave]
   );
 
   const updateExperience = useCallback(
-    (index: number, field: keyof TResume["experience"][0], value: any) => {
+    (index: number, field: keyof TResumeData["experience"][0], value: any) => {
       setResume((prev) => {
         if (!prev) return prev;
-        const newExperience = [...(prev.experience || [])];
+        const newExperience = [...(prev.data.experience || [])];
         newExperience[index] = { ...newExperience[index], [field]: value };
-        const updated = { ...prev, experience: newExperience };
-        debouncedSave(updated);
-        return updated;
+        const updatedData = { ...prev.data, experience: newExperience };
+        debouncedSave({ ...updatedData });
+        return { ...prev, data: updatedData };
       });
     },
     [debouncedSave]
   );
 
   const updateEducation = useCallback(
-    (index: number, field: keyof TResume["education"][0], value: any) => {
+    (index: number, field: keyof TResumeData["education"][0], value: any) => {
       setResume((prev) => {
         if (!prev) return prev;
-        const newEducation = [...(prev.education || [])];
+        const newEducation = [...(prev.data.education || [])];
         newEducation[index] = { ...newEducation[index], [field]: value };
-        const updated = { ...prev, education: newEducation };
-        debouncedSave(updated);
-        return updated;
+        const updatedData = { ...prev.data, education: newEducation };
+        debouncedSave({ ...updatedData });
+        return { ...prev, data: updatedData };
       });
     },
     [debouncedSave]
@@ -123,36 +123,32 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({
   const addExperience = useCallback(() => {
     setResume((prev) => {
       if (!prev) return prev;
-      const updated = {
-        ...prev,
-        experience: [
-          ...(prev.experience || []),
-          {
-            positionTitle: "",
-            company: "",
-            startDate: "",
-            endDate: "",
-            contributions: [],
-          },
-        ],
-      };
-      debouncedSave(updated);
-      return updated;
+      const newExperience = [
+        ...(prev.data.experience || []),
+        {
+          positionTitle: "",
+          company: "",
+          startDate: "",
+          endDate: "",
+          contributions: [],
+        },
+      ];
+      const updatedData = { ...prev.data, experience: newExperience };
+      debouncedSave({ ...updatedData });
+      return { ...prev, data: updatedData };
     });
   }, [debouncedSave]);
 
   const addEducation = useCallback(() => {
     setResume((prev) => {
       if (!prev) return prev;
-      const updated = {
-        ...prev,
-        education: [
-          ...(prev.education || []),
-          { university: "", degree: "", startDate: "", endDate: "" },
-        ],
-      };
-      debouncedSave(updated);
-      return updated;
+      const newEducation = [
+        ...(prev.data.education || []),
+        { university: "", degree: "", startDate: "", endDate: "" },
+      ];
+      const updatedData = { ...prev.data, education: newEducation };
+      debouncedSave({ ...updatedData });
+      return { ...prev, data: updatedData };
     });
   }, [debouncedSave]);
 
@@ -160,11 +156,11 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({
     (index: number, value: string) => {
       setResume((prev) => {
         if (!prev) return prev;
-        const newSkills = [...(prev.skills || [])];
+        const newSkills = [...(prev.data.skills || [])];
         newSkills[index] = value;
-        const updated = { ...prev, skills: newSkills };
-        debouncedSave(updated);
-        return updated;
+        const updatedData = { ...prev.data, skills: newSkills };
+        debouncedSave({ ...updatedData });
+        return { ...prev, data: updatedData };
       });
     },
     [debouncedSave]
@@ -173,15 +169,18 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({
   const addSkill = useCallback(() => {
     setResume((prev) => {
       if (!prev) return prev;
-      const updated = { ...prev, skills: [...(prev.skills || []), ""] };
-      debouncedSave(updated);
-      return updated;
+      const updatedData = {
+        ...prev.data,
+        skills: [...(prev.data.skills || []), ""],
+      };
+      debouncedSave({ ...updatedData });
+      return { ...prev, data: updatedData };
     });
   }, [debouncedSave]);
 
   const applyTemporaryResume = useCallback(() => {
     if (temporaryResume) {
-      updateEntireResume(temporaryResume);
+      updateEntireResume(temporaryResume.data);
       setTemporaryResume(null);
     }
   }, [temporaryResume, updateEntireResume]);
