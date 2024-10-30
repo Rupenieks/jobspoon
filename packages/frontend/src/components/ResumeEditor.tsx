@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useResumeState } from "./resumes/ResumeStateContext";
+import { Textarea } from "./ui/textarea";
 
 const ResumeEditor: React.FC = () => {
   const {
@@ -96,6 +97,14 @@ const ResumeEditor: React.FC = () => {
                   }
                 />
               </div>
+              <Textarea
+                className="w-full"
+                placeholder="Contributions"
+                value={exp.contributions ? exp.contributions.join("\n") : ""}
+                onChange={(e) =>
+                  updateExperience(index, "contributions", e.target.value)
+                }
+              />
             </div>
           ))}
           <Button onClick={addExperience}>Add Experience</Button>
