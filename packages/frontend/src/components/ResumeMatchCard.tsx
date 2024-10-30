@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TApplication, TMatch, TResume } from "@redundant/common";
+import { TApplication, TMatch, TResumeModel } from "@redundant/common";
 import { formatDistanceToNow } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import { RefreshCw, Crosshair, Pencil } from "lucide-react";
@@ -22,7 +22,7 @@ import ResumeMatchJobCard from "./ResumeJobCard";
 import { useNavigate } from "react-router-dom";
 
 interface ResumeMatchCardProps {
-  resume: TResume;
+  resume: TResumeModel;
   isPending: boolean;
   onMatchJobs: (resumeId: string) => void;
 }
@@ -57,7 +57,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
           <CardHeader className="flex flex-row items-start justify-between">
             <div>
               <CardTitle>
-                {resume.positionName} - {resume.fullName}
+                {resume.data.positionName} - {resume.data.fullName}
               </CardTitle>
               <p className="text-sm text-gray-500 mt-1">
                 Created{" "}
