@@ -23,6 +23,7 @@ export const useAuth = () => {
         credentials
       );
       localStorage.setItem("token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
       setUser(response.data.user);
       setIsAuthenticated(true);
     } catch (err) {
@@ -65,6 +66,7 @@ export const useAuth = () => {
 
       console.log(response.data);
       localStorage.setItem("token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
       setUser(response.data.user);
       setIsAuthenticated(true);
     } catch (err) {
@@ -80,6 +82,7 @@ export const useAuth = () => {
     setError(null);
     try {
       localStorage.removeItem("token");
+      localStorage.removeItem("refresh_token");
       setUser(null);
       setIsAuthenticated(false);
     } catch (err) {
