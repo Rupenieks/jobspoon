@@ -3,6 +3,7 @@ import { TMatch, TResumeModel } from '@redundant/common';
 import axios from 'axios';
 import { TTheirStackJobsResponse } from './types/TTheirStackJobsResponse';
 import { TTechnologyResponse } from './types/TTheirStackTechnologyResponse';
+import { TTheirStackJobSearchQuery } from './types/TTheirStackJobSearchQuery';
 
 @Injectable()
 export class TheirStackService {
@@ -89,29 +90,42 @@ export class TheirStackService {
     return countryMap[normalizedCountry] || normalizedCountry.toUpperCase();
   }
 
-  private async buildJobQuery(resume: TResumeModel) {
+  private async buildJobQuery(
+    resume: TResumeModel,
+  ): Promise<TTheirStackJobSearchQuery> {
     const resumeData = resume.data;
-    const query: any = {
+    const query: TTheirStackJobSearchQuery = {
       posted_at_max_age_days: 7, // Required filter
+      limit: 25,
+      order_by: [
+        { desc: true, field: 'date_posted' },
+        { desc: true, field: 'discovered_at' },
+      ],
     };
 
+    // Location filters
     if (resumeData.country) {
       query.job_country_code_or = [this.countryToISO(resumeData.country)];
     }
 
+    if (resumeData.city) {
+      query.job_location_pattern_or = [`.*${resumeData.city}.*`];
+    }
+
+    // Position/Title filters
     if (resumeData.positionName) {
-      // Split the position name into words and create patterns
       const words = resumeData.positionName
         .toLowerCase()
         .split(/\s+/)
-        .filter((word) => word.length > 2); // Filter out small words
+        .filter((word) => word.length > 2);
 
       if (words.length > 0) {
         query.job_title_pattern_and = words.map((word) => `.*${word}.*`);
       }
     }
 
-    if (resumeData.skills && resumeData.skills.length > 0) {
+    // Skills/Technology filters
+    if (resumeData.skills?.length > 0) {
       query.job_technology_slug_or = await this.getSkillSlugs(
         resumeData.skills,
       );
