@@ -7,7 +7,7 @@ export class ApplicationController {
 
   @Post()
   async createApplication(@Body() data: { resumeId: string; matchId: string }) {
-    return this.applicationService.createApplication(
+    return await this.applicationService.createApplication(
       data.resumeId,
       data.matchId,
     );

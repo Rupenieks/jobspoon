@@ -4,42 +4,42 @@ import { ApplicationSchema } from "../application";
 
 // Base schemas for resume data
 export const ExperienceSchema = z.object({
-  positionTitle: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  company: z.string().optional(),
-  contributions: z.array(z.string()).optional(),
+  positionTitle: z.string().nullish(),
+  startDate: z.string().nullish(),
+  endDate: z.string().nullish(),
+  company: z.string().nullish(),
+  contributions: z.array(z.string()).nullish(),
 });
 
 export const EducationSchema = z.object({
-  university: z.string().optional(),
-  degree: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  university: z.string().nullish(),
+  degree: z.string().nullish(),
+  startDate: z.string().nullish(),
+  endDate: z.string().nullish(),
 });
 
 export const ReferenceSchema = z.object({
-  name: z.string().optional(),
-  position: z.string().optional(),
-  number: z.string().optional(),
-  email: z.string().optional(),
+  name: z.string().nullish(),
+  position: z.string().nullish(),
+  number: z.string().nullish(),
+  email: z.string().nullish(),
 });
 
 // This is the pure resume data schema (what's in the data field)
 export const ResumeDataSchema = z.object({
-  fullName: z.string().optional(),
-  country: z.string().optional(),
-  city: z.string().optional(),
-  address: z.string().optional(),
-  email: z.string().optional(),
-  phoneNumber: z.string().optional(),
-  positionName: z.string().optional(),
-  experience: z.array(ExperienceSchema).optional(),
-  education: z.array(EducationSchema).optional(),
-  skills: z.array(z.string()).optional(),
-  references: z.array(ReferenceSchema).optional(),
-  previewImage: z.string().optional(),
-  profileImage: z.string().optional(),
+  fullName: z.string().nullish(),
+  country: z.string().nullish(),
+  city: z.string().nullish(),
+  address: z.string().nullish(),
+  email: z.string().nullish(),
+  phoneNumber: z.string().nullish(),
+  positionName: z.string().nullish(),
+  experience: z.array(ExperienceSchema).nullish(),
+  education: z.array(EducationSchema).nullish(),
+  skills: z.array(z.string()).nullish(),
+  references: z.array(ReferenceSchema).nullish(),
+  previewImage: z.string().nullish(),
+  profileImage: z.string().nullish(),
 });
 
 // Raw database model
@@ -58,8 +58,8 @@ export const ResumeModelSchema = z.object({
   id: z.string(),
   userId: z.string(),
   data: ResumeDataSchema,
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.date().transform((date) => date.toISOString()),
+  updatedAt: z.date().transform((date) => date.toISOString()),
   matches: z.array(MatchSchema).optional(),
   application: ApplicationSchema.nullish(),
 });

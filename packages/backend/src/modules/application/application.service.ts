@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { deserializeResume, ResumeRawModelSchema } from '@redundant/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -10,6 +9,7 @@ export class ApplicationService {
     const resume = await this.prisma.resume.findUnique({
       where: { id: resumeId },
     });
+
     if (!resume) {
       throw new NotFoundException(`Resume with ID ${resumeId} not found`);
     }
@@ -35,27 +35,31 @@ export class ApplicationService {
       );
     }
 
-    // Wrap the creation of duplicate resume and application in a transaction
-    return this.prisma.$transaction(async (prisma) => {
-      // Create a duplicate resume for this application
-      const duplicatedResume = await prisma.resume.create({
-        data: {
-          ...resume,
-          id: undefined, // Remove the id field
-          createdAt: undefined, // Let Prisma set the current timestamp
-          updatedAt: undefined, // Let Prisma set the current timestamp
-        },
-      });
+    try {
+      // Wrap the creation of duplicate resume and application in a transaction
+      return this.prisma.$transaction(async (prisma) => {
+        // Create a duplicate resume for this application
+        const duplicatedResume = await prisma.resume.create({
+          data: {
+            data: resume.data,
+            userId: resume.userId,
+            id: undefined, // Remove the id field
+            createdAt: undefined, // Let Prisma set the current timestamp
+            updatedAt: undefined, // Let Prisma set the current timestamp
+          },
+        });
 
-      // Create the application with the new resume ID
-      return prisma.application.create({
-        data: {
-          resumeId: duplicatedResume.id,
-          matchId,
-        },
-        include: { resume: true, match: true },
+        return await prisma.application.create({
+          data: {
+            resumeId: duplicatedResume.id,
+            matchId,
+          },
+          include: { resume: true, match: true },
+        });
       });
-    });
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
   async getAllApplications() {
@@ -70,17 +74,7 @@ export class ApplicationService {
       include: { resume: true, match: true },
     });
 
-    const parsedResume = ResumeRawModelSchema.parse(application.resume);
-    const parsedApplication = {
-      ...application,
-      resume: deserializeResume(parsedResume),
-    };
-
-    if (!parsedApplication) {
-      throw new NotFoundException(`Application with ID ${id} not found`);
-    }
-
-    return parsedApplication;
+    return application;
   }
 
   async deleteApplications(ids: string[]): Promise<void> {

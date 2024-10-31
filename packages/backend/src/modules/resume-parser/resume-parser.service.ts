@@ -1,8 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
-  deserializeResume,
-  ResumeRawModelSchema,
-  serializeResume,
+  ResumeModelSchema,
   TResumeData,
   TResumeModel,
 } from '@redundant/common';
@@ -36,7 +34,7 @@ export class ResumeParserService {
     const stored = await this.prismaService.resume.create({
       data: {
         userId,
-        data: serializeResume(resumeData),
+        data: resumeData,
       },
       include: {
         matches: {
@@ -48,9 +46,9 @@ export class ResumeParserService {
       },
     });
 
-    const parsed = ResumeRawModelSchema.parse(stored);
+    const parsed = ResumeModelSchema.parse(stored);
 
-    return deserializeResume(parsed);
+    return parsed;
   }
 
   async getAllResumesForUser(userId: string): Promise<TResumeModel[]> {
@@ -66,9 +64,7 @@ export class ResumeParserService {
       },
     });
 
-    const parsed = resumes.map((resume) => ResumeRawModelSchema.parse(resume));
-
-    return parsed.map((resume) => deserializeResume(resume));
+    return resumes.map((resume) => ResumeModelSchema.parse(resume));
   }
 
   async parseResumeText(text: string, userId: string): Promise<TResumeModel> {
@@ -93,7 +89,7 @@ export class ResumeParserService {
       },
     });
 
-    const parsed = ResumeRawModelSchema.parse(resume);
+    const parsed = ResumeModelSchema.parse(resume);
 
     if (!resume || resume.userId !== userId) {
       throw new NotFoundException(
@@ -110,7 +106,7 @@ export class ResumeParserService {
     const updatedResume = await this.prismaService.resume.update({
       where: { id },
       data: {
-        data: serializeResume(newData),
+        data: newData,
       },
       include: {
         matches: {
@@ -122,14 +118,14 @@ export class ResumeParserService {
       },
     });
 
-    const parsedUpdated = ResumeRawModelSchema.parse(updatedResume);
+    const parsedUpdated = ResumeModelSchema.parse(updatedResume);
 
-    return deserializeResume(parsedUpdated);
+    return parsedUpdated;
   }
 
   async getResumeById(id: string, userId: string): Promise<TResumeModel> {
     const resume = await this.prismaService.resume.findUnique({
-      where: { id },
+      where: { id, userId },
       include: {
         matches: {
           include: {
@@ -140,7 +136,7 @@ export class ResumeParserService {
       },
     });
 
-    const parsed = ResumeRawModelSchema.parse(resume);
+    const parsed = ResumeModelSchema.parse(resume);
 
     if (!resume || resume.userId !== userId) {
       throw new NotFoundException(
@@ -148,7 +144,7 @@ export class ResumeParserService {
       );
     }
 
-    return deserializeResume(parsed);
+    return parsed;
   }
 
   async deleteResumes(ids: string[], userId: string): Promise<void> {

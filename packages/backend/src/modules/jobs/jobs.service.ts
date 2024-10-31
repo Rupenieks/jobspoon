@@ -1,9 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  deserializeResume,
-  ResumeRawModelSchema,
-  TMatch,
-} from '@redundant/common';
+import { ResumeModelSchema, TMatch } from '@redundant/common';
 import { TheirStackService } from '../jobs-integration/their-stack.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -23,11 +19,10 @@ export class JobsService {
       throw new NotFoundException(`Resume with ID ${resumeId} not found`);
     }
 
-    const parsedResume = ResumeRawModelSchema.parse(resume);
-    const parsedResumeData = deserializeResume(parsedResume);
+    const parsedResume = ResumeModelSchema.parse(resume);
 
     try {
-      const jobs = await this.theirStackService.searchJobs(parsedResumeData);
+      const jobs = await this.theirStackService.searchJobs(parsedResume);
       await this.createMatches({ resumeId, matches: jobs });
       return jobs.length;
     } catch (error) {
