@@ -25,9 +25,18 @@ export const ReferenceSchema = z.object({
   email: z.string().nullish(),
 });
 
+// Add this before ResumeDataSchema
+export const ResumeConfigSchema = z.object({
+  primaryColor: z.string().default("#1f2937"), // Default to the current navy color
+  fontSize: z.number().default(16),
+  font: z.string().default("Roboto"),
+  margin: z.number().default(25.4), // 25.4mm is 1 inch, standard margin
+});
+
 // This is the pure resume data schema (what's in the data field)
 export const ResumeDataSchema = z.object({
   fullName: z.string().nullish(),
+  summary: z.string().nullish(),
   country: z.string().nullish(),
   city: z.string().nullish(),
   address: z.string().nullish(),
@@ -40,6 +49,12 @@ export const ResumeDataSchema = z.object({
   references: z.array(ReferenceSchema).nullish(),
   previewImage: z.string().nullish(),
   profileImage: z.string().nullish(),
+  config: ResumeConfigSchema.default({
+    primaryColor: "#1f2937",
+    fontSize: 16,
+    font: "Roboto",
+    margin: 25.4,
+  }),
 });
 
 // Base Resume Model (no relations)
@@ -93,3 +108,6 @@ export const ResumeUpdateDTOSchema = ResumeDataSchema.partial();
 
 export type TResumeCreateDTO = z.infer<typeof ResumeCreateDTOSchema>;
 export type TResumeUpdateDTO = z.infer<typeof ResumeUpdateDTOSchema>;
+
+// Add this type export
+export type TResumeConfig = z.infer<typeof ResumeConfigSchema>;

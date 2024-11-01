@@ -1,11 +1,24 @@
-import { TResume } from "@redundant/common";
+import { TResumeData } from "@redundant/common/src";
 import { useMemo } from "react";
 
 interface StandardTemplateProps {
-  resume: TResume;
+  resume: TResumeData;
 }
 
 export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
+  const config = useMemo(
+    () => ({
+      ...{
+        primaryColor: "#1f2937",
+        fontSize: 16,
+        font: "Roboto",
+        margin: 25.4,
+      },
+      ...resume.config,
+    }),
+    [resume.config]
+  );
+
   const profileSection = useMemo(() => {
     return (
       <div className="flex gap-6 items-start mb-8">
@@ -15,60 +28,37 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
           className="rounded-full w-24 h-24"
         />
         <div>
-          <h1 className="text-3xl font-bold">{resume.fullName}</h1>
-          <p className="text-lg text-gray-600 uppercase tracking-wide">
+          <h1 style={{ fontSize: "2em" }} className="font-bold">
+            {resume.fullName}
+          </h1>
+          <p
+            style={{ fontSize: "1.15em" }}
+            className="text-gray-600 uppercase tracking-wide"
+          >
             {resume.positionName}
           </p>
         </div>
       </div>
     );
-  }, [resume.fullName, resume.positionName, resume.summary]);
-
-  const detailsSection = useMemo(() => {
-    return (
-      <div className="bg-navy-900 p-8 rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">Details</h2>
-        <div className="space-y-2">
-          {resume.address && <p>{resume.address}</p>}
-          {resume.city && <p>{resume.city}</p>}
-          {resume.country && <p>{resume.country}</p>}
-          {resume.phoneNumber && <p>{resume.phoneNumber}</p>}
-          {resume.email && <p>{resume.email}</p>}
-        </div>
-
-        {resume.skills && resume.skills.length > 0 && (
-          <>
-            <h2 className="text-xl font-semibold mt-8 mb-4">Skills</h2>
-            <div className="space-y-2">
-              {resume.skills.map((skill, index) => (
-                <p key={index}>{skill}</p>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }, [
-    resume.address,
-    resume.city,
-    resume.country,
-    resume.phoneNumber,
-    resume.email,
-    resume.skills,
-  ]);
+  }, [resume.fullName, resume.positionName]);
 
   const experienceSection = useMemo(() => {
     if (!resume.experience?.length) return null;
 
     return (
       <div className="space-y-8">
-        <h2 className="text-2xl font-bold mb-6">Employment History</h2>
+        <h2 style={{ fontSize: "1.5em" }} className="font-bold mb-4">
+          Employment History
+        </h2>
         {resume.experience.map((exp, index) => (
           <div key={index} className="space-y-2">
-            <h3 className="text-xl font-semibold">
+            <h3 style={{ fontSize: "1.25em" }} className="font-semibold">
               {exp.positionTitle}, {exp.company}
             </h3>
-            <p className="text-gray-600 uppercase text-sm tracking-wide">
+            <p
+              className="text-gray-600 uppercase tracking-wide"
+              style={{ fontSize: "0.875em" }}
+            >
               {exp.startDate} — {exp.endDate}
             </p>
             {exp.contributions && (
@@ -90,8 +80,10 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
     if (!resume.education?.length) return null;
 
     return (
-      <div className="space-y-8">
-        <h2 className="text-2xl font-bold mb-6">Education</h2>
+      <div className="space-y-6">
+        <h2 style={{ fontSize: "1.5em" }} className="font-bold mb-2">
+          Education
+        </h2>
         {resume.education.map((edu, index) => (
           <div key={index} className="space-y-2">
             <h3 className="text-xl font-semibold">{edu.university}</h3>
@@ -106,13 +98,67 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
   }, [resume.education]);
 
   return (
-    <div className="flex gap-8">
-      <div className="flex-grow space-y-8">
-        {profileSection}
-        {experienceSection}
-        {educationSection}
+    <div
+      className="flex min-h-[297mm] w-[210mm] relative"
+      style={{
+        fontSize: `${config.fontSize}px`,
+        fontFamily: config.font,
+      }}
+    >
+      {/* Main content container */}
+      <div className="flex-grow">
+        <div
+          style={{
+            marginLeft: `${config.margin}mm`,
+            marginRight: `${config.margin}mm`,
+            marginTop: `25.4mm`,
+          }}
+          className="space-y-8"
+        >
+          {profileSection}
+          {experienceSection}
+          {educationSection}
+        </div>
       </div>
-      <div className="w-80 flex-shrink-0">{detailsSection}</div>
+
+      {/* Sidebar container */}
+      <div className="w-80 relative">
+        {/* Background that extends full height */}
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: config.primaryColor }}
+        />
+
+        {/* Content with margins */}
+        <div
+          className="relative text-white"
+          style={{
+            marginLeft: `${config.margin}mm`,
+            marginRight: `${config.margin}mm`,
+            marginTop: `25.4mm`,
+          }}
+        >
+          <h2 className="text-xl font-semibold mb-4">Details</h2>
+          <div className="space-y-2">
+            {resume.address && <p>{resume.address}</p>}
+            {resume.city && <p>{resume.city}</p>}
+            {resume.country && <p>{resume.country}</p>}
+            {resume.phoneNumber && <p>{resume.phoneNumber}</p>}
+            {resume.email && <p>{resume.email}</p>}
+          </div>
+
+          {resume.skills && resume.skills.length > 0 && (
+            <>
+              <h2 className="text-xl font-semibold mt-8 mb-4">Skills</h2>
+              <div className="space-y-2">
+                {resume.skills.map((skill, index) => (
+                  <p key={index}>{skill}</p>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useResumeState } from "./resumes/ResumeStateContext";
 import { TrashIcon } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { TResumeConfig } from "@redundant/common/src";
 
 const ResumeEditor: React.FC = () => {
   const {
@@ -33,6 +42,21 @@ const ResumeEditor: React.FC = () => {
       { label: "Position Name", field: "positionName" as const },
     ],
     []
+  );
+
+  const availableFonts = useMemo(
+    () => ["Roboto", "Open Sans", "Lato", "Montserrat", "Source Sans Pro"],
+    []
+  );
+
+  const updateConfig = useCallback(
+    (key: keyof TResumeConfig, value: any) => {
+      updateResumeField("config", {
+        ...resume?.data.config,
+        [key]: value,
+      });
+    },
+    [resume?.data.config, updateResumeField]
   );
 
   if (!resume) {
@@ -208,6 +232,94 @@ const ResumeEditor: React.FC = () => {
             ))}
           </div>
           <Button onClick={addSkill}>Add Skill</Button>
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="appearance">
+        <AccordionTrigger>Appearance Settings</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Primary Color
+              </label>
+              <Input
+                type="color"
+                value={resume.data.config.primaryColor}
+                onChange={(e) => updateConfig("primaryColor", e.target.value)}
+                className="h-10 w-full"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Font Size (px)
+              </label>
+              <div className="flex gap-2">
+                <Slider
+                  value={[resume.data.config.fontSize]}
+                  onValueChange={([value]) => updateConfig("fontSize", value)}
+                  min={12}
+                  max={24}
+                  step={1}
+                  className="flex-grow"
+                />
+                <Input
+                  type="number"
+                  value={resume.data.config.fontSize}
+                  onChange={(e) =>
+                    updateConfig("fontSize", Number(e.target.value))
+                  }
+                  className="w-20"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Left Margin (mm)
+              </label>
+              <div className="flex gap-2">
+                <Slider
+                  value={[resume.data.config.margin]}
+                  onValueChange={([value]) => updateConfig("margin", value)}
+                  min={10}
+                  max={50}
+                  step={0.1}
+                  className="flex-grow"
+                />
+                <Input
+                  type="number"
+                  value={resume.data.config.margin}
+                  onChange={(e) =>
+                    updateConfig("margin", Number(e.target.value))
+                  }
+                  className="w-20"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Font Family
+              </label>
+              <Select
+                value={resume.data.config.font}
+                onValueChange={(value) => updateConfig("font", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a font" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableFonts.map((font) => (
+                    <SelectItem key={font} value={font}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

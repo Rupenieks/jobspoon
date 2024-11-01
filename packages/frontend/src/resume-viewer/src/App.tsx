@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { StandardTemplate } from "./templates/StandardTemplate";
 import type { TResumeData } from "@redundant/common/src";
+import WebFont from "webfontloader";
 
 const App: React.FC = () => {
   const [resume, setResume] = useState<TResumeData | null>(null);
@@ -28,6 +29,16 @@ const App: React.FC = () => {
     return () => window.removeEventListener("message", handleMessage);
   }, [handleMessage]);
 
+  useEffect(() => {
+    if (resume?.config?.font) {
+      WebFont.load({
+        google: {
+          families: [resume.config.font],
+        },
+      });
+    }
+  }, [resume?.config?.font]);
+
   if (!resume) return <div>Waiting for resume data...</div>;
 
   return (
@@ -41,7 +52,7 @@ const App: React.FC = () => {
         wheel={{ wheelDisabled: false }}
       >
         <TransformComponent>
-          <div className="preview bg-white rounded-lg p-8 w-[210mm] min-h-[297mm] h-fit mx-auto">
+          <div className="preview bg-white rounded-lg w-[210mm] min-h-[297mm] h-fit mx-auto">
             <StandardTemplate resume={resume} />
           </div>
         </TransformComponent>
