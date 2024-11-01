@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ResumeModelSchema } from "../resume/TResume";
+import {} from "../resume/TResume";
 
 export const UserSchema = z.object({
   id: z.string().uuid(),
@@ -8,9 +8,8 @@ export const UserSchema = z.object({
   fullName: z.string(),
   googleId: z.string().nullable(),
   picture: z.string().nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  resumes: z.array(ResumeModelSchema),
+  createdAt: z.date().transform((date) => date.toISOString()),
+  updatedAt: z.date().transform((date) => date.toISOString()),
 });
 
 export type TUser = z.infer<typeof UserSchema>;
@@ -19,7 +18,6 @@ export const CreateUserSchema = UserSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  resumes: true,
 }).partial({
   password: true,
   googleId: true,

@@ -1,17 +1,28 @@
 import { z } from "zod";
-import { MatchSchema, ResumeModelSchema } from "..";
+import { MatchBaseSchema } from "../match";
+import { ResumeBaseSchema } from "../resume";
 
-export const ApplicationSchema: z.ZodType<any> = z.lazy(() =>
-  z.object({
-    id: z.string(),
-    jobId: z.string(),
-    resumeId: z.string(),
-    resume: ResumeModelSchema,
-    matchId: z.string(),
-    match: MatchSchema,
-    createdAt: z.string(),
-    updatedAt: z.string(),
-  })
-);
+// Base Application Schema (no relations)
+export const ApplicationBaseSchema = z.object({
+  id: z.string(),
+  resumeId: z.string(),
+  matchId: z.string(),
+  createdAt: z.date().transform((date) => date.toISOString()),
+  updatedAt: z.date().transform((date) => date.toISOString()),
+});
 
-export type TApplication = z.infer<typeof ApplicationSchema>;
+// Application with Resume
+export const ApplicationWithResumeSchema = ApplicationBaseSchema.extend({
+  resume: ResumeBaseSchema,
+});
+
+// Application with Match
+export const ApplicationWithMatchSchema = ApplicationBaseSchema.extend({
+  match: MatchBaseSchema,
+});
+
+export type TApplicationBase = z.infer<typeof ApplicationBaseSchema>;
+export type TApplicationWithResume = z.infer<
+  typeof ApplicationWithResumeSchema
+>;
+export type TApplicationWithMatch = z.infer<typeof ApplicationWithMatchSchema>;

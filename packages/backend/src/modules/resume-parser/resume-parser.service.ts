@@ -1,12 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  ResumeModelSchema,
-  TResumeData,
-  TResumeModel,
-} from '@redundant/common';
+
 import * as pdf from 'pdf-parse';
 import { AssistantService } from '../assistant/assistant.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  TResumeBase,
+  TResumeData,
+  ResumeBaseSchema,
+  TResumeWithMatches,
+  ResumeWithMatchesSchema,
+  TResumeFull,
+  ResumeFullSchema,
+} from '@redundant/common';
 
 @Injectable()
 export class ResumeParserService {
@@ -15,7 +20,7 @@ export class ResumeParserService {
     private readonly prismaService: PrismaService,
   ) {}
 
-  async parseResume(buffer: Buffer, userId: string): Promise<TResumeModel> {
+  async parseResume(buffer: Buffer, userId: string): Promise<TResumeBase> {
     const text = await this.parsePdfToText(buffer);
     const parsedResume = await this.assistantService.parseResume(text);
     const storedResume = await this.storeResume(parsedResume, userId);
@@ -30,44 +35,41 @@ export class ResumeParserService {
   async storeResume(
     resumeData: TResumeData,
     userId: string,
-  ): Promise<TResumeModel> {
+  ): Promise<TResumeBase> {
     const stored = await this.prismaService.resume.create({
       data: {
         userId,
         data: resumeData,
       },
-      include: {
-        matches: {
-          include: {
-            application: true,
-          },
-        },
-        application: true,
-      },
     });
 
-    const parsed = ResumeModelSchema.parse(stored);
+    const parsed = ResumeBaseSchema.parse(stored);
 
     return parsed;
   }
 
-  async getAllResumesForUser(userId: string): Promise<TResumeModel[]> {
+  async getAllResumesForUser(userId: string): Promise<TResumeBase[]> {
     const resumes = await this.prismaService.resume.findMany({
       where: { userId },
+    });
+
+    return resumes.map((resume) => ResumeBaseSchema.parse(resume));
+  }
+
+  async getResumesWithMatches(userId: string): Promise<TResumeWithMatches[]> {
+    const resumes = await this.prismaService.resume.findMany({
+      where: {
+        userId,
+      },
       include: {
-        matches: {
-          include: {
-            application: true,
-          },
-        },
-        application: true,
+        matches: true,
       },
     });
 
-    return resumes.map((resume) => ResumeModelSchema.parse(resume));
+    return resumes.map((resume) => ResumeWithMatchesSchema.parse(resume));
   }
 
-  async parseResumeText(text: string, userId: string): Promise<TResumeModel> {
+  async parseResumeText(text: string, userId: string): Promise<TResumeBase> {
     const parsedResume = await this.assistantService.parseResume(text);
     return await this.storeResume(parsedResume, userId);
   }
@@ -76,20 +78,12 @@ export class ResumeParserService {
     id: string,
     resumeData: Partial<TResumeData>,
     userId: string,
-  ): Promise<TResumeModel> {
+  ): Promise<TResumeFull> {
     const resume = await this.prismaService.resume.findUnique({
       where: { id },
-      include: {
-        matches: {
-          include: {
-            application: true,
-          },
-        },
-        application: true,
-      },
     });
 
-    const parsed = ResumeModelSchema.parse(resume);
+    const parsed = ResumeFullSchema.parse(resume);
 
     if (!resume || resume.userId !== userId) {
       throw new NotFoundException(
@@ -108,35 +102,19 @@ export class ResumeParserService {
       data: {
         data: newData,
       },
-      include: {
-        matches: {
-          include: {
-            application: true,
-          },
-        },
-        application: true,
-      },
     });
 
-    const parsedUpdated = ResumeModelSchema.parse(updatedResume);
+    const parsedUpdated = ResumeFullSchema.parse(updatedResume);
 
     return parsedUpdated;
   }
 
-  async getResumeById(id: string, userId: string): Promise<TResumeModel> {
+  async getResumeById(id: string, userId: string): Promise<TResumeBase> {
     const resume = await this.prismaService.resume.findUnique({
       where: { id, userId },
-      include: {
-        matches: {
-          include: {
-            application: true,
-          },
-        },
-        application: true,
-      },
     });
 
-    const parsed = ResumeModelSchema.parse(resume);
+    const parsed = ResumeBaseSchema.parse(resume);
 
     if (!resume || resume.userId !== userId) {
       throw new NotFoundException(

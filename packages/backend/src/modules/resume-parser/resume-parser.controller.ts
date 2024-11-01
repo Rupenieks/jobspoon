@@ -16,7 +16,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResumeParserService } from './resume-parser.service';
 import { AuthGuard } from '@nestjs/passport';
-import { TResumeData, TResumeModel } from '@redundant/common';
+import {
+  TResumeBase,
+  TResumeData,
+  TResumeWithMatches,
+} from '@redundant/common';
 
 @Controller('resume-parser')
 @UseGuards(AuthGuard('jwt'))
@@ -29,13 +33,13 @@ export class ResumeParserController {
     @UploadedFile() file: Express.Multer.File,
     @Body('text') text: string,
     @Request() req,
-  ): Promise<TResumeModel> {
+  ): Promise<TResumeBase> {
     if (!file && !text) {
       throw new BadRequestException('No file or text provided');
     }
 
     try {
-      let parsedResume: TResumeModel;
+      let parsedResume: TResumeBase;
       if (file) {
         parsedResume = await this.resumeParserService.parseResume(
           file.buffer,
@@ -55,7 +59,7 @@ export class ResumeParserController {
   }
 
   @Get('all')
-  async getAllResumes(@Request() req): Promise<TResumeModel[]> {
+  async getAllResumes(@Request() req): Promise<TResumeBase[]> {
     try {
       const resumes = await this.resumeParserService.getAllResumesForUser(
         req.user.id,
@@ -67,12 +71,26 @@ export class ResumeParserController {
     }
   }
 
+  @Get('with-matches')
+  async getResumesWithMatches(@Request() req): Promise<TResumeWithMatches[]> {
+    try {
+      return await this.resumeParserService.getResumesWithMatches(
+        req.user.userId,
+      );
+    } catch (error) {
+      console.error('Error fetching resumes with matches:', error);
+      throw new InternalServerErrorException(
+        'Error fetching resumes with matches',
+      );
+    }
+  }
+
   @Put(':id')
   async updateResume(
     @Param('id') id: string,
     @Body() resumeData: Partial<TResumeData>,
     @Request() req,
-  ): Promise<TResumeModel> {
+  ): Promise<TResumeBase> {
     try {
       const updatedResume = await this.resumeParserService.updateResume(
         id,
@@ -90,7 +108,7 @@ export class ResumeParserController {
   async getResume(
     @Param('id') id: string,
     @Request() req,
-  ): Promise<TResumeModel> {
+  ): Promise<TResumeBase> {
     try {
       const resume = await this.resumeParserService.getResumeById(
         id,

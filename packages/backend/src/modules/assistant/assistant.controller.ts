@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { AssistantService } from './assistant.service';
-import { TResumeModel } from '@redundant/common';
+import { TResumeBase } from '@redundant/common';
 
 @Controller('assistant')
 export class AssistantController {
@@ -9,7 +9,7 @@ export class AssistantController {
   @Post('modify-resume')
   async modifyResume(
     @Body() body: { resumeId: string; input: string },
-  ): Promise<TResumeModel> {
+  ): Promise<TResumeBase> {
     const { resumeId, input } = body;
     const modifiedResume =
       await this.assistantService.getAssistantModifications({

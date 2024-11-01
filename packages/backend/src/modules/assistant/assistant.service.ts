@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
+
 import {
+  ResumeBaseSchema,
   ResumeDataSchema,
-  ResumeRawModelSchema,
+  TResumeBase,
   TResumeData,
-  TResumeModel,
 } from '@redundant/common';
 import OpenAI from 'openai';
 import { PrismaService } from '../prisma/prisma.service';
@@ -54,12 +55,12 @@ export class AssistantService {
   }: {
     resumeId: string;
     input: string;
-  }): Promise<TResumeModel> {
+  }): Promise<TResumeBase> {
     const resume = await this.prismaService.resume.findUnique({
       where: { id: resumeId },
     });
 
-    const parsedResume = ResumeRawModelSchema.parse(resume);
+    const parsedResume = ResumeBaseSchema.parse(resume);
 
     const intputPayload = `
       Here is the resume I want to modify:

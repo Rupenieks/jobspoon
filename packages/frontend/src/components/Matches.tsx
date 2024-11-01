@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useReadResumes } from "@/hooks/useReadResumes";
+import { useReadResumesWithMatches } from "@/hooks/useReadResumesWithMatches";
 import { useMatchJobs } from "@/hooks/useMatchJobs";
 import { Skeleton } from "@/components/ui/skeleton";
 import ResumeMatchCard from "./ResumeMatchCard";
@@ -11,7 +11,7 @@ const ResumeSkeleton: React.FC = () => (
 );
 
 const Matches: React.FC = () => {
-  const { data: resumes, isLoading } = useReadResumes();
+  const { data: resumes, isLoading } = useReadResumesWithMatches();
   const { mutate: matchJobs, isPending } = useMatchJobs();
 
   const handleMatchJobs = async (resumeId: string) => {

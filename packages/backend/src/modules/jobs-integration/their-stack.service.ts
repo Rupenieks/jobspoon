@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TMatch, TResumeModel } from '@redundant/common';
+import { TMatchBase, TResumeBase } from '@redundant/common';
 import axios from 'axios';
 import { TTheirStackJobsResponse } from './types/TTheirStackJobsResponse';
 import { TTechnologyResponse } from './types/TTheirStackTechnologyResponse';
@@ -10,7 +10,7 @@ export class TheirStackService {
   private readonly apiUrl = 'https://api.theirstack.com/v1';
   private readonly apiKey = process.env.THEIRSTACK_API_KEY;
 
-  async searchJobs(resume: TResumeModel) {
+  async searchJobs(resume: TResumeBase) {
     const query = await this.buildJobQuery(resume);
     const options = {
       method: 'POST',
@@ -42,7 +42,7 @@ export class TheirStackService {
   }: {
     resumeId: string;
     jobs: TTheirStackJobsResponse['data'];
-  }): Omit<TMatch, 'id'>[] {
+  }): Omit<TMatchBase, 'id'>[] {
     return jobs.map((job) => ({
       integrationId: job.id.toString(),
       companyName: job.company,
@@ -91,7 +91,7 @@ export class TheirStackService {
   }
 
   private async buildJobQuery(
-    resume: TResumeModel,
+    resume: TResumeBase,
   ): Promise<TTheirStackJobSearchQuery> {
     const resumeData = resume.data;
     const query: TTheirStackJobSearchQuery = {

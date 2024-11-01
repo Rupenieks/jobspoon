@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ResumeModelSchema, TMatch } from '@redundant/common';
+import { ResumeBaseSchema, TMatchBase } from '@redundant/common';
 import { TheirStackService } from '../jobs-integration/their-stack.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -19,7 +19,7 @@ export class JobsService {
       throw new NotFoundException(`Resume with ID ${resumeId} not found`);
     }
 
-    const parsedResume = ResumeModelSchema.parse(resume);
+    const parsedResume = ResumeBaseSchema.parse(resume);
 
     try {
       const jobs = await this.theirStackService.searchJobs(parsedResume);
@@ -36,7 +36,7 @@ export class JobsService {
     matches,
   }: {
     resumeId: string;
-    matches: TMatch[];
+    matches: TMatchBase[];
   }): Promise<void> {
     for (const match of matches) {
       if (!match.integrationId) {

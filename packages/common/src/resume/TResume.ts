@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { MatchSchema } from "../match";
-import { ApplicationSchema } from "../application";
+import { MatchBaseSchema } from "../match";
+import { ApplicationBaseSchema } from "../application";
 
 // Base schemas for resume data
 export const ExperienceSchema = z.object({
@@ -42,47 +42,50 @@ export const ResumeDataSchema = z.object({
   profileImage: z.string().nullish(),
 });
 
-// Raw database model
-export const ResumeRawModelSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  data: z.any(),
-  createdAt: z.date().transform((date) => date.toISOString()),
-  updatedAt: z.date().transform((date) => date.toISOString()),
-  matches: z.array(MatchSchema).optional(),
-  application: ApplicationSchema.nullish(),
-});
-
-// Processed model
-export const ResumeModelSchema = z.object({
+// Base Resume Model (no relations)
+export const ResumeBaseSchema = z.object({
   id: z.string(),
   userId: z.string(),
   data: ResumeDataSchema,
   createdAt: z.date().transform((date) => date.toISOString()),
   updatedAt: z.date().transform((date) => date.toISOString()),
-  matches: z.array(MatchSchema).optional(),
-  application: ApplicationSchema.nullish(),
+});
+
+// Resume with Match IDs
+export const ResumeWithMatchIdsSchema = ResumeBaseSchema.extend({
+  matches: z.array(
+    z.object({
+      id: z.string(),
+      application: z.object({ id: z.string() }).nullable(),
+    })
+  ),
+});
+
+// Resume with Matches
+export const ResumeWithMatchesSchema = ResumeBaseSchema.extend({
+  matches: z.array(MatchBaseSchema),
+});
+
+// Resume with Application
+export const ResumeWithApplicationSchema = ResumeBaseSchema.extend({
+  application: ApplicationBaseSchema,
+});
+
+// Full Resume Model (all relations)
+export const ResumeFullSchema = ResumeBaseSchema.extend({
+  matches: z.array(MatchBaseSchema).nullish(),
+  application: ApplicationBaseSchema.nullish(),
 });
 
 // Types
 export type TResumeData = z.infer<typeof ResumeDataSchema>;
-export type TResumeRawModel = z.infer<typeof ResumeRawModelSchema>;
-export type TResumeModel = z.infer<typeof ResumeModelSchema>;
-
-// Serializers
-export const serializeResume = (resumeData: Partial<TResumeData>): string => {
-  return JSON.stringify(resumeData);
-};
-
-export const deserializeResume = (rawModel: any): TResumeModel => {
-  return {
-    ...rawModel,
-    data:
-      typeof rawModel.data === "string"
-        ? JSON.parse(rawModel.data)
-        : rawModel.data,
-  };
-};
+export type TResumeBase = z.infer<typeof ResumeBaseSchema>;
+export type TResumeWithMatchIds = z.infer<typeof ResumeWithMatchIdsSchema>;
+export type TResumeWithMatches = z.infer<typeof ResumeWithMatchesSchema>;
+export type TResumeWithApplication = z.infer<
+  typeof ResumeWithApplicationSchema
+>;
+export type TResumeFull = z.infer<typeof ResumeFullSchema>;
 
 // DTOs
 export const ResumeCreateDTOSchema = ResumeDataSchema;
