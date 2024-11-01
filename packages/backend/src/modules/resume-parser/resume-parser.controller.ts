@@ -85,6 +85,20 @@ export class ResumeParserController {
     }
   }
 
+  @Put(':id/images')
+  @UseInterceptors(FileInterceptor('profileImage'))
+  async updateResumeImages(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req,
+  ): Promise<TResumeBase> {
+    return await this.resumeParserService.updateResumeImages(
+      id,
+      file,
+      req.user.userId,
+    );
+  }
+
   @Put(':id')
   async updateResume(
     @Param('id') id: string,

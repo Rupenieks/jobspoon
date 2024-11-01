@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/utils/axiosConfig";
-import { TResume } from "@redundant/common";
+import { TResumeBase } from "@redundant/common/src";
 
 const updateResumeImages = async ({
   id,
@@ -35,7 +35,7 @@ export const useUpdateResumeImages = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateResumeImages,
-    onSuccess: (resume: TResume) => {
+    onSuccess: (resume: TResumeBase) => {
       queryClient.invalidateQueries({ queryKey: ["resume", resume.id] });
     },
   });

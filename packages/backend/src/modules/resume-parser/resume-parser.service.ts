@@ -12,12 +12,14 @@ import {
   TResumeFull,
   ResumeFullSchema,
 } from '@redundant/common';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class ResumeParserService {
   constructor(
     private readonly assistantService: AssistantService,
     private readonly prismaService: PrismaService,
+    private readonly storageService: StorageService,
   ) {}
 
   async parseResume(buffer: Buffer, userId: string): Promise<TResumeBase> {
@@ -107,6 +109,22 @@ export class ResumeParserService {
     const parsedUpdated = ResumeFullSchema.parse(updatedResume);
 
     return parsedUpdated;
+  }
+
+  async updateResumeImages(
+    id: string,
+    file: Express.Multer.File,
+    userId: string,
+  ): Promise<TResumeBase> {
+    const profileImageUrl = await this.storageService.uploadImage(
+      file,
+      'profile',
+    );
+    return await this.updateResume(
+      id,
+      { profileImage: profileImageUrl },
+      userId,
+    );
   }
 
   async getResumeById(id: string, userId: string): Promise<TResumeBase> {

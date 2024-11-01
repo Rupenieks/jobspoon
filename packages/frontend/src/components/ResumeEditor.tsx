@@ -35,6 +35,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useUpdateResumeImages } from "@/hooks/useUpdateResumeImages";
 
 // Sortable Experience Item Component
 const SortableExperienceItem = ({ experience, index, updateExperience }) => {
@@ -233,6 +234,8 @@ const ResumeEditor: React.FC = () => {
     addSkill,
   } = useResumeState();
 
+  const { mutate: updateResumeImages } = useUpdateResumeImages();
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -297,6 +300,19 @@ const ResumeEditor: React.FC = () => {
     [resume?.data.config, updateResumeField]
   );
 
+  const handleProfileImageUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file && resume) {
+        updateResumeImages({
+          id: resume?.id,
+          profileImage: file,
+        });
+      }
+    },
+    []
+  );
+
   if (!resume) {
     return null;
   }
@@ -318,6 +334,10 @@ const ResumeEditor: React.FC = () => {
                 />
               </div>
             ))}
+            <div>
+              <label>Profile Image</label>
+              <Input type="file" onChange={handleProfileImageUpload} />
+            </div>
           </div>
         </AccordionContent>
       </AccordionItem>

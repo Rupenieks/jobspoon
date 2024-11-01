@@ -23,9 +23,13 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
     return (
       <div className="flex gap-6 items-start mb-8">
         <img
-          src="https://via.placeholder.com/100"
+          src={resume.profileImage || ""}
           alt="Profile"
-          className="rounded-full w-24 h-24"
+          className="rounded-full w-24 h-24 object-cover"
+          onError={(e) => {
+            console.error("Image failed to load:", e);
+          }}
+          crossOrigin="anonymous"
         />
         <div>
           <h1 style={{ fontSize: "2em" }} className="font-bold">
@@ -40,7 +44,7 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
         </div>
       </div>
     );
-  }, [resume.fullName, resume.positionName]);
+  }, [resume.fullName, resume.positionName, resume.profileImage]);
 
   const experienceSection = useMemo(() => {
     if (!resume.experience?.length) return null;
