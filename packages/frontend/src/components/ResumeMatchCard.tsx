@@ -140,7 +140,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                   {resume.matches.map((match) => (
                     <Card key={match.id} className="p-4">
                       <ResumeMatchJobCard
-                        match={match as TMatch & { application: TApplication }}
+                        matchId={match.id}
                         resumeId={resume.id}
                       />
                     </Card>

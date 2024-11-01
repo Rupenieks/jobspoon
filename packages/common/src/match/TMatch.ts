@@ -25,7 +25,7 @@ export const MatchBaseSchema = z.object({
 
 // Match with Application
 export const MatchWithApplicationSchema = MatchBaseSchema.extend({
-  application: ApplicationBaseSchema,
+  application: ApplicationBaseSchema.nullish(),
 });
 
 export type TMatchBase = z.infer<typeof MatchBaseSchema>;

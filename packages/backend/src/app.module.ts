@@ -8,6 +8,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { JobsModule } from './modules/jobs/jobs.module';
 import { ApplicationModule } from './modules/application/application.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { MatchModule } from './modules/match/match.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { StorageModule } from './modules/storage/storage.module';
     JobsModule,
     ApplicationModule,
     StorageModule,
+    MatchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
