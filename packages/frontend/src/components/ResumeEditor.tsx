@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useResumeState } from "./resumes/ResumeStateContext";
-import { TrashIcon } from "lucide-react";
+import { TrashIcon, GripVertical } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import {
   Select,
@@ -18,6 +18,208 @@ import {
   SelectValue,
 } from "./ui/select";
 import { TResumeConfig } from "@redundant/common/src";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+// Sortable Experience Item Component
+const SortableExperienceItem = ({ experience, index, updateExperience }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: index.toString(),
+  });
+
+  const style = useMemo(
+    () => ({
+      transform: CSS.Transform.toString(transform),
+      transition,
+      zIndex: isDragging ? 50 : 0,
+      opacity: isDragging ? 0.8 : 1,
+      position: "relative",
+      backgroundColor: isDragging ? "white" : undefined,
+      boxShadow: isDragging ? "rgba(0, 0, 0, 0.1) 0px 10px 50px" : undefined,
+    }),
+    [transform, transition, isDragging]
+  );
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`mb-6 p-4 border rounded-lg transition-colors ${
+        isDragging
+          ? "border-primary/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+          : "bg-background border-border hover:border-primary/50"
+      }`}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab hover:bg-gray-100 p-1 rounded"
+        >
+          <GripVertical className="h-4 w-4 text-gray-400" />
+        </button>
+        <Input
+          placeholder="Position Title"
+          value={experience.positionTitle || ""}
+          onChange={(e) =>
+            updateExperience(index, "positionTitle", e.target.value)
+          }
+        />
+      </div>
+      <Input
+        className="mb-2"
+        placeholder="Company"
+        value={experience.company || ""}
+        onChange={(e) => updateExperience(index, "company", e.target.value)}
+      />
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <Input
+          placeholder="Start Date"
+          value={experience.startDate || ""}
+          onChange={(e) => updateExperience(index, "startDate", e.target.value)}
+        />
+        <Input
+          placeholder="End Date"
+          value={experience.endDate || ""}
+          onChange={(e) => updateExperience(index, "endDate", e.target.value)}
+        />
+      </div>
+      {experience.contributions?.map((contribution, contIndex) => (
+        <div key={contIndex} className="flex gap-2 mb-2">
+          <Input
+            value={contribution}
+            onChange={(e) =>
+              updateExperience(index, "contributions", [
+                ...(experience.contributions?.slice(0, contIndex) || []),
+                e.target.value,
+                ...(experience.contributions?.slice(contIndex + 1) || []),
+              ])
+            }
+            placeholder="Contribution"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              updateExperience(index, "contributions", [
+                ...(experience.contributions?.slice(0, contIndex) || []),
+                ...(experience.contributions?.slice(contIndex + 1) || []),
+              ])
+            }
+          >
+            <TrashIcon className="h-4 w-4" />
+          </Button>
+        </div>
+      ))}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() =>
+          updateExperience(index, "contributions", [
+            ...(experience.contributions || []),
+            "",
+          ])
+        }
+      >
+        Add Contribution
+      </Button>
+    </div>
+  );
+};
+
+// Sortable Education Item Component
+const SortableEducationItem = ({ education, index, updateEducation }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: index.toString(),
+  });
+
+  const style = useMemo(
+    () => ({
+      transform: CSS.Transform.toString(transform),
+      transition,
+      zIndex: isDragging ? 50 : 0,
+      opacity: isDragging ? 0.8 : 1,
+      position: "relative",
+      backgroundColor: isDragging ? "white" : undefined,
+      boxShadow: isDragging ? "rgba(0, 0, 0, 0.1) 0px 10px 50px" : undefined,
+    }),
+    [transform, transition, isDragging]
+  );
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`mb-6 p-4 border rounded-lg transition-colors ${
+        isDragging
+          ? "border-primary/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+          : "bg-background border-border hover:border-primary/50"
+      }`}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab hover:bg-gray-100 p-1 rounded"
+        >
+          <GripVertical className="h-4 w-4 text-gray-400" />
+        </button>
+        <Input
+          placeholder="University"
+          value={education.university || ""}
+          onChange={(e) => updateEducation(index, "university", e.target.value)}
+        />
+      </div>
+      <Input
+        className="mb-2"
+        placeholder="Degree"
+        value={education.degree || ""}
+        onChange={(e) => updateEducation(index, "degree", e.target.value)}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        <Input
+          placeholder="Start Date"
+          value={education.startDate || ""}
+          onChange={(e) => updateEducation(index, "startDate", e.target.value)}
+        />
+        <Input
+          placeholder="End Date"
+          value={education.endDate || ""}
+          onChange={(e) => updateEducation(index, "endDate", e.target.value)}
+        />
+      </div>
+    </div>
+  );
+};
 
 const ResumeEditor: React.FC = () => {
   const {
@@ -30,6 +232,41 @@ const ResumeEditor: React.FC = () => {
     updateSkill,
     addSkill,
   } = useResumeState();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleExperienceDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = parseInt(active.id as string, 10);
+      const newIndex = parseInt(over.id as string, 10);
+      const newExperience = arrayMove(
+        resume?.data.experience || [],
+        oldIndex,
+        newIndex
+      );
+      updateResumeField("experience", newExperience);
+    }
+  };
+
+  const handleEducationDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = parseInt(active.id as string, 10);
+      const newIndex = parseInt(over.id as string, 10);
+      const newEducation = arrayMove(
+        resume?.data.education || [],
+        oldIndex,
+        newIndex
+      );
+      updateResumeField("education", newEducation);
+    }
+  };
 
   const personalInfoFields = useMemo(
     () => [
@@ -51,6 +288,7 @@ const ResumeEditor: React.FC = () => {
 
   const updateConfig = useCallback(
     (key: keyof TResumeConfig, value: any) => {
+      if (!resume) return;
       updateResumeField("config", {
         ...resume?.data.config,
         [key]: value,
@@ -87,89 +325,25 @@ const ResumeEditor: React.FC = () => {
       <AccordionItem value="experience">
         <AccordionTrigger>Experience</AccordionTrigger>
         <AccordionContent>
-          {resume.data.experience?.map((exp, index) => (
-            <div key={index} className="mb-6 p-4 border rounded">
-              <Input
-                className="mb-2"
-                placeholder="Position Title"
-                value={exp.positionTitle || ""}
-                onChange={(e) =>
-                  updateExperience(index, "positionTitle", e.target.value)
-                }
-              />
-              <Input
-                className="mb-2"
-                placeholder="Company"
-                value={exp.company || ""}
-                onChange={(e) =>
-                  updateExperience(index, "company", e.target.value)
-                }
-              />
-              <div className="grid grid-cols-2 gap-2 mb-2">
-                <Input
-                  placeholder="Start Date"
-                  value={exp.startDate || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "startDate", e.target.value)
-                  }
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleExperienceDragEnd}
+          >
+            <SortableContext
+              items={resume.data.experience?.map((_, i) => i.toString()) || []}
+              strategy={verticalListSortingStrategy}
+            >
+              {resume.data.experience?.map((exp, index) => (
+                <SortableExperienceItem
+                  key={index}
+                  experience={exp}
+                  index={index}
+                  updateExperience={updateExperience}
                 />
-                <Input
-                  placeholder="End Date"
-                  value={exp.endDate || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "endDate", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium mb-1">
-                  Contributions
-                </label>
-                {exp.contributions?.map((contribution, contribIndex) => (
-                  <div key={contribIndex} className="flex gap-2">
-                    <Input
-                      value={contribution}
-                      onChange={(e) => {
-                        const newContributions = [...(exp.contributions || [])];
-                        newContributions[contribIndex] = e.target.value;
-                        updateExperience(
-                          index,
-                          "contributions",
-                          newContributions
-                        );
-                      }}
-                      placeholder={`Contribution ${contribIndex + 1}`}
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        const newContributions = [...(exp.contributions || [])];
-                        newContributions.splice(contribIndex, 1);
-                        updateExperience(
-                          index,
-                          "contributions",
-                          newContributions
-                        );
-                      }}
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newContributions = [...(exp.contributions || []), ""];
-                    updateExperience(index, "contributions", newContributions);
-                  }}
-                >
-                  Add Contribution
-                </Button>
-              </div>
-            </div>
-          ))}
+              ))}
+            </SortableContext>
+          </DndContext>
           <Button onClick={addExperience}>Add Experience</Button>
         </AccordionContent>
       </AccordionItem>
@@ -177,42 +351,25 @@ const ResumeEditor: React.FC = () => {
       <AccordionItem value="education">
         <AccordionTrigger>Education</AccordionTrigger>
         <AccordionContent>
-          {resume.data.education?.map((edu, index) => (
-            <div key={index} className="mb-6 p-4 border rounded">
-              <Input
-                className="mb-2"
-                placeholder="University"
-                value={edu.university || ""}
-                onChange={(e) =>
-                  updateEducation(index, "university", e.target.value)
-                }
-              />
-              <Input
-                className="mb-2"
-                placeholder="Degree"
-                value={edu.degree || ""}
-                onChange={(e) =>
-                  updateEducation(index, "degree", e.target.value)
-                }
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <Input
-                  placeholder="Start Date"
-                  value={edu.startDate || ""}
-                  onChange={(e) =>
-                    updateEducation(index, "startDate", e.target.value)
-                  }
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleEducationDragEnd}
+          >
+            <SortableContext
+              items={resume.data.education?.map((_, i) => i.toString()) || []}
+              strategy={verticalListSortingStrategy}
+            >
+              {resume.data.education?.map((edu, index) => (
+                <SortableEducationItem
+                  key={index}
+                  education={edu}
+                  index={index}
+                  updateEducation={updateEducation}
                 />
-                <Input
-                  placeholder="End Date"
-                  value={edu.endDate || ""}
-                  onChange={(e) =>
-                    updateEducation(index, "endDate", e.target.value)
-                  }
-                />
-              </div>
-            </div>
-          ))}
+              ))}
+            </SortableContext>
+          </DndContext>
           <Button onClick={addEducation}>Add Education</Button>
         </AccordionContent>
       </AccordionItem>

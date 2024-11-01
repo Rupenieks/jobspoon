@@ -30,7 +30,7 @@ export const ResumeConfigSchema = z.object({
   primaryColor: z.string().default("#1f2937"), // Default to the current navy color
   fontSize: z.number().default(16),
   font: z.string().default("Roboto"),
-  margin: z.number().default(25.4), // 25.4mm is 1 inch, standard margin
+  margin: z.number().default(10), // 25.4mm is 1 inch, standard margin
 });
 
 // This is the pure resume data schema (what's in the data field)
@@ -53,7 +53,7 @@ export const ResumeDataSchema = z.object({
     primaryColor: "#1f2937",
     fontSize: 16,
     font: "Roboto",
-    margin: 25.4,
+    margin: 10,
   }),
 });
 

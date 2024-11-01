@@ -1,7 +1,7 @@
 import useDebouncedCallback from "@/hooks/useDebouncedCallback";
 import { useReadResume } from "@/hooks/useReadResume";
 import { useUpdateResume } from "@/hooks/useUpdateResume";
-import { TResumeData, TResumeModel } from "@redundant/common/src";
+import { TResumeData, TResumeBase } from "@redundant/common/src";
 import React, {
   useCallback,
   useContext,
@@ -11,8 +11,8 @@ import React, {
 } from "react";
 
 interface ResumeStateContextType {
-  resume: TResumeModel | null;
-  temporaryResume: TResumeModel | null;
+  resume: TResumeBase | null;
+  temporaryResume: TResumeBase | null;
   isLoading: boolean;
   error: Error | null;
   updateResumeField: <K extends keyof TResumeData>(
@@ -34,7 +34,7 @@ interface ResumeStateContextType {
   updateSkill: (index: number, value: string) => void;
   addSkill: () => void;
   updateEntireResume: (newResumeData: TResumeData) => void;
-  setTemporaryResume: (resume: TResumeModel | null) => void;
+  setTemporaryResume: (resume: TResumeBase | null) => void;
   applyTemporaryResume: () => void;
 }
 
@@ -52,9 +52,9 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({
   children,
 }) => {
   const { data: initialResume, isLoading, error } = useReadResume(resumeId);
-  const [resume, setResume] = useState<TResumeModel | null>(null);
+  const [resume, setResume] = useState<TResumeBase | null>(null);
   const { mutate: updateResume } = useUpdateResume();
-  const [temporaryResume, setTemporaryResume] = useState<TResumeModel | null>(
+  const [temporaryResume, setTemporaryResume] = useState<TResumeBase | null>(
     null
   );
   useEffect(() => {
