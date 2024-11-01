@@ -6,12 +6,6 @@ export default defineConfig({
   plugins: [react()],
   root: path.resolve(__dirname, "src/resume-viewer/src"),
   base: "/",
-  resolve: {
-    alias: {
-      react: path.resolve(__dirname, "node_modules/react"),
-      "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
-    },
-  },
   server: {
     port: 3001,
     cors: true,
