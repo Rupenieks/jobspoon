@@ -1,31 +1,26 @@
-import { HttpService } from '@nestjs/axios';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import fontkit from '@pdf-lib/fontkit';
-import { PDFDocument } from 'pdf-lib';
+import { env } from 'process';
 import { connect } from 'puppeteer';
 import { ResumeParserService } from '../resume-parser/resume-parser.service';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PDFService {
   private readonly logger = new Logger(PDFService.name);
   private readonly browserURL: string;
+  private readonly publicUrl: string;
+  private readonly storageUrl: string;
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly resumeParserService: ResumeParserService,
-    private readonly httpService: HttpService,
-  ) {
-    const chromeUrl =
-      this.configService.get('CHROME_URL') ?? 'ws://localhost:3000';
-    const chromeToken =
-      this.configService.get('CHROME_TOKEN') ?? 'your-secret-token';
+  constructor(private readonly resumeParserService: ResumeParserService) {
+    const chromeUrl = env.CHROME_URL;
+    const chromeToken = env.CHROME_TOKEN;
     this.browserURL = `${chromeUrl}?token=${chromeToken}`;
+    this.publicUrl = env.PUBLIC_URL;
+    this.storageUrl = env.STORAGE_URL;
   }
 
   private async getBrowser() {
@@ -33,7 +28,6 @@ export class PDFService {
       this.logger.debug(
         `Attempting to connect to browser at: ${this.browserURL}`,
       );
-
       return await connect({
         browserWSEndpoint: this.browserURL,
         acceptInsecureCerts: true,
@@ -45,173 +39,176 @@ export class PDFService {
         error: JSON.stringify(error),
         browserURL: this.browserURL,
       });
-
       throw new InternalServerErrorException(
-        'Failed to connect to browser service. Please ensure Chrome is running.',
+        'Failed to connect to browser service',
         errorMessage,
       );
     }
   }
 
+  private async waitForImages(page: any) {
+    try {
+      await page.evaluate(() => {
+        return Promise.all(
+          Array.from(document.images)
+            .filter((img) => !img.complete)
+            .map(
+              (img) =>
+                new Promise((resolve) => {
+                  img.onload = img.onerror = resolve;
+                }),
+            ),
+        );
+      });
+
+      const failedImages = await page.evaluate(() => {
+        const images = Array.from(document.images);
+
+        return images
+          .filter(
+            (img) => !img.complete || !img.naturalWidth || !img.naturalHeight,
+          )
+          .map((img) => img.src);
+      });
+
+      this.logger.log(failedImages);
+
+      if (failedImages.length > 0) {
+        this.logger.warn('Some images failed to load:', failedImages);
+      }
+    } catch (error) {
+      this.logger.error('Error waiting for images:', error);
+      throw error;
+    }
+  }
+
+  private async setupRequestInterception(page: any) {
+    await page.setRequestInterception(true);
+
+    page.on('request', async (request: any) => {
+      const url = request.url();
+
+      if (url.includes('localhost')) {
+        const modifiedUrl = url.replace('localhost', 'host.docker.internal');
+        void request.continue({
+          url: modifiedUrl,
+          headers: {
+            ...request.headers(),
+            'Access-Control-Allow-Origin': '*',
+          },
+        });
+      } else if (url.includes('storage.googleapis.com')) {
+        try {
+          // Make the request directly using fetch
+          const response = await fetch(url, {
+            headers: {
+              Accept:
+                'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+              'Cache-Control': 'no-cache',
+            },
+          });
+
+          if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+          const buffer = await response.arrayBuffer();
+
+          // Continue the request with the fetched data
+          void request.respond({
+            status: 200,
+            body: Buffer.from(buffer),
+            contentType: response.headers.get('content-type') || 'image/jpeg',
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Cache-Control': 'no-cache',
+            },
+          });
+        } catch (error) {
+          this.logger.error(`Failed to fetch image from GCS: ${url}`, error);
+          void request.abort();
+        }
+      } else {
+        void request.continue();
+      }
+    });
+
+    page.on('requestfailed', (request: any) => {
+      this.logger.error(`Request failed: ${request.url()}`, {
+        errorText: request.failure()?.errorText,
+        url: request.url(),
+      });
+    });
+
+    // Add console logging for responses
+    page.on('response', async (response: any) => {
+      const request = response.request();
+      const url = request.url();
+      if (url.includes('storage.googleapis.com')) {
+        this.logger.debug(
+          `Response from GCS: ${url}, Status: ${response.status()}`,
+        );
+      }
+    });
+  }
+
   async generatePDF(resumeId: string, userId: string): Promise<Buffer> {
+    const start = performance.now();
     const resume = await this.resumeParserService.getResumeById(
       resumeId,
       userId,
     );
+
     if (!resume) {
       throw new NotFoundException(`Resume with ID ${resumeId} not found`);
     }
 
     const browser = await this.getBrowser();
-    const browserPage = await browser.newPage();
+    const page = await browser.newPage();
 
     try {
-      await browserPage.setViewport({
-        width: 794,
-        height: 1123,
-      });
+      await this.setupRequestInterception(page);
 
-      // Set resume data in localStorage before navigation
-      await browserPage.evaluateOnNewDocument((data) => {
+      await page.evaluateOnNewDocument((data) => {
         window.localStorage.setItem('resume', JSON.stringify(data));
       }, resume.data);
 
-      // Navigate to preview URL
       let previewUrl = 'http://localhost:3001/pdfPreview';
       if (process.env.NODE_ENV === 'development') {
         previewUrl = previewUrl.replace('localhost', 'host.docker.internal');
-        await browserPage.setRequestInterception(true);
-        browserPage.on('request', (request) => {
-          const url = request
-            .url()
-            .replace('localhost', 'host.docker.internal');
-          void request.continue({ url });
-        });
       }
 
-      // Wait for page load and network idle
-      await browserPage.goto(previewUrl, {
-        waitUntil: ['load', 'networkidle0'],
+      await page.goto(previewUrl, {
+        waitUntil: ['networkidle0', 'domcontentloaded'],
         timeout: 30000,
       });
 
-      // Wait for the preview element with increased timeout
-      await browserPage.waitForSelector('.preview', {
-        timeout: 30000,
-        visible: true,
-      });
+      await Promise.all([
+        page.waitForSelector('.preview', { visible: true }),
+        page.evaluate(() => document.fonts.ready),
+        this.waitForImages(page),
+      ]);
 
-      // Wait for fonts to load
-      await browserPage.evaluate(() => document.fonts.ready);
+      const previewElement = await page.$('.preview');
+      if (!previewElement) throw new Error('Preview element not found');
 
-      // Add this before generating PDF
-      await browserPage.setExtraHTTPHeaders({
-        Accept:
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Access-Control-Allow-Origin': '*',
-      });
-
-      // Enable JavaScript and wait for network idle
-      await browserPage.setJavaScriptEnabled(true);
-
-      // Add this after setting viewport
-      await browserPage.setRequestInterception(true);
-      browserPage.on('request', (request) => {
-        // Allow all image requests and handle CORS
-        if (request.resourceType() === 'image') {
-          request.continue({
-            headers: {
-              ...request.headers(),
-              'Access-Control-Allow-Origin': '*',
-            },
-          });
-        } else {
-          request.continue();
-        }
-      });
-
-      // Add this after setting extra HTTP headers
-      await browserPage.setExtraHTTPHeaders({
-        Accept:
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Access-Control-Allow-Origin': '*',
-      });
-
-      // Replace the image loading wait block with this enhanced version
-      await browserPage.evaluate(async () => {
-        const images = Array.from(document.getElementsByTagName('img'));
-        await Promise.all(
-          images.map((img) => {
-            if (img.complete) {
-              if (img.naturalHeight === 0) {
-                throw new Error(`Image failed to load: ${img.src}`);
-              }
-              return Promise.resolve();
-            }
-            return new Promise((resolve, reject) => {
-              img.addEventListener('load', () => {
-                if (img.naturalHeight === 0) {
-                  reject(new Error(`Image failed to load: ${img.src}`));
-                }
-                resolve(undefined);
-              });
-              img.addEventListener('error', () =>
-                reject(new Error(`Image failed to load: ${img.src}`)),
-              );
-            });
-          }),
-        );
-      });
-
-      // Add additional wait time for image processing
-      await browserPage.waitForTimeout(1000);
-
-      // Then proceed with PDF generation
-      const pdfBuffer = await browserPage.pdf({
-        format: 'A4',
+      const pdfBuffer = await page.pdf({
+        width: 794,
+        height: 1123,
         printBackground: true,
-        timeout: 60000,
+        format: 'A4',
       });
 
-      // Create PDF with embedded fonts
-      const pdfDoc = await PDFDocument.create();
-      pdfDoc.registerFontkit(fontkit);
+      const duration = Number(performance.now() - start).toFixed(0);
+      this.logger.debug(`PDF generation took ${duration}ms`);
 
-      // Load and embed fonts if specified
-      if (resume.data.config?.font) {
-        try {
-          const fontUrl = `https://fonts.googleapis.com/css2?family=${resume.data.config.font}:wght@400;700&display=swap`;
-          const fontResponse = await this.httpService.axiosRef.get(fontUrl);
-
-          // Extract the actual font URL from the CSS response
-          const fontUrls = fontResponse.data.match(/src: url\((.*?)\)/g);
-          if (fontUrls && fontUrls.length > 0) {
-            const fontFileUrl = fontUrls[0].match(/url\((.*?)\)/)[1];
-            const fontFileResponse = await this.httpService.axiosRef.get(
-              fontFileUrl,
-              {
-                responseType: 'arraybuffer',
-              },
-            );
-
-            await pdfDoc.embedFont(fontFileResponse.data);
-          }
-        } catch (error) {
-          this.logger.warn('Failed to embed font:', error);
-          // Continue without the custom font if embedding fails
-        }
-      }
-
-      // Merge the PDF with embedded fonts
-      const originalPdf = await PDFDocument.load(pdfBuffer);
-      const [pdfPage] = await pdfDoc.copyPages(originalPdf, [0]);
-      pdfDoc.addPage(pdfPage);
-
-      return Buffer.from(await pdfDoc.save());
+      return Buffer.from(pdfBuffer);
+    } catch (error) {
+      this.logger.error('Error generating PDF:', error);
+      throw new InternalServerErrorException(
+        'Failed to generate PDF',
+        error instanceof Error ? error.message : String(error),
+      );
     } finally {
-      await browserPage.close();
+      await page.close();
       await browser.disconnect();
     }
   }
