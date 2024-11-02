@@ -13,14 +13,24 @@ const App: React.FC = () => {
       setResume(event.data.payload);
     }
     if (event.data.type === "PREPARE_PDF") {
-      const content = document.querySelector(".preview")?.innerHTML;
-      window.parent.postMessage(
-        {
-          type: "PDF_CONTENT",
-          payload: content,
-        },
-        "*"
-      );
+      const previewElement = document.querySelector(".preview");
+      if (previewElement) {
+        // Clone the element to avoid any React-related issues
+        const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+
+        // Make sure all styles are inlined
+        const styles = window.getComputedStyle(previewElement);
+        clonedElement.style.cssText = styles.cssText;
+
+        // Send the HTML content back to the parent
+        window.parent.postMessage(
+          {
+            type: "PDF_CONTENT",
+            payload: clonedElement.outerHTML,
+          },
+          "*"
+        );
+      }
     }
   }, []);
 

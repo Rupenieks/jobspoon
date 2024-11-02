@@ -1,18 +1,28 @@
-import { useResumeState } from "./ResumeStateContext";
+import { usePDFExport } from "@/hooks/usePDFExport";
+import { DownloadIcon } from "@radix-ui/react-icons";
 import { useCallback, useEffect, useRef } from "react";
 import { Button } from "../ui/button";
-import { DownloadIcon } from "@radix-ui/react-icons";
-import html2pdf from "html2pdf.js";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { useResumeState } from "./ResumeStateContext";
 
 const ResumePreviewFrame = () => {
   const { resume, temporaryResume } = useResumeState();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const { generatePDF, fontLoaded } = usePDFExport({
+    font:
+      temporaryResume?.data.config?.font ||
+      resume?.data.config?.font ||
+      "Roboto",
+    filename: `${
+      temporaryResume?.data.fullName || resume?.data.fullName || "resume"
+    }.pdf`,
+  });
 
   const updateResumeInFrame = useCallback(() => {
     if (!iframeRef.current?.contentWindow) return;
@@ -24,28 +34,17 @@ const ResumePreviewFrame = () => {
   }, [resume, temporaryResume]);
 
   const handleMessage = useCallback(
-    (event: MessageEvent) => {
+    async (event: MessageEvent) => {
       if (!event.origin.includes("localhost")) return;
-      if (event.data.type === "PDF_CONTENT") {
-        const content = event.data.payload;
-        if (content) {
-          const filename = `${
-            temporaryResume?.data.fullName || resume?.data.fullName || "resume"
-          }.pdf`;
-          html2pdf()
-            .set({
-              margin: 10,
-              filename,
-              image: { type: "jpeg", quality: 0.98 },
-              html2canvas: { scale: 2 },
-              jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-            })
-            .from(content)
-            .save();
+      if (event.data.type === "PDF_CONTENT" && fontLoaded) {
+        try {
+          await generatePDF(event.data.payload);
+        } catch (error) {
+          console.error("Failed to generate PDF:", error);
         }
       }
     },
-    [resume, temporaryResume]
+    [generatePDF, fontLoaded]
   );
 
   useEffect(() => {
