@@ -1,4 +1,4 @@
-import { usePDFExport } from "@/hooks/usePDFExport";
+import { useDownloadPDF } from "@/hooks/useDownloadPDF";
 import { DownloadIcon } from "@radix-ui/react-icons";
 import { useCallback, useEffect, useRef } from "react";
 import { Button } from "../ui/button";
@@ -14,14 +14,8 @@ const ResumePreviewFrame = () => {
   const { resume, temporaryResume } = useResumeState();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const { generatePDF, fontLoaded } = usePDFExport({
-    font:
-      temporaryResume?.data.config?.font ||
-      resume?.data.config?.font ||
-      "Roboto",
-    filename: `${
-      temporaryResume?.data.fullName || resume?.data.fullName || "resume"
-    }.pdf`,
+  const { downloadPDF, isLoading } = useDownloadPDF({
+    resumeId: resume?.id,
   });
 
   const updateResumeInFrame = useCallback(() => {
@@ -32,25 +26,6 @@ const ResumePreviewFrame = () => {
     };
     iframeRef.current.contentWindow.postMessage(message, "*");
   }, [resume, temporaryResume]);
-
-  const handleMessage = useCallback(
-    async (event: MessageEvent) => {
-      if (!event.origin.includes("localhost")) return;
-      if (event.data.type === "PDF_CONTENT" && fontLoaded) {
-        try {
-          await generatePDF(event.data.payload);
-        } catch (error) {
-          console.error("Failed to generate PDF:", error);
-        }
-      }
-    },
-    [generatePDF, fontLoaded]
-  );
-
-  useEffect(() => {
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [handleMessage]);
 
   useEffect(() => {
     if (!iframeRef.current) return;
@@ -64,11 +39,6 @@ const ResumePreviewFrame = () => {
     updateResumeInFrame();
   }, [resume, updateResumeInFrame]);
 
-  const handleDownloadPDF = useCallback(() => {
-    if (!iframeRef.current?.contentWindow) return;
-    iframeRef.current.contentWindow.postMessage({ type: "PREPARE_PDF" }, "*");
-  }, []);
-
   return (
     <div className="relative w-full h-full border border-gray-200 rounded-md">
       <div className="absolute top-4 right-4 z-50">
@@ -78,7 +48,8 @@ const ResumePreviewFrame = () => {
               <Button
                 variant="secondary"
                 size="icon"
-                onClick={handleDownloadPDF}
+                onClick={downloadPDF}
+                disabled={isLoading || !resume?.id}
                 className="bg-white shadow-md hover:bg-gray-100"
               >
                 <DownloadIcon className="h-4 w-4" />
@@ -91,7 +62,7 @@ const ResumePreviewFrame = () => {
       <iframe
         ref={iframeRef}
         title="Resume Preview"
-        src="http://localhost:3001"
+        src="http://localhost:3001/creator"
         className="w-full h-full border border-gray-200 rounded-md"
       />
     </div>

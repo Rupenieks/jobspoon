@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import html2pdf from "html2pdf.js";
+import { jsPDF } from "jspdf";
+import "svg2pdf.js";
+import html2canvas from "html2canvas";
 import WebFont from "webfontloader";
 
 interface UsePDFExportProps {
   font?: string;
+  margin?: number;
   filename?: string;
 }
 
@@ -23,7 +26,7 @@ export const usePDFExport = ({
       active: () => setFontLoaded(true),
       inactive: () => {
         console.error("Failed to load font:", font);
-        setFontLoaded(true); // Continue with fallback font
+        setFontLoaded(true);
       },
     });
   }, [font]);
@@ -41,33 +44,57 @@ export const usePDFExport = ({
       container.style.fontFamily = `${font}, sans-serif`;
       document.body.appendChild(container);
 
-      const options = {
-        margin: 0,
-        filename,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: true,
-          windowWidth: 794,
-          windowHeight: 1123,
-          onclone: (clonedDoc: Document) => {
-            const element = clonedDoc.querySelector(".preview");
-            if (element) {
-              element.style.fontFamily = `${font}, sans-serif`;
-            }
-          },
-        },
-        jsPDF: {
+      try {
+        const doc = new jsPDF({
           unit: "mm",
           format: "a4",
-          orientation: "portrait",
-        },
-      };
+          putOnlyUsedFonts: true,
+        });
 
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        await html2pdf().from(container).set(options).save();
+        const element = container.querySelector(".preview") as HTMLElement;
+        if (!element) throw new Error("Preview element not found");
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        const elementHeight = element.offsetHeight;
+        const scale = pageWidth / element.offsetWidth;
+        const totalPages = Math.ceil((elementHeight * scale) / pageHeight);
+
+        for (let i = 0; i < totalPages; i++) {
+          if (i > 0) doc.addPage();
+
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            windowWidth: element.offsetWidth,
+            windowHeight: element.offsetHeight,
+            y: i * (pageHeight / scale),
+            height: pageHeight / scale,
+          });
+
+          const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+          doc.addImage(
+            imgData,
+            "JPEG",
+            0,
+            0,
+            pageWidth,
+            pageHeight,
+            undefined,
+            "FAST"
+          );
+
+          const textLayer = document.createElement("div");
+          textLayer.innerHTML = element.innerHTML;
+          const text = textLayer.textContent || "";
+          doc.setFontSize(1);
+          doc.text(text, -100, -100);
+        }
+
+        doc.save(filename);
         document.body.removeChild(container);
       } catch (error) {
         console.error("PDF generation failed:", error);

@@ -9,6 +9,7 @@ import { JobsModule } from './modules/jobs/jobs.module';
 import { ApplicationModule } from './modules/application/application.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { MatchModule } from './modules/match/match.module';
+import { PDFModule } from './modules/pdf/pdf.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MatchModule } from './modules/match/match.module';
     ApplicationModule,
     StorageModule,
     MatchModule,
+    PDFModule,
   ],
   controllers: [AppController],
   providers: [AppService],

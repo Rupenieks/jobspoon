@@ -11,6 +11,17 @@ services:
       - "5469:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  chrome:
+    image: browserless/chrome:latest
+    ports:
+      - "3002:3000" # Maps external 3002 to internal 3000
+    environment:
+      - TOKEN=
+      - MAX_CONCURRENT_SESSIONS=10
+      - CONNECTION_TIMEOUT=300000
+      - MAX_QUEUE_LENGTH=20
+      - ENABLE_CORS=true
+    restart: always
 
 volumes:
   postgres_data:

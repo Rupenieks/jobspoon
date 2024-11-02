@@ -20,17 +20,40 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
   );
 
   const profileSection = useMemo(() => {
+    if (!resume.profileImage)
+      return (
+        <div className="flex gap-6 items-start mb-8">
+          <div>
+            <h1 style={{ fontSize: "2em" }} className="font-bold">
+              {resume.fullName}
+            </h1>
+            <p
+              style={{ fontSize: "1.15em" }}
+              className="text-gray-600 uppercase tracking-wide"
+            >
+              {resume.positionName}
+            </p>
+          </div>
+        </div>
+      );
+
     return (
       <div className="flex gap-6 items-start mb-8">
-        <img
-          src={resume.profileImage || ""}
-          alt="Profile"
-          className="rounded-full w-24 h-24 object-cover"
-          onError={(e) => {
-            console.error("Image failed to load:", e);
-          }}
-          crossOrigin="anonymous"
-        />
+        <div className="w-24 h-24 flex-shrink-0">
+          <img
+            src={resume.profileImage}
+            alt="Profile"
+            className="rounded-full w-full h-full object-cover"
+            onError={(e) => {
+              console.error("Image failed to load:", e);
+              e.currentTarget.style.display = "none";
+            }}
+            crossOrigin="anonymous"
+            loading="eager"
+            decoding="sync"
+            fetchPriority="high"
+          />
+        </div>
         <div>
           <h1 style={{ fontSize: "2em" }} className="font-bold">
             {resume.fullName}

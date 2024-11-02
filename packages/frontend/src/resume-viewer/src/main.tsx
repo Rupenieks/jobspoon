@@ -1,5 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import "../index.css";
 import App from "./App";
 
@@ -8,11 +9,12 @@ if (!container) throw new Error("Failed to find the root element");
 
 const root = createRoot(container);
 
-// Wrap in try-catch to help debug potential React initialization issues
 try {
   root.render(
     <React.StrictMode>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </React.StrictMode>
   );
 } catch (error) {

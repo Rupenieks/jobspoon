@@ -8,5 +8,6 @@ import { StorageModule } from '../storage/storage.module';
   imports: [AssistantModule, StorageModule],
   controllers: [ResumeParserController],
   providers: [ResumeParserService],
+  exports: [ResumeParserService],
 })
 export class ResumeParserModule {}
