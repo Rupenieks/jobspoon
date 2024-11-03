@@ -8,7 +8,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useResumeState } from "./resumes/ResumeStateContext";
-import { TrashIcon, GripVertical } from "lucide-react";
+import {
+  TrashIcon,
+  GripVertical,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import {
   Select,
@@ -495,6 +500,46 @@ const ResumeEditor: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Number of Pages
+              </label>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    updateConfig(
+                      "pages",
+                      Math.max(1, (resume.data.config.pages || 1) - 1)
+                    )
+                  }
+                  disabled={resume.data.config.pages <= 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Input
+                  type="number"
+                  value={resume.data.config.pages || 1}
+                  onChange={(e) => {
+                    const value = Math.max(1, Number(e.target.value));
+                    updateConfig("pages", value);
+                  }}
+                  className="w-20 text-center"
+                  min={1}
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    updateConfig("pages", (resume.data.config.pages || 1) + 1)
+                  }
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </AccordionContent>
