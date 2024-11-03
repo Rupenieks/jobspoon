@@ -139,6 +139,7 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
             marginLeft: `${config.margin}mm`,
             marginRight: `${config.margin}mm`,
             marginTop: `25.4mm`,
+            marginBottom: `25.4mm`,
           }}
           className="space-y-8"
         >

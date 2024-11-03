@@ -12,15 +12,11 @@ import { ResumeParserService } from '../resume-parser/resume-parser.service';
 export class PDFService {
   private readonly logger = new Logger(PDFService.name);
   private readonly browserURL: string;
-  private readonly publicUrl: string;
-  private readonly storageUrl: string;
 
   constructor(private readonly resumeParserService: ResumeParserService) {
     const chromeUrl = env.CHROME_URL;
     const chromeToken = env.CHROME_TOKEN;
     this.browserURL = `${chromeUrl}?token=${chromeToken}`;
-    this.publicUrl = env.PUBLIC_URL;
-    this.storageUrl = env.STORAGE_URL;
   }
 
   private async getBrowser() {
@@ -151,7 +147,6 @@ export class PDFService {
   }
 
   async generatePDF(resumeId: string, userId: string): Promise<Buffer> {
-    const start = performance.now();
     const resume = await this.resumeParserService.getResumeById(
       resumeId,
       userId,
@@ -166,6 +161,7 @@ export class PDFService {
 
     try {
       await this.setupRequestInterception(page);
+      await page.setViewport({ width: 794, height: 1123 }); // A4 width in pixels
 
       await page.evaluateOnNewDocument((data) => {
         window.localStorage.setItem('resume', JSON.stringify(data));
@@ -190,15 +186,18 @@ export class PDFService {
       const previewElement = await page.$('.preview');
       if (!previewElement) throw new Error('Preview element not found');
 
-      const pdfBuffer = await page.pdf({
-        width: 794,
-        height: 1123,
-        printBackground: true,
-        format: 'A4',
-      });
+      // Get the actual height of the content
+      const height = await page.evaluate(
+        (element) => element.scrollHeight,
+        previewElement,
+      );
 
-      const duration = Number(performance.now() - start).toFixed(0);
-      this.logger.debug(`PDF generation took ${duration}ms`);
+      const pdfBuffer = await page.pdf({
+        width: '210mm',
+        height: `${height}px`,
+        printBackground: true,
+        pageRanges: '1',
+      });
 
       return Buffer.from(pdfBuffer);
     } catch (error) {

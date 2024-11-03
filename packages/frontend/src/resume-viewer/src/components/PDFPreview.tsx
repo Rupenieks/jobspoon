@@ -27,7 +27,7 @@ const PDFPreview: React.FC = () => {
   if (!resume) return null;
 
   return (
-    <div className="preview bg-white w-[210mm] min-h-[297mm] h-fit mx-auto">
+    <div className="preview bg-white w-[210mm] mx-auto">
       <StandardTemplate resume={resume} />
     </div>
   );
