@@ -1,23 +1,11 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-import { StandardTemplate } from "../templates/StandardTemplate";
-import type { TResumeData } from "@redundant/common/src";
 import WebFont from "webfontloader";
+import useResumeStateReceiver from "../hooks/useResumeStateReceiver";
+import { StandardTemplate } from "../templates/StandardTemplate";
 
 const Creator: React.FC = () => {
-  const [resume, setResume] = useState<TResumeData | null>(null);
-
-  const handleMessage = useCallback((event: MessageEvent) => {
-    if (!event.origin.includes("localhost")) return;
-    if (event.data.type === "SET_RESUME") {
-      setResume(event.data.payload);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [handleMessage]);
+  const { resume } = useResumeStateReceiver();
 
   useEffect(() => {
     if (resume?.config?.font) {
