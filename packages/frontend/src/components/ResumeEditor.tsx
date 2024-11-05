@@ -332,6 +332,28 @@ const ResumeEditor: React.FC = () => {
     [resume?.data.personalInfo, updateResumeField]
   );
 
+  const updatePages = useCallback(
+    (newPageCount: number) => {
+      if (!resume) return;
+      
+      const currentPages = resume.data.pages.length;
+      
+      if (newPageCount > currentPages) {
+        // Add new empty pages
+        const newPages = Array.from({ length: newPageCount - currentPages }).map(
+          () => ({
+            sections: [], // Empty sections array for new pages
+          })
+        );
+        updateResumeField("pages", [...resume.data.pages, ...newPages]);
+      } else if (newPageCount < currentPages) {
+        // Remove pages from the end
+        updateResumeField("pages", resume.data.pages.slice(0, newPageCount));
+      }
+    },
+    [resume?.data.pages, updateResumeField]
+  );
+
   if (!resume) {
     return null;
   }
@@ -526,22 +548,17 @@ const ResumeEditor: React.FC = () => {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() =>
-                    updateConfig(
-                      "pages",
-                      Math.max(1, (resume.data.config.pages || 1) - 1)
-                    )
-                  }
-                  disabled={resume.data.config.pages <= 1}
+                  onClick={() => updatePages(Math.max(1, resume.data.pages.length - 1))}
+                  disabled={resume.data.pages.length <= 1}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <Input
                   type="number"
-                  value={resume.data.config.pages || 1}
+                  value={resume.data.pages.length}
                   onChange={(e) => {
                     const value = Math.max(1, Number(e.target.value));
-                    updateConfig("pages", value);
+                    updatePages(value);
                   }}
                   className="w-20 text-center"
                   min={1}
@@ -549,9 +566,7 @@ const ResumeEditor: React.FC = () => {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() =>
-                    updateConfig("pages", (resume.data.config.pages || 1) + 1)
-                  }
+                  onClick={() => updatePages(resume.data.pages.length + 1)}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>

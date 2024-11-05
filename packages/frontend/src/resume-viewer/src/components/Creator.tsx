@@ -20,9 +20,9 @@ const Creator: React.FC = () => {
   }, [resume?.config?.font]);
 
   const renderPageDividers = useCallback(() => {
-    if (!resume?.config?.pages || resume.config.pages === 1) return null;
+    if (!resume?.pages || resume.pages.length === 1) return null;
 
-    return Array.from({ length: resume.config.pages - 1 }).map((_, index) => (
+    return Array.from({ length: resume.pages.length - 1 }).map((_, index) => (
       <div
         key={index}
         className="absolute w-full border-b-2 border-black border-dashed pointer-events-none"
@@ -31,7 +31,7 @@ const Creator: React.FC = () => {
         }}
       />
     ));
-  }, [resume?.config?.pages]);
+  }, [resume?.pages]);
 
   if (!resume) return <div>Waiting for resume data...</div>;
 
@@ -40,17 +40,21 @@ const Creator: React.FC = () => {
       <TransformWrapper
         initialScale={0.5}
         minScale={0.5}
-        maxScale={2}
+        maxScale={3}
         centerOnInit
         centerZoomedOut={false}
         wheel={{ wheelDisabled: false }}
       >
         <TransformComponent>
+          <div className="flex gap-8">
+          {resume.pages.map((_, index) => (
           <div className="preview bg-white rounded-lg w-[210mm] h-fit mx-auto relative">
-            {resume.pages.map((_, index) => (
               <StandardTemplate resume={resume} pageIndex={index} />
+          </div>
             ))}
           </div>
+
+
         </TransformComponent>
       </TransformWrapper>
     </div>

@@ -31,7 +31,6 @@ export const ResumeConfigSchema = z.object({
   fontSize: z.number().default(16),
   font: z.string().default("Roboto"),
   margin: z.number().default(10), // 25.4mm is 1 inch, standard margin
-  pages: z.number().min(1).default(1), // Default to 1 page
 });
 
 // Define section types

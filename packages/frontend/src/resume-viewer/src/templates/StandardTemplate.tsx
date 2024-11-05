@@ -138,6 +138,10 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
     }
   };
 
+  const currentPage = resume.pages[pageIndex];
+  const hasPersonalInfo = currentPage.sections.some(s => s.type === "personalInfo");
+  const hasSkills = currentPage.sections.some(s => s.type === "skills");
+
   return (
     <div
       className="flex min-h-[297mm] w-[210mm] relative"
@@ -157,21 +161,19 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
           }}
           className="space-y-8"
         >
-          {resume.pages[pageIndex].sections.map((section) => (
+          {currentPage.sections.map((section) => (
             <div key={section.id}>{renderSection(section.type)}</div>
           ))}
         </div>
       </div>
 
-      {/* Sidebar container */}
+      {/* Always render sidebar, but conditionally show content */}
       <div className="w-80 relative">
-        {/* Background that extends full height */}
         <div
           className="absolute inset-0"
           style={{ backgroundColor: config.primaryColor }}
         />
 
-        {/* Content with margins */}
         <div
           className="relative text-white"
           style={{
@@ -180,16 +182,20 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
             marginTop: `25.4mm`,
           }}
         >
-          <h2 className="text-xl font-semibold mb-4">Details</h2>
-          <div className="space-y-2">
-            {resume.personalInfo.address && <p>{resume.personalInfo.address}</p>}
-            {resume.personalInfo.city && <p>{resume.personalInfo.city}</p>}
-            {resume.personalInfo.country && <p>{resume.personalInfo.country}</p>}
-            {resume.personalInfo.phoneNumber && <p>{resume.personalInfo.phoneNumber}</p>}
-            {resume.personalInfo.email && <p>{resume.personalInfo.email}</p>}
-          </div>
+          {hasPersonalInfo && (
+            <>
+              <h2 className="text-xl font-semibold mb-4">Details</h2>
+              <div className="space-y-2">
+                {resume.personalInfo.address && <p>{resume.personalInfo.address}</p>}
+                {resume.personalInfo.city && <p>{resume.personalInfo.city}</p>}
+                {resume.personalInfo.country && <p>{resume.personalInfo.country}</p>}
+                {resume.personalInfo.phoneNumber && <p>{resume.personalInfo.phoneNumber}</p>}
+                {resume.personalInfo.email && <p>{resume.personalInfo.email}</p>}
+              </div>
+            </>
+          )}
 
-          {resume.skills && resume.skills.length > 0 && (
+          {hasSkills && resume.skills && resume.skills.length > 0 && (
             <>
               <h2 className="text-xl font-semibold mt-8 mb-4">Skills</h2>
               <div className="space-y-2">
