@@ -3,9 +3,10 @@ import { useMemo } from "react";
 
 interface StandardTemplateProps {
   resume: TResumeData;
+  pageIndex: number;
 }
 
-export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
+export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) => {
   const config = useMemo(
     () => ({
       ...{
@@ -25,13 +26,13 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
         <div className="flex gap-6 items-start mb-8">
           <div>
             <h1 style={{ fontSize: "2em" }} className="font-bold">
-              {resume.fullName}
+              {resume.personalInfo.fullName}
             </h1>
             <p
               style={{ fontSize: "1.15em" }}
               className="text-gray-600 uppercase tracking-wide"
             >
-              {resume.positionName}
+              {resume.personalInfo.positionName}
             </p>
           </div>
         </div>
@@ -56,18 +57,18 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
         </div>
         <div>
           <h1 style={{ fontSize: "2em" }} className="font-bold">
-            {resume.fullName}
+            {resume.personalInfo.fullName}
           </h1>
           <p
             style={{ fontSize: "1.15em" }}
             className="text-gray-600 uppercase tracking-wide"
           >
-            {resume.positionName}
+            {resume.personalInfo.positionName}
           </p>
         </div>
       </div>
     );
-  }, [resume.fullName, resume.positionName, resume.profileImage]);
+  }, [resume.personalInfo.fullName, resume.personalInfo.positionName, resume.profileImage]);
 
   const experienceSection = useMemo(() => {
     if (!resume.experience?.length) return null;
@@ -124,6 +125,19 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
     );
   }, [resume.education]);
 
+  const renderSection = (sectionType: string) => {
+    switch (sectionType) {
+      case "personalInfo":
+        return profileSection;
+      case "experience":
+        return experienceSection;
+      case "education":
+        return educationSection;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div
       className="flex min-h-[297mm] w-[210mm] relative"
@@ -143,9 +157,9 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
           }}
           className="space-y-8"
         >
-          {profileSection}
-          {experienceSection}
-          {educationSection}
+          {resume.pages[pageIndex].sections.map((section) => (
+            <div key={section.id}>{renderSection(section.type)}</div>
+          ))}
         </div>
       </div>
 
@@ -168,11 +182,11 @@ export const StandardTemplate = ({ resume }: StandardTemplateProps) => {
         >
           <h2 className="text-xl font-semibold mb-4">Details</h2>
           <div className="space-y-2">
-            {resume.address && <p>{resume.address}</p>}
-            {resume.city && <p>{resume.city}</p>}
-            {resume.country && <p>{resume.country}</p>}
-            {resume.phoneNumber && <p>{resume.phoneNumber}</p>}
-            {resume.email && <p>{resume.email}</p>}
+            {resume.personalInfo.address && <p>{resume.personalInfo.address}</p>}
+            {resume.personalInfo.city && <p>{resume.personalInfo.city}</p>}
+            {resume.personalInfo.country && <p>{resume.personalInfo.country}</p>}
+            {resume.personalInfo.phoneNumber && <p>{resume.personalInfo.phoneNumber}</p>}
+            {resume.personalInfo.email && <p>{resume.personalInfo.email}</p>}
           </div>
 
           {resume.skills && resume.skills.length > 0 && (

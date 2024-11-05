@@ -47,8 +47,9 @@ const Creator: React.FC = () => {
       >
         <TransformComponent>
           <div className="preview bg-white rounded-lg w-[210mm] h-fit mx-auto relative">
-            {renderPageDividers()}
-            <StandardTemplate resume={resume} />
+            {resume.pages.map((_, index) => (
+              <StandardTemplate resume={resume} pageIndex={index} />
+            ))}
           </div>
         </TransformComponent>
       </TransformWrapper>

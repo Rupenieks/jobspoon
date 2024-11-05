@@ -34,22 +34,58 @@ export const ResumeConfigSchema = z.object({
   pages: z.number().min(1).default(1), // Default to 1 page
 });
 
+// Define section types
+export const SectionTypeEnum = z.enum([
+  "personalInfo",
+  "experience",
+  "education",
+  "skills",
+]);
+
+export type TSectionType = z.infer<typeof SectionTypeEnum>;
+
+// Define a section schema (removed order field)
+export const SectionSchema = z.object({
+  id: z.string(),
+  type: SectionTypeEnum,
+  title: z.string(),
+});
+
+// Define a page schema
+export const PageSchema = z.object({
+  sections: z.array(SectionSchema),
+});
+
 // This is the pure resume data schema (what's in the data field)
 export const ResumeDataSchema = z.object({
-  fullName: z.string().nullish(),
-  summary: z.string().nullish(),
-  country: z.string().nullish(),
-  city: z.string().nullish(),
-  address: z.string().nullish(),
-  email: z.string().nullish(),
-  phoneNumber: z.string().nullish(),
-  positionName: z.string().nullish(),
+  // Section data
+  personalInfo: z.object({
+    fullName: z.string().nullish(),
+    summary: z.string().nullish(),
+    country: z.string().nullish(),
+    city: z.string().nullish(),
+    address: z.string().nullish(),
+    email: z.string().nullish(),
+    phoneNumber: z.string().nullish(),
+    positionName: z.string().nullish(),
+  }),
   experience: z.array(ExperienceSchema).nullish(),
   education: z.array(EducationSchema).nullish(),
   skills: z.array(z.string()).nullish(),
-  references: z.array(ReferenceSchema).nullish(),
-  previewImage: z.string().nullish(),
-  profileImage: z.string().nullish(),
+  
+  // Page layout
+  pages: z.array(PageSchema).default([
+    {
+      sections: [
+        { id: "personal-info", type: "personalInfo", title: "Personal Information" },
+      { id: "experience", type: "experience", title: "Experience" },
+      { id: "education", type: "education", title: "Education" },
+      { id: "skills", type: "skills", title: "Skills" },
+      ],
+    },
+  ]),
+  
+  // Other configurations remain the same
   config: ResumeConfigSchema.default({
     primaryColor: "#1f2937",
     fontSize: 16,
@@ -57,6 +93,8 @@ export const ResumeDataSchema = z.object({
     margin: 10,
     pages: 1,
   }),
+  previewImage: z.string().nullish(),
+  profileImage: z.string().nullish(),
 });
 
 // Base Resume Model (no relations)

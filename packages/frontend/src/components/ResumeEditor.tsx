@@ -321,6 +321,17 @@ const ResumeEditor: React.FC = () => {
     []
   );
 
+  const updatePersonalInfo = useCallback(
+    (field: string, value: string) => {
+      if (!resume) return;
+      updateResumeField("personalInfo", {
+        ...resume.data.personalInfo,
+        [field]: value,
+      });
+    },
+    [resume?.data.personalInfo, updateResumeField]
+  );
+
   if (!resume) {
     return null;
   }
@@ -337,8 +348,8 @@ const ResumeEditor: React.FC = () => {
                   {label}
                 </label>
                 <Input
-                  value={resume.data[field] || ""}
-                  onChange={(e) => updateResumeField(field, e.target.value)}
+                  value={resume.data.personalInfo[field] || ""}
+                  onChange={(e) => updatePersonalInfo(field, e.target.value)}
                 />
               </div>
             ))}

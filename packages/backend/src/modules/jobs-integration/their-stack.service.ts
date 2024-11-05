@@ -104,17 +104,17 @@ export class TheirStackService {
     };
 
     // Location filters
-    if (resumeData.country) {
-      query.job_country_code_or = [this.countryToISO(resumeData.country)];
+    if (resumeData.personalInfo?.country) {
+      query.job_country_code_or = [this.countryToISO(resumeData.personalInfo.country)];
     }
 
-    if (resumeData.city) {
-      query.job_location_pattern_or = [`.*${resumeData.city}.*`];
+    if (resumeData.personalInfo?.city) {
+      query.job_location_pattern_or = [`.*${resumeData.personalInfo.city}.*`];
     }
 
     // Position/Title filters
-    if (resumeData.positionName) {
-      const words = resumeData.positionName
+    if (resumeData.personalInfo?.positionName) {
+      const words = resumeData.personalInfo.positionName
         .toLowerCase()
         .split(/\s+/)
         .filter((word) => word.length > 2);
