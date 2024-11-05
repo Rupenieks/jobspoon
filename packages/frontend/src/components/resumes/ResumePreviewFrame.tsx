@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { useResumeState } from "./ResumeStateContext";
+import useResumeStateSender from "@/hooks/useResumeStateSender";
 
 const ResumePreviewFrame = () => {
   const { resume, temporaryResume } = useResumeState();
@@ -18,26 +19,7 @@ const ResumePreviewFrame = () => {
     resumeId: resume?.id,
   });
 
-  const updateResumeInFrame = useCallback(() => {
-    if (!iframeRef.current?.contentWindow) return;
-    const message = {
-      type: "SET_RESUME",
-      payload: temporaryResume?.data || resume?.data,
-    };
-    iframeRef.current.contentWindow.postMessage(message, "*");
-  }, [resume, temporaryResume]);
-
-  useEffect(() => {
-    if (!iframeRef.current) return;
-    iframeRef.current.addEventListener("load", updateResumeInFrame);
-    return () => {
-      iframeRef.current?.removeEventListener("load", updateResumeInFrame);
-    };
-  }, [updateResumeInFrame]);
-
-  useEffect(() => {
-    updateResumeInFrame();
-  }, [resume, updateResumeInFrame]);
+  useResumeStateSender({ resume: temporaryResume?.data || resume?.data || null, iframeRef });
 
   return (
     <div className="relative w-full h-full border border-gray-200 rounded-md">

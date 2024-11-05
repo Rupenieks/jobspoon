@@ -11,10 +11,12 @@ export default defineConfig({
     cors: true,
     headers: {
       "Access-Control-Allow-Origin": "*",
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp"
     },
     strictPort: true,
-    host: true,
-  },
+    host: "0.0.0.0",  
+},
   build: {
     outDir: path.resolve(__dirname, "dist/resume-viewer"),
     emptyOutDir: true,
