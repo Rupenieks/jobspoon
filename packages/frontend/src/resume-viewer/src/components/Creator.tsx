@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import WebFont from "webfontloader";
 import useResumeStateReceiver from "../hooks/useResumeStateReceiver";
