@@ -3,3 +3,4 @@ node_modules
 dist
 .turbo
 packages/backend/virtuevita-7a5c92bcfd36.json
+.vscode
