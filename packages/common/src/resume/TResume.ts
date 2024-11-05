@@ -90,7 +90,6 @@ export const ResumeDataSchema = z.object({
     fontSize: 16,
     font: "Roboto",
     margin: 10,
-    pages: 1,
   }),
   previewImage: z.string().nullish(),
   profileImage: z.string().nullish(),
