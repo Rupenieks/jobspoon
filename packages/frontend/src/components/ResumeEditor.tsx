@@ -44,6 +44,7 @@ import { useUpdateResumeImages } from "@/hooks/useUpdateResumeImages";
 import {
   restrictToVerticalAxis,
 } from '@dnd-kit/modifiers';
+import { SectionLayoutManager } from "./SectionLayoutManager";
 
 // Sortable Experience Item Component
 const SortableExperienceItem = ({ experience, index, updateExperience }) => {
@@ -360,6 +361,13 @@ const ResumeEditor: React.FC = () => {
 
   return (
     <Accordion type="multiple" className="w-full">
+      <AccordionItem value="layout">
+        <AccordionTrigger>Layout</AccordionTrigger>
+        <AccordionContent>
+          <SectionLayoutManager />
+        </AccordionContent>
+      </AccordionItem>
+
       <AccordionItem value="personal-info">
         <AccordionTrigger>Personal Information</AccordionTrigger>
         <AccordionContent>
