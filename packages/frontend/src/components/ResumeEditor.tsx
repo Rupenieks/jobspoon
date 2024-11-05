@@ -41,6 +41,9 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useUpdateResumeImages } from "@/hooks/useUpdateResumeImages";
+import {
+  restrictToVerticalAxis,
+} from '@dnd-kit/modifiers';
 
 // Sortable Experience Item Component
 const SortableExperienceItem = ({ experience, index, updateExperience }) => {
@@ -354,6 +357,7 @@ const ResumeEditor: React.FC = () => {
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleExperienceDragEnd}
+            modifiers={[restrictToVerticalAxis]}
           >
             <SortableContext
               items={resume.data.experience?.map((_, i) => i.toString()) || []}
@@ -380,6 +384,7 @@ const ResumeEditor: React.FC = () => {
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleEducationDragEnd}
+            modifiers={[restrictToVerticalAxis]}
           >
             <SortableContext
               items={resume.data.education?.map((_, i) => i.toString()) || []}
