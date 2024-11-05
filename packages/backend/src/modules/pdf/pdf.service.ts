@@ -83,9 +83,11 @@ export class PDFService {
 
     page.on('request', async (request: any) => {
       const url = request.url();
+      const viteHost = process.env.VITE_HOST;
+      const useWsl = process.env.USE_WSL === 'true';
 
-      if (url.includes('localhost')) {
-        const modifiedUrl = url.replace('localhost', 'host.docker.internal');
+      if (useWsl && viteHost && url.includes(viteHost)) {
+        const modifiedUrl = url.replace(viteHost, 'host.docker.internal');
         void request.continue({
           url: modifiedUrl,
           headers: {
@@ -146,6 +148,18 @@ export class PDFService {
     });
   }
 
+  private getPreviewUrl(): string {
+    const useWsl = process.env.USE_WSL === 'true';
+    const viteHost = process.env.VITE_HOST || 'localhost';
+    const vitePort = process.env.VITE_PORT || '3001';
+    
+    if (useWsl) {
+      return `http://${viteHost}:${vitePort}/pdfPreview`;
+    }
+    
+    return `http://host.docker.internal:${vitePort}/pdfPreview`;
+  }
+
   async generatePDF(resumeId: string, userId: string): Promise<Buffer> {
     const resume = await this.resumeParserService.getResumeById(
       resumeId,
@@ -167,10 +181,8 @@ export class PDFService {
         window.localStorage.setItem('resume', JSON.stringify(data));
       }, resume.data);
 
-      let previewUrl = 'http://localhost:3001/pdfPreview';
-      if (process.env.NODE_ENV === 'development') {
-        previewUrl = previewUrl.replace('localhost', 'host.docker.internal');
-      }
+      const previewUrl = this.getPreviewUrl();
+      this.logger.debug(`Using preview URL: ${previewUrl}`);
 
       await page.goto(previewUrl, {
         waitUntil: ['networkidle0', 'domcontentloaded'],
