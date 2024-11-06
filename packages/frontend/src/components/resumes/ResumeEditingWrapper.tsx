@@ -2,6 +2,182 @@ import AutomatedResumeEditor from "../AutomatedResumeEditor";
 import ResumeEditor from "../ResumeEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import ResumePreviewFrame from "./ResumePreviewFrame";
+import { useResumeState } from "./ResumeStateContext";
+import { Button } from "../ui/button";
+import { Palette, Type, Maximize, FileText } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../ui/popover";
+import { Input } from "../ui/input";
+import { Slider } from "../ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useMemo, useCallback } from "react";
+import { TResumeConfig } from "@redundant/common/src";
+
+const UtilityBar = () => {
+  const { resume, updateResumeField } = useResumeState();
+  
+  const availableFonts = useMemo(
+    () => ["Roboto", "Open Sans", "Lato", "Montserrat", "Source Sans Pro"],
+    []
+  );
+
+  const updateConfig = useCallback(
+    (key: keyof TResumeConfig, value: any) => {
+      if (!resume) return;
+      updateResumeField("config", {
+        ...resume.data.config,
+        [key]: value,
+      });
+    },
+    [resume?.data.config, updateResumeField]
+  );
+
+  const updatePages = useCallback(
+    (newPageCount: number) => {
+      if (!resume) return;
+      const currentPages = resume.data.pages.length;
+      
+      if (newPageCount > currentPages) {
+        const newPages = Array.from({ length: newPageCount - currentPages }).map(
+          () => ({ sections: [] })
+        );
+        updateResumeField("pages", [...resume.data.pages, ...newPages]);
+      } else if (newPageCount < currentPages) {
+        updateResumeField("pages", resume.data.pages.slice(0, newPageCount));
+      }
+    },
+    [resume?.data.pages, updateResumeField]
+  );
+
+  if (!resume) return null;
+
+  return (
+    <div className="flex items-center gap-2 p-2 border-b">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <Palette className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent side='top' className="w-64">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Primary Color</label>
+            <Input
+              type="color"
+              value={resume.data.config.primaryColor}
+              onChange={(e) => updateConfig("primaryColor", e.target.value)}
+              className="h-8"
+            />
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <Type className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent side='top' className="w-64">
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Font Size</label>
+              <div className="flex gap-2">
+                <Slider
+                  value={[resume.data.config.fontSize]}
+                  onValueChange={([value]) => updateConfig("fontSize", value)}
+                  min={12}
+                  max={24}
+                  step={1}
+                  className="flex-grow"
+                />
+                <Input
+                  type="number"
+                  value={resume.data.config.fontSize}
+                  onChange={(e) => updateConfig("fontSize", Number(e.target.value))}
+                  className="w-16"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Font Family</label>
+              <Select
+                value={resume.data.config.font}
+                onValueChange={(value) => updateConfig("font", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a font" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableFonts.map((font) => (
+                    <SelectItem key={font} value={font}>
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <Maximize className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent side='top' className="w-64">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Margin (mm)</label>
+            <div className="flex gap-2">
+              <Slider
+                value={[resume.data.config.margin]}
+                onValueChange={([value]) => updateConfig("margin", value)}
+                min={10}
+                max={50}
+                step={0.1}
+                className="flex-grow"
+              />
+              <Input
+                type="number"
+                value={resume.data.config.margin}
+                onChange={(e) => updateConfig("margin", Number(e.target.value))}
+                className="w-16"
+              />
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <FileText className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent side='top' className="w-64">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Number of Pages</label>
+            <Input
+              type="number"
+              value={resume.data.pages.length}
+              onChange={(e) => {
+                const value = Math.max(1, Number(e.target.value));
+                updatePages(value);
+              }}
+              min={1}
+              className="w-full"
+            />
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
 
 const ResumeEditingWrapper = () => {
   return (
@@ -20,8 +196,13 @@ const ResumeEditingWrapper = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <div className="w-1/2 sticky top-0 max-h-[632px]">
-        <ResumePreviewFrame />
+      <div className="w-1/2 sticky top-0 bg-background z-10">
+        <div className="sticky top-0">
+          <UtilityBar />
+        </div>
+        <div className="max-h-[632px] h-full sticky top-[49px]">
+          <ResumePreviewFrame />
+        </div>
       </div>
     </div>
   );
