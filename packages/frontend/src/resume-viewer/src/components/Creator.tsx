@@ -53,7 +53,7 @@ const Creator: React.FC = () => {
             {resume.pages.map((_, index) => (
               <div 
                 key={index}
-                className="preview bg-white rounded-lg w-[210mm] h-[297mm] relative shadow-lg"
+                className="preview bg-white rounded-lg w-[210mm] h-fit min-h-[297mm] relative shadow-lg"
               >
                 <StandardTemplate resume={resume} pageIndex={index} />
               </div>

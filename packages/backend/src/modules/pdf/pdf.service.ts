@@ -206,10 +206,7 @@ export class PDFService {
 
       const pdfBuffer = await page.pdf({
         width: '210mm',
-        height:
-          resume.data.config.pages > 1
-            ? `${297 * resume.data.config.pages}mm`
-            : `${height}px`,
+
         printBackground: true,
         pageRanges: '1',
       });

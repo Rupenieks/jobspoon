@@ -10,6 +10,7 @@ import {
   DragEndEvent,
   DragStartEvent,
   DragOverEvent,
+  useDroppable,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -18,9 +19,24 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useResumeState } from "./resumes/ResumeStateContext";
-import { Button } from "./ui/button";
 import { GripVertical } from "lucide-react";
 import { SortableItem } from "./SortableItem";
+
+// New component for droppable page container
+const DroppablePage = ({ pageIndex, children }: { pageIndex: number, children: React.ReactNode }) => {
+  const { setNodeRef } = useDroppable({
+    id: `page-${pageIndex}`,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className="w-48 p-4 border rounded-lg bg-background"
+    >
+      {children}
+    </div>
+  );
+};
 
 export const SectionLayoutManager = () => {
   const { resume, updateResumeField } = useResumeState();
@@ -41,29 +57,60 @@ export const SectionLayoutManager = () => {
     const { active, over } = event;
     if (!over || !resume) return;
 
-    // Extract page index and section id from the droppable id
+    // Handle dropping into a page container
+    if (over.id.toString().startsWith('page-')) {
+      const activePageIndex = (active.id as string).split('-')[0];
+      const overPageIndex = over.id.toString().replace('page-', '');
+      
+      if (activePageIndex === overPageIndex) return;
+
+      const newPages = [...resume.data.pages];
+      const [sourcePageIndex, activeSectionId] = (active.id as string).split('-');
+      
+      const activeSection = newPages[Number(sourcePageIndex)].sections.find(
+        s => s.id === activeSectionId
+      );
+      
+      if (!activeSection) return;
+
+      // Remove from source page
+      newPages[Number(sourcePageIndex)].sections = newPages[Number(sourcePageIndex)].sections.filter(
+        s => s.id !== activeSectionId
+      );
+
+      // Add to target page
+      newPages[Number(overPageIndex)].sections.push(activeSection);
+
+      updateResumeField("pages", newPages);
+      return;
+    }
+
+    // Handle dropping onto another section
     const [activePageIndex, activeSectionId] = (active.id as string).split('-');
     const [overPageIndex, overSectionId] = (over.id as string).split('-');
 
-    if (activePageIndex === overPageIndex) return; // Same page handling is done in handleDragEnd
+    if (activePageIndex === overPageIndex) return;
 
-    // Create new pages array
     const newPages = [...resume.data.pages];
-    
-    // Find the section to move
     const activeSection = newPages[Number(activePageIndex)].sections.find(
       s => s.id === activeSectionId
     );
     
     if (!activeSection) return;
 
-    // Remove from source page
     newPages[Number(activePageIndex)].sections = newPages[Number(activePageIndex)].sections.filter(
       s => s.id !== activeSectionId
     );
 
-    // Add to target page
-    newPages[Number(overPageIndex)].sections.push(activeSection);
+    const overIndex = newPages[Number(overPageIndex)].sections.findIndex(
+      s => s.id === overSectionId
+    );
+
+    if (overIndex === -1) {
+      newPages[Number(overPageIndex)].sections.push(activeSection);
+    } else {
+      newPages[Number(overPageIndex)].sections.splice(overIndex, 0, activeSection);
+    }
 
     updateResumeField("pages", newPages);
   };
@@ -101,20 +148,17 @@ export const SectionLayoutManager = () => {
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Layout Manager</h3>
-      <div className="flex gap-4">
-        {resume?.data.pages.map((page, pageIndex) => (
-          <div
-            key={pageIndex}
-            className="w-48 p-4 border rounded-lg bg-background"
-          >
-            <div className="font-medium mb-2">Page {pageIndex + 1}</div>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCorners}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDragEnd={handleDragEnd}
-            >
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex gap-4">
+          {resume?.data.pages.map((page, pageIndex) => (
+            <DroppablePage key={pageIndex} pageIndex={pageIndex}>
+              <div className="font-medium mb-2">Page {pageIndex + 1}</div>
               <SortableContext
                 items={page.sections.map(
                   section => `${pageIndex}-${section.id}`
@@ -135,10 +179,10 @@ export const SectionLayoutManager = () => {
                   ))}
                 </div>
               </SortableContext>
-            </DndContext>
-          </div>
-        ))}
-      </div>
+            </DroppablePage>
+          ))}
+        </div>
+      </DndContext>
     </div>
   );
 }; 
