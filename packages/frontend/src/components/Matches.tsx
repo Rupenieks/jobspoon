@@ -3,6 +3,7 @@ import { useReadResumesWithMatches } from "@/hooks/useReadResumesWithMatches";
 import { useMatchJobs } from "@/hooks/useMatchJobs";
 import { Skeleton } from "@/components/ui/skeleton";
 import ResumeMatchCard from "./ResumeMatchCard";
+import { useReadApplications } from "@/hooks/useReadApplications";
 
 const ResumeSkeleton: React.FC = () => (
   <div className="mb-4">
@@ -13,6 +14,13 @@ const ResumeSkeleton: React.FC = () => (
 const Matches: React.FC = () => {
   const { data: resumes, isLoading } = useReadResumesWithMatches();
   const { mutate: matchJobs, isPending } = useMatchJobs();
+  const { data: applications } = useReadApplications();
+
+  const filteredResumes = useMemo(() => {
+    return resumes?.filter((resume) => {
+      return !applications?.some((application) => application.resumeId === resume.id);
+    });
+  }, [resumes, applications]);
 
   const handleMatchJobs = async (resumeId: string) => {
     matchJobs(resumeId);
@@ -25,7 +33,7 @@ const Matches: React.FC = () => {
         .map((_, index) => <ResumeSkeleton key={index} />);
     }
 
-    return resumes?.map((resume) => (
+    return filteredResumes?.map((resume) => (
       <ResumeMatchCard
         key={resume.id}
         resume={resume}

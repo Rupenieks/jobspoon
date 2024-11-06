@@ -33,6 +33,7 @@ import { useCreateApplication } from "@/hooks/useCreateApplication";
 import { toast } from "@/hooks/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useReadApplications } from "@/hooks/useReadApplications";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ResumeMatchCardProps {
   resume: TResumeWithMatches;
@@ -49,7 +50,6 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
   const matchCount = useMemo(() => resume.matches?.length || 0, [resume.matches]);
   const { mutateAsync: createApplication } = useCreateApplication();
   const { data: applications } = useReadApplications();
-
 
   const matchHasApplication = useCallback((matchId: string) => {
     return applications?.some((application) => application.matchId === matchId);
@@ -76,7 +76,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
   return (
     <Accordion type="single" collapsible className="mb-6">
       <AccordionItem value={resume.id} className="border rounded-lg shadow-sm">
-        <AccordionTrigger className="px-6 py-4 hover:no-underline [&[data-state=open]>div]:pb-0">
+        <AccordionTrigger className="px-6 hover:no-underline [&[data-state=open]>div]:pb-0">
           <div className="flex items-center justify-between w-full pr-8">
             <div className="flex-1">
               <div className="text-left">
@@ -141,9 +141,30 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
         <AccordionContent>
           <div className="px-6 py-4">
             {isPending ? (
-              <div className="h-32 flex items-center justify-center">
-                <p className="text-muted-foreground">Finding matches...</p>
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Position</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Seniority</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...Array(4)].map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell><Skeleton className="h-4 w-[140px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-8 w-8 rounded-md ml-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             ) : resume.matches && resume.matches.length > 0 ? (
               <Table>
                 <TableHeader>
@@ -157,7 +178,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                 </TableHeader>
                 <TableBody>
                   {resume.matches.map((match) => (
-                    <TableRow key={match.id}>
+                    <TableRow className={matchHasApplication(match.id) ? "bg-gray-100" : ""} key={match.id}>
                       <TableCell className="font-medium">
                         {match.positionTitle}
                       </TableCell>
