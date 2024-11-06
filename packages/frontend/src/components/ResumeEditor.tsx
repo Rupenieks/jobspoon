@@ -160,7 +160,7 @@ const SortableExperienceItem = ({ experience, index, updateExperience }) => {
 };
 
 // Sortable Education Item Component
-const SortableEducationItem = ({ education, index, updateEducation }) => {
+const SortableEducationItem = ({ education, index, updateEducation, updateResumeField, resume }) => {
   const {
     attributes,
     listeners,
@@ -208,6 +208,13 @@ const SortableEducationItem = ({ education, index, updateEducation }) => {
           value={education.university || ""}
           onChange={(e) => updateEducation(index, "university", e.target.value)}
         />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => updateResumeField("education", resume?.data.education?.filter((_, i) => i !== index) || [])}
+        >
+          <TrashIcon className="h-4 w-4" />
+        </Button>
       </div>
       <Input
         className="mb-2"
@@ -437,6 +444,8 @@ const ResumeEditor: React.FC = () => {
                   education={edu}
                   index={index}
                   updateEducation={updateEducation}
+                  updateResumeField={updateResumeField}
+                  resume={resume}
                 />
               ))}
             </SortableContext>
@@ -450,12 +459,19 @@ const ResumeEditor: React.FC = () => {
         <AccordionContent>
           <div className="grid grid-cols-2 gap-2 mb-2">
             {resume.data.skills?.map((skill, index) => (
-              <div key={index} className="mb-2">
+              <div key={index} className="flex gap-2 mb-2">
                 <Input
                   value={skill}
                   onChange={(e) => updateSkill(index, e.target.value)}
                   placeholder="Skill"
                 />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => updateResumeField("skills", resume.data.skills?.filter((_, i) => i !== index) || [])}
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </Button>
               </div>
             ))}
           </div>
