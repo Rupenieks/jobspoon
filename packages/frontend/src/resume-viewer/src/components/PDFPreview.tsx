@@ -29,7 +29,7 @@ const PDFPreview: React.FC = () => {
   return (
     <div className="flex flex-col gap-8">
       {resume.pages.map((_, pageIndex) => (
-        <div key={pageIndex} className="preview bg-white w-[210mm] mx-auto">
+        <div key={pageIndex} className="preview bg-white w-[210mm] min-h-[297mm] mx-auto">
           <StandardTemplate resume={resume} pageIndex={pageIndex} />
         </div>
       ))}

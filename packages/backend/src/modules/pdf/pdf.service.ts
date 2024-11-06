@@ -201,14 +201,73 @@ export class PDFService {
         // Hide all pages except current
         await page.evaluate((currentIndex) => {
           document.querySelectorAll('.preview').forEach((el, index) => {
-            (el as HTMLElement).style.display = index === currentIndex ? 'block' : 'none';
+            const element = el as HTMLElement;
+            element.style.opacity = '0';
+            element.style.position = 'absolute';
+            element.style.display = 'block';
+          });
+          
+          // Make current page visible
+          const currentPreview = document.querySelectorAll('.preview')[currentIndex] as HTMLElement;
+          currentPreview.style.opacity = '1';
+          currentPreview.style.position = 'relative';
+          
+          // Get height
+          const height = currentPreview.offsetHeight;
+          
+          // Reset styles
+          document.querySelectorAll('.preview').forEach((el, index) => {
+            const element = el as HTMLElement;
+            if (index === currentIndex) {
+              element.style.opacity = '1';
+              element.style.position = 'relative';
+              element.style.display = 'block';
+            } else {
+              element.style.display = 'none';
+            }
           });
         }, i);
 
-        // Generate PDF for current page
+        // Get the actual height of the current page
+        const pageHeight = await page.evaluate((currentIndex) => {
+          // First make all pages visible but with zero opacity
+          document.querySelectorAll('.preview').forEach((el, index) => {
+            const element = el as HTMLElement;
+            element.style.opacity = '0';
+            element.style.position = 'absolute';
+            element.style.display = 'block';
+          });
+          
+          // Make current page visible
+          const currentPreview = document.querySelectorAll('.preview')[currentIndex] as HTMLElement;
+          currentPreview.style.opacity = '1';
+          currentPreview.style.position = 'relative';
+          
+          // Get height
+          const height = currentPreview.offsetHeight;
+          
+          // Reset styles
+          document.querySelectorAll('.preview').forEach((el, index) => {
+            const element = el as HTMLElement;
+            if (index === currentIndex) {
+              element.style.opacity = '1';
+              element.style.position = 'relative';
+              element.style.display = 'block';
+            } else {
+              element.style.display = 'none';
+            }
+          });
+          
+          return height;
+        }, i);
+
+        // Convert pixels to mm (assuming 96 DPI)
+        const heightInMm = Math.ceil((pageHeight * 25.4) / 96);
+
+        // Generate PDF for current page with actual height
         const singlePageBuffer = await page.pdf({
           width: '210mm',
-          height: '297mm',
+          height: `${heightInMm}mm`,
           printBackground: true,
           pageRanges: '1',
           margin: {
