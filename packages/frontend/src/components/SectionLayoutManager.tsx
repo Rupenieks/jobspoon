@@ -41,6 +41,10 @@ const DroppablePage = ({ pageIndex, children }: { pageIndex: number, children: R
 export const SectionLayoutManager = () => {
   const { resume, updateResumeField } = useResumeState();
   const [activeId, setActiveId] = React.useState<string | null>(null);
+  const [overId, setOverId] = React.useState<string | null>(null);
+
+  // Add this new state to track the current dragged section
+  const [draggedSection, setDraggedSection] = React.useState<any>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -50,17 +54,38 @@ export const SectionLayoutManager = () => {
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    const { active } = event;
+    setActiveId(active.id as string);
+    
+    // Store the dragged section
+    const [pageIndex, sectionId] = (active.id as string).split('-');
+    const section = resume?.data.pages[Number(pageIndex)].sections.find(
+      s => s.id === sectionId
+    );
+    setDraggedSection(section);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    // Remove all the update logic from here
-    // We'll keep this empty for now, or use it only for visual feedback if needed
+    const { active, over } = event;
+    if (!over || !resume) return;
+
+    const [activePageIndex] = (active.id as string).split('-');
+    const overPageId = over.id.toString();
+    
+    // If hovering over a page container
+    if (overPageId.startsWith('page-')) {
+      setOverId(overPageId);
+    } else {
+      // If hovering over another section
+      setOverId(over.id as string);
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
+    setOverId(null);
+    setDraggedSection(null);
 
     if (!over || !resume) return;
 
@@ -142,6 +167,12 @@ export const SectionLayoutManager = () => {
     }
   };
 
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setOverId(null);
+    setDraggedSection(null);
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Layout Manager</h3>
@@ -151,6 +182,7 @@ export const SectionLayoutManager = () => {
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
       >
         <div className="flex gap-4">
           {resume?.data.pages.map((page, pageIndex) => (
@@ -176,9 +208,26 @@ export const SectionLayoutManager = () => {
                   ))}
                 </div>
               </SortableContext>
+              
+              {/* Show preview when dragging over this page */}
+              {overId === `page-${pageIndex}` && activeId && draggedSection && (
+                <div className="mt-2 p-2 bg-primary/10 rounded border border-primary/30">
+                  <span className="text-sm">{draggedSection.title}</span>
+                </div>
+              )}
             </DroppablePage>
           ))}
         </div>
+
+        {/* Drag Overlay */}
+        <DragOverlay>
+          {activeId && draggedSection ? (
+            <div className="flex items-center gap-2 p-2 bg-white rounded border shadow-lg">
+              <GripVertical className="h-4 w-4 text-gray-400" />
+              <span className="text-sm">{draggedSection.title}</span>
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
