@@ -212,8 +212,7 @@ export class PDFService {
           currentPreview.style.opacity = '1';
           currentPreview.style.position = 'relative';
           
-          // Get height
-          const height = currentPreview.offsetHeight;
+
           
           // Reset styles
           document.querySelectorAll('.preview').forEach((el, index) => {
