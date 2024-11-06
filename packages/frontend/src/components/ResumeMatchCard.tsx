@@ -1,4 +1,3 @@
-import React, { useMemo, useCallback } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -7,22 +6,23 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TApplication, TMatch, TResumeModel } from "@redundant/common";
-import { formatDistanceToNow } from "date-fns";
 import { Separator } from "@/components/ui/separator";
-import { RefreshCw, Crosshair, Pencil } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import ResumeMatchJobCard from "./ResumeJobCard";
+import { TResumeWithMatches } from "@redundant/common";
+import { formatDistanceToNow } from "date-fns";
+import { Crosshair, Pencil, RefreshCw } from "lucide-react";
+import React, { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import ResumeMatchJobCard from "./ResumeJobCard";
 
 interface ResumeMatchCardProps {
-  resume: TResumeModel;
+  resume: TResumeWithMatches;
   isPending: boolean;
   onMatchJobs: (resumeId: string) => void;
 }
@@ -57,7 +57,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
           <CardHeader className="flex flex-row items-start justify-between">
             <div>
               <CardTitle>
-                {resume.data.positionName} - {resume.data.fullName}
+                {resume.data.personalInfo.positionName} - {resume.data.personalInfo.fullName}
               </CardTitle>
               <p className="text-sm text-gray-500 mt-1">
                 Created{" "}
