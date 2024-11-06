@@ -191,7 +191,7 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
       {/* Always render sidebar, but conditionally show content */}
       <div 
         className="relative"
-        style={{ width: '70mm' }}
+        style={{ width: '70mm', maxWidth: '70mm', minWidth: '70mm' }}
       >
         <div
           className="absolute inset-0"
