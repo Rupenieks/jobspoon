@@ -5,9 +5,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
@@ -16,10 +21,9 @@ import {
 } from "@/components/ui/tooltip";
 import { TResumeWithMatches } from "@redundant/common";
 import { formatDistanceToNow } from "date-fns";
-import { Crosshair, Pencil, RefreshCw } from "lucide-react";
+import { Crosshair, ExternalLink, Pencil, RefreshCw } from "lucide-react";
 import React, { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import ResumeMatchJobCard from "./ResumeJobCard";
 
 interface ResumeMatchCardProps {
   resume: TResumeWithMatches;
@@ -27,46 +31,41 @@ interface ResumeMatchCardProps {
   onMatchJobs: (resumeId: string) => void;
 }
 
-const MatchSkeleton: React.FC = () => (
-  <div className="space-y-2">
-    <Skeleton className="h-4 w-3/4" />
-    <Skeleton className="h-4 w-1/2" />
-    <Skeleton className="h-4 w-5/6" />
-  </div>
-);
-
 const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
   resume,
   isPending,
   onMatchJobs,
 }) => {
   const navigate = useNavigate();
-  const matchCount = useMemo(
-    () => resume.matches?.length || 0,
-    [resume.matches]
-  );
+  const matchCount = useMemo(() => resume.matches?.length || 0, [resume.matches]);
 
   const handleEditResume = useCallback(() => {
     navigate(`/resumes/${resume.id}`);
   }, [navigate, resume.id]);
 
   return (
-    <Accordion type="single" collapsible className="mb-4">
-      <AccordionItem value={resume.id}>
-        <Card>
-          <CardHeader className="flex flex-row items-start justify-between">
-            <div>
-              <CardTitle>
-                {resume.data.personalInfo.positionName} - {resume.data.personalInfo.fullName}
-              </CardTitle>
-              <p className="text-sm text-gray-500 mt-1">
-                Created{" "}
-                {formatDistanceToNow(new Date(resume.createdAt as string), {
-                  addSuffix: true,
-                })}
-              </p>
+    <Accordion type="single" collapsible className="mb-6">
+      <AccordionItem value={resume.id} className="border rounded-lg shadow-sm">
+        <AccordionTrigger className="px-6 py-4 hover:no-underline">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-4">
+              <div>
+                <h3 className="font-semibold text-lg">
+                  {resume.data.personalInfo.positionName}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {resume.data.personalInfo.fullName} • Created{" "}
+                  {formatDistanceToNow(new Date(resume.createdAt as string), {
+                    addSuffix: true,
+                  })}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Crosshair className="h-4 w-4" />
+                <span>{matchCount} matches</span>
+              </div>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -81,9 +80,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                       <Pencil className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Edit Resume</p>
-                  </TooltipContent>
+                  <TooltipContent>Edit Resume</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               <TooltipProvider>
@@ -103,58 +100,74 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                       />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Find matches</p>
-                  </TooltipContent>
+                  <TooltipContent>Find matches</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center space-x-1 hover:bg-gray-100 p-1 rounded-md">
-                      <Crosshair className="h-4 w-4" />
-                      <span>{matchCount}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{matchCount} jobs found</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <AccordionTrigger />
             </div>
-          </CardHeader>
-          <CardContent>
-            <AccordionContent>
-              <Separator className="my-4" />
-              {isPending ? (
-                <div className="space-y-4">
-                  {Array(3)
-                    .fill(0)
-                    .map((_, index) => (
-                      <MatchSkeleton key={index} />
-                    ))}
-                </div>
-              ) : resume.matches && resume.matches.length > 0 ? (
-                <div className="space-y-4">
+          </div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div className="px-6 py-4">
+            {isPending ? (
+              <div className="h-32 flex items-center justify-center">
+                <p className="text-muted-foreground">Finding matches...</p>
+              </div>
+            ) : resume.matches && resume.matches.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Position</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Seniority</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {resume.matches.map((match) => (
-                    <Card key={match.id} className="p-4">
-                      <ResumeMatchJobCard
-                        matchId={match.id}
-                        resumeId={resume.id}
-                      />
-                    </Card>
+                    <TableRow key={match.id}>
+                      <TableCell className="font-medium">
+                        {match.positionTitle}
+                      </TableCell>
+                      <TableCell>
+                        {match.companyName || "Company not specified"}
+                      </TableCell>
+                      <TableCell>
+                        {match.city}, {match.country}
+                      </TableCell>
+                      <TableCell>{match.seniority || "Not specified"}</TableCell>
+                      <TableCell className="text-right">
+                        {match.applyUrl && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => window.open(match.applyUrl || "", "_blank")}
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Apply for position</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              ) : (
-                <p>
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="h-32 flex items-center justify-center">
+                <p className="text-muted-foreground">
                   No matches found. Click the refresh button to find potential
                   opportunities.
                 </p>
-              )}
-            </AccordionContent>
-          </CardContent>
-        </Card>
+              </div>
+            )}
+          </div>
+        </AccordionContent>
       </AccordionItem>
     </Accordion>
   );
