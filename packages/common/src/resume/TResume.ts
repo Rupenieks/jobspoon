@@ -91,14 +91,14 @@ export const ResumeDataSchema = z.object({
   
   // Other configurations remain the same
   config: ResumeConfigSchema.default({
-    primaryColor: "#1f2937",
+    primaryColor: "#ffffff",
     fontSize: 16,
-    font: "Roboto",
+    font: "Roboto", 
     margin: 10,
-    fontColor: "#ffffff",
+    fontColor: "#000000",
     sidebarFontColor: "#ffffff",
     backgroundColor: "#ffffff",
-    sidebarColor: "#f9fafb",
+    sidebarColor: "#000080",
   }),
   previewImage: z.string().nullish(),
   profileImage: z.string().nullish(),
