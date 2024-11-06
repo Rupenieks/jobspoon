@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { TApplication } from "@redundant/common";
+import { TApplicationBase } from "@redundant/common";
 import axiosInstance from "@/utils/axiosConfig";
 
 interface CreateApplicationParams {
@@ -10,9 +10,9 @@ interface CreateApplicationParams {
 export const useCreateApplication = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<TApplication, Error, CreateApplicationParams>({
+  const mutation = useMutation<TApplicationBase, Error, CreateApplicationParams>({
     mutationFn: async ({ resumeId, matchId }) => {
-      const response = await axiosInstance.post<TApplication>("/applications", {
+      const response = await axiosInstance.post<TApplicationBase>("/applications", {
         resumeId,
         matchId,
       });
@@ -24,7 +24,7 @@ export const useCreateApplication = () => {
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
 
       // Optionally, you can update the cache directly
-      queryClient.setQueryData<TApplication[]>(["applications"], (oldData) =>
+      queryClient.setQueryData<TApplicationBase[]>(["applications"], (oldData) =>
         oldData ? [...oldData, newApplication] : [newApplication]
       );
     },
@@ -33,4 +33,9 @@ export const useCreateApplication = () => {
       console.error("Failed to create application:", error);
     },
   });
+
+  return {
+    ...mutation,
+    mutateAsync: mutation.mutateAsync,
+  };
 };

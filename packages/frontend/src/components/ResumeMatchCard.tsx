@@ -21,9 +21,18 @@ import {
 } from "@/components/ui/tooltip";
 import { TResumeWithMatches } from "@redundant/common";
 import { formatDistanceToNow } from "date-fns";
-import { Crosshair, ExternalLink, Pencil, RefreshCw } from "lucide-react";
+import { Crosshair, ExternalLink, Pencil, RefreshCw, MoreVertical, FileText } from "lucide-react";
 import React, { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useCreateApplication } from "@/hooks/useCreateApplication";
+import { toast } from "@/hooks/use-toast";
+import { ToastAction } from "@radix-ui/react-toast";
+import { useReadApplications } from "@/hooks/useReadApplications";
 
 interface ResumeMatchCardProps {
   resume: TResumeWithMatches;
@@ -38,19 +47,40 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const matchCount = useMemo(() => resume.matches?.length || 0, [resume.matches]);
+  const { mutateAsync: createApplication } = useCreateApplication();
+  const { data: applications } = useReadApplications();
+
+
+  const matchHasApplication = useCallback((matchId: string) => {
+    return applications?.some((application) => application.matchId === matchId);
+  }, [applications]);
 
   const handleEditResume = useCallback(() => {
     navigate(`/resumes/${resume.id}`);
   }, [navigate, resume.id]);
 
+  const handleCreateApplication = useCallback(async (matchId: string) => {
+    if (!matchId) return;
+    const application = await createApplication({ resumeId: resume.id, matchId });
+    toast({
+      title: "Application created",
+      description: 'Resume matched to job. Click the button below to view the application.',
+      action: <ToastAction altText="Dismiss" onClick={() => {
+        navigate(`/applications/${application.id}`);
+      }}>Click</ToastAction>
+    });
+  }, [createApplication, resume.id]);
+
+
+
   return (
     <Accordion type="single" collapsible className="mb-6">
       <AccordionItem value={resume.id} className="border rounded-lg shadow-sm">
-        <AccordionTrigger className="px-6 py-4 hover:no-underline">
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-4">
-              <div>
-                <h3 className="font-semibold text-lg">
+        <AccordionTrigger className="px-6 py-4 hover:no-underline [&[data-state=open]>div]:pb-0">
+          <div className="flex items-center justify-between w-full pr-8">
+            <div className="flex-1">
+              <div className="text-left">
+                <h3 className="font-semibold text-lg leading-tight mb-1">
                   {resume.data.personalInfo.positionName}
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -61,48 +91,50 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Crosshair className="h-4 w-4" />
                 <span>{matchCount} matches</span>
               </div>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditResume();
-                      }}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Edit Resume</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="default"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMatchJobs(resume.id);
-                      }}
-                      disabled={isPending}
-                    >
-                      <RefreshCw
-                        className={`h-4 w-4 ${isPending ? "animate-spin" : ""}`}
-                      />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Find matches</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <div className="flex items-center gap-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditResume();
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit Resume</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="default"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onMatchJobs(resume.id);
+                        }}
+                        disabled={isPending}
+                      >
+                        <RefreshCw
+                          className={`h-4 w-4 ${isPending ? "animate-spin" : ""}`}
+                        />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Find matches</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           </div>
         </AccordionTrigger>
@@ -137,22 +169,40 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                       </TableCell>
                       <TableCell>{match.seniority || "Not specified"}</TableCell>
                       <TableCell className="text-right">
-                        {match.applyUrl && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-40" align="end">
+                            <div className="space-y-1">
+                              {match.applyUrl && (
                                 <Button
-                                  size="icon"
                                   variant="ghost"
-                                  onClick={() => window.open(match.applyUrl || "", "_blank")}
+                                  className="w-full justify-start"
+                                  onClick={() => {
+                                    if (match.applyUrl) {
+                                      window.open(match.applyUrl, "_blank");
+                                    }
+                                  }}
                                 >
-                                  <ExternalLink className="h-4 w-4" />
+                                  <ExternalLink className="h-4 w-4 mr-2" />
+                                  Apply Direct
                                 </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Apply for position</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
+                              )}
+                              <Button
+                                disabled={matchHasApplication(match.id)}
+                                variant="ghost"
+                                className="w-full justify-start"
+                                onClick={() => handleCreateApplication(match.id)}
+                              >
+                                <FileText className="h-4 w-4 mr-2" />
+                                Create App
+                              </Button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       </TableCell>
                     </TableRow>
                   ))}
