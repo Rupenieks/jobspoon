@@ -175,7 +175,6 @@ export const SectionLayoutManager = () => {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Layout Manager</h3>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}

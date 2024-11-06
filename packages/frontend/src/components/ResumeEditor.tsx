@@ -45,6 +45,7 @@ import {
   restrictToVerticalAxis,
 } from '@dnd-kit/modifiers';
 import { SectionLayoutManager } from "./SectionLayoutManager";
+import { Textarea } from "@/components/ui/textarea";
 
 // Sortable Experience Item Component
 const SortableExperienceItem = ({ experience, index, updateExperience }) => {
@@ -340,27 +341,7 @@ const ResumeEditor: React.FC = () => {
     [resume?.data.personalInfo, updateResumeField]
   );
 
-  const updatePages = useCallback(
-    (newPageCount: number) => {
-      if (!resume) return;
-      
-      const currentPages = resume.data.pages.length;
-      
-      if (newPageCount > currentPages) {
-        // Add new empty pages
-        const newPages = Array.from({ length: newPageCount - currentPages }).map(
-          () => ({
-            sections: [], // Empty sections array for new pages
-          })
-        );
-        updateResumeField("pages", [...resume.data.pages, ...newPages]);
-      } else if (newPageCount < currentPages) {
-        // Remove pages from the end
-        updateResumeField("pages", resume.data.pages.slice(0, newPageCount));
-      }
-    },
-    [resume?.data.pages, updateResumeField]
-  );
+
 
   if (!resume) {
     return null;
@@ -368,31 +349,40 @@ const ResumeEditor: React.FC = () => {
 
   return (
     <Accordion type="multiple" className="w-full">
-      <AccordionItem value="layout">
-        <AccordionTrigger>Layout</AccordionTrigger>
-        <AccordionContent>
-          <SectionLayoutManager />
-        </AccordionContent>
-      </AccordionItem>
+
 
       <AccordionItem value="personal-info">
         <AccordionTrigger>Personal Information</AccordionTrigger>
         <AccordionContent>
-          <div className="grid grid-cols-2 gap-4">
-            {personalInfoFields.map(({ label, field }) => (
-              <div key={field}>
-                <label className="block text-sm font-medium mb-1">
-                  {label}
-                </label>
-                <Input
-                  value={resume.data.personalInfo[field] || ""}
-                  onChange={(e) => updatePersonalInfo(field, e.target.value)}
-                />
-              </div>
-            ))}
+          <div className="space-y-4">
             <div>
-              <label>Profile Image</label>
-              <Input type="file" onChange={handleProfileImageUpload} />
+              <label className="block text-sm font-medium mb-1">
+                Profile Bio
+              </label>
+              <Textarea
+                value={resume.data.personalInfo.profileBio || ""}
+                onChange={(e) => updatePersonalInfo("profileBio", e.target.value)}
+                placeholder="Write a brief bio about yourself..."
+                className="h-32"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              {personalInfoFields.map(({ label, field }) => (
+                <div key={field}>
+                  <label className="block text-sm font-medium mb-1">
+                    {label}
+                  </label>
+                  <Input
+                    value={resume.data.personalInfo[field] || ""}
+                    onChange={(e) => updatePersonalInfo(field, e.target.value)}
+                  />
+                </div>
+              ))}
+              <div>
+                <label>Profile Image</label>
+                <Input type="file" onChange={handleProfileImageUpload} />
+              </div>
             </div>
           </div>
         </AccordionContent>
@@ -479,6 +469,12 @@ const ResumeEditor: React.FC = () => {
         </AccordionContent>
       </AccordionItem>
 
+      <AccordionItem value="layout">
+        <AccordionTrigger>Layout</AccordionTrigger>
+        <AccordionContent>
+          <SectionLayoutManager />
+        </AccordionContent>
+      </AccordionItem>
      
 
     </Accordion>

@@ -71,6 +71,7 @@ export const ResumeDataSchema = z.object({
     email: z.string().nullish(),
     phoneNumber: z.string().nullish(),
     positionName: z.string().nullish(),
+    profileBio: z.string().default(""),
   }),
   experience: z.array(ExperienceSchema).nullish(),
   education: z.array(EducationSchema).nullish(),

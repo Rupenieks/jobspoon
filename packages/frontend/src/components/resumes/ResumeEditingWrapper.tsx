@@ -20,7 +20,28 @@ const UtilityBar = () => {
   const { resume, updateResumeField } = useResumeState();
   
   const availableFonts = useMemo(
-    () => ["Roboto", "Open Sans", "Lato", "Montserrat", "Source Sans Pro"],
+    () => [
+      "Roboto",
+      "Open Sans", 
+      "Lato",
+      "Montserrat",
+      "Source Sans Pro",
+      "Poppins",
+      "Raleway",
+      "Ubuntu",
+      "Merriweather",
+      "Playfair Display",
+      "Nunito",
+      "Quicksand",
+      "Work Sans",
+      "PT Sans",
+      "Noto Sans",
+      "Rubik",
+      "Inter",
+      "Mulish",
+      "Fira Sans",
+      "Oswald"
+    ],
     []
   );
 
@@ -62,42 +83,42 @@ const UtilityBar = () => {
             <Palette className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent side="top" align="start" className="w-64 z-50">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
+        <PopoverContent side="top" align="start" className="w-40 z-50">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
               <label className="text-xs font-medium">Primary Color</label>
               <Input
                 type="color"
                 value={resume.data.config.primaryColor}
                 onChange={(e) => updateConfig("primaryColor", e.target.value)}
-                className="h-6"
+                className="w-6 h-6 p-0"
               />
             </div>
-            <div className="space-y-1">
+            <div className="flex items-center justify-between">
               <label className="text-xs font-medium">Font Color</label>
               <Input
                 type="color"
                 value={resume.data.config.fontColor}
                 onChange={(e) => updateConfig("fontColor", e.target.value)}
-                className="h-6"
+                className="w-6 h-6 p-0"
               />
             </div>
-            <div className="space-y-1">
+            <div className="flex items-center justify-between">
               <label className="text-xs font-medium">Sidebar Color</label>
               <Input
                 type="color"
                 value={resume.data.config.sidebarColor}
                 onChange={(e) => updateConfig("sidebarColor", e.target.value)}
-                className="h-6"
+                className="w-6 h-6 p-0"
               />
             </div>
-            <div className="space-y-1">
+            <div className="flex items-center justify-between">
               <label className="text-xs font-medium">Sidebar Font</label>
               <Input
                 type="color"
                 value={resume.data.config.sidebarFontColor}
                 onChange={(e) => updateConfig("sidebarFontColor", e.target.value)}
-                className="h-6"
+                className="w-6 h-6 p-0"
               />
             </div>
           </div>

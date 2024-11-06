@@ -26,7 +26,46 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
   const profileSection = useMemo(() => {
     if (!resume.profileImage)
       return (
-        <div className="flex gap-6 items-start mb-8">
+        <div className="space-y-4">
+          <div className="flex gap-6 items-start">
+            <div>
+              <h1 style={{ fontSize: "2em" }} className="font-bold">
+                {resume.personalInfo.fullName}
+              </h1>
+              <p
+                style={{ fontSize: "1.15em" }}
+                className="text-gray-600 uppercase tracking-wide"
+              >
+                {resume.personalInfo.positionName}
+              </p>
+            </div>
+          </div>
+          {resume.personalInfo.profileBio && (
+            <p style={{ fontSize: "1em" }} className="leading-relaxed">
+              {resume.personalInfo.profileBio}
+            </p>
+          )}
+        </div>
+      );
+
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-6 items-start">
+          <div className="w-24 h-24 flex-shrink-0">
+            <img
+              src={resume.profileImage}
+              alt="Profile"
+              className="rounded-full w-full h-full object-cover"
+              onError={(e) => {
+                console.error("Image failed to load:", e);
+                e.currentTarget.style.display = "none";
+              }}
+              crossOrigin="anonymous"
+              loading="eager"
+              decoding="sync"
+              fetchPriority="high"
+            />
+          </div>
           <div>
             <h1 style={{ fontSize: "2em" }} className="font-bold">
               {resume.personalInfo.fullName}
@@ -39,39 +78,15 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
             </p>
           </div>
         </div>
-      );
-
-    return (
-      <div className="flex gap-6 items-start mb-8">
-        <div className="w-24 h-24 flex-shrink-0">
-          <img
-            src={resume.profileImage}
-            alt="Profile"
-            className="rounded-full w-full h-full object-cover"
-            onError={(e) => {
-              console.error("Image failed to load:", e);
-              e.currentTarget.style.display = "none";
-            }}
-            crossOrigin="anonymous"
-            loading="eager"
-            decoding="sync"
-            fetchPriority="high"
-          />
-        </div>
-        <div>
-          <h1 style={{ fontSize: "2em" }} className="font-bold">
-            {resume.personalInfo.fullName}
-          </h1>
-          <p
-            style={{ fontSize: "1.15em" }}
-            className="text-gray-600 uppercase tracking-wide"
-          >
-            {resume.personalInfo.positionName}
+        <h2 className="text-xl font-semibold mb-4">Profile</h2>
+        {resume.personalInfo.profileBio && (
+          <p style={{ fontSize: "1em" }} className="leading-relaxed">
+            {resume.personalInfo.profileBio}
           </p>
-        </div>
+        )}
       </div>
     );
-  }, [resume.personalInfo.fullName, resume.personalInfo.positionName, resume.profileImage]);
+  }, [resume.personalInfo.fullName, resume.personalInfo.positionName, resume.personalInfo.profileBio, resume.profileImage]);
 
   const experienceSection = useMemo(() => {
     if (!resume.experience?.length) return null;
