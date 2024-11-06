@@ -54,19 +54,24 @@ export const SectionLayoutManager = () => {
   };
 
   const handleDragOver = (event: DragOverEvent) => {
+    // Remove all the update logic from here
+    // We'll keep this empty for now, or use it only for visual feedback if needed
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
+
     if (!over || !resume) return;
 
     // Handle dropping into a page container
     if (over.id.toString().startsWith('page-')) {
-      const activePageIndex = (active.id as string).split('-')[0];
+      const [sourcePageIndex, activeSectionId] = (active.id as string).split('-');
       const overPageIndex = over.id.toString().replace('page-', '');
       
-      if (activePageIndex === overPageIndex) return;
+      if (sourcePageIndex === overPageIndex) return;
 
       const newPages = [...resume.data.pages];
-      const [sourcePageIndex, activeSectionId] = (active.id as string).split('-');
-      
       const activeSection = newPages[Number(sourcePageIndex)].sections.find(
         s => s.id === activeSectionId
       );
@@ -89,41 +94,6 @@ export const SectionLayoutManager = () => {
     const [activePageIndex, activeSectionId] = (active.id as string).split('-');
     const [overPageIndex, overSectionId] = (over.id as string).split('-');
 
-    if (activePageIndex === overPageIndex) return;
-
-    const newPages = [...resume.data.pages];
-    const activeSection = newPages[Number(activePageIndex)].sections.find(
-      s => s.id === activeSectionId
-    );
-    
-    if (!activeSection) return;
-
-    newPages[Number(activePageIndex)].sections = newPages[Number(activePageIndex)].sections.filter(
-      s => s.id !== activeSectionId
-    );
-
-    const overIndex = newPages[Number(overPageIndex)].sections.findIndex(
-      s => s.id === overSectionId
-    );
-
-    if (overIndex === -1) {
-      newPages[Number(overPageIndex)].sections.push(activeSection);
-    } else {
-      newPages[Number(overPageIndex)].sections.splice(overIndex, 0, activeSection);
-    }
-
-    updateResumeField("pages", newPages);
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-
-    if (!over || !resume) return;
-
-    const [activePageIndex, activeSectionId] = (active.id as string).split('-');
-    const [overPageIndex, overSectionId] = (over.id as string).split('-');
-
     if (activePageIndex === overPageIndex) {
       // Same page reordering
       const pageIndex = Number(activePageIndex);
@@ -140,6 +110,33 @@ export const SectionLayoutManager = () => {
         oldIndex,
         newIndex
       );
+
+      updateResumeField("pages", newPages);
+    } else {
+      // Moving to different page
+      const newPages = [...resume.data.pages];
+      const activeSection = newPages[Number(activePageIndex)].sections.find(
+        s => s.id === activeSectionId
+      );
+      
+      if (!activeSection) return;
+
+      // Remove from source page
+      newPages[Number(activePageIndex)].sections = newPages[Number(activePageIndex)].sections.filter(
+        s => s.id !== activeSectionId
+      );
+
+      // Find the index where we should insert the section
+      const overIndex = newPages[Number(overPageIndex)].sections.findIndex(
+        s => s.id === overSectionId
+      );
+
+      // Insert at the correct position
+      if (overIndex === -1) {
+        newPages[Number(overPageIndex)].sections.push(activeSection);
+      } else {
+        newPages[Number(overPageIndex)].sections.splice(overIndex, 0, activeSection);
+      }
 
       updateResumeField("pages", newPages);
     }
