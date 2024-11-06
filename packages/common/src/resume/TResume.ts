@@ -31,6 +31,10 @@ export const ResumeConfigSchema = z.object({
   fontSize: z.number().default(16),
   font: z.string().default("Roboto"),
   margin: z.number().default(10), // 25.4mm is 1 inch, standard margin
+  fontColor: z.string().default("#ffffff"),
+  backgroundColor: z.string().default("#ffffff"),
+  sidebarColor: z.string().default("#f9fafb"),
+  sidebarFontColor: z.string().default("#ffffff"),
 });
 
 // Define section types
@@ -90,6 +94,10 @@ export const ResumeDataSchema = z.object({
     fontSize: 16,
     font: "Roboto",
     margin: 10,
+    fontColor: "#ffffff",
+    sidebarFontColor: "#ffffff",
+    backgroundColor: "#ffffff",
+    sidebarColor: "#f9fafb",
   }),
   previewImage: z.string().nullish(),
   profileImage: z.string().nullish(),

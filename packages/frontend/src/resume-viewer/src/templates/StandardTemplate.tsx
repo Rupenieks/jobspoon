@@ -10,7 +10,10 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
   const config = useMemo(
     () => ({
       ...{
-        primaryColor: "#1f2937",
+        primaryColor: "#ffffff",
+        sidebarColor: "#1f2937",
+        fontColor: "#000000",
+        sidebarFontColor: "#ffffff",
         fontSize: 16,
         font: "Roboto",
         margin: 25.4,
@@ -84,7 +87,7 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
               {exp.positionTitle}, {exp.company}
             </h3>
             <p
-              className="text-gray-600 uppercase tracking-wide"
+              className="uppercase tracking-wide"
               style={{ fontSize: "0.875em" }}
             >
               {exp.startDate} — {exp.endDate}
@@ -92,7 +95,7 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
             {exp.contributions && (
               <ul className="list-disc list-inside space-y-1 mt-2">
                 {exp.contributions.map((contribution, i) => (
-                  <li key={i} className="text-gray-700">
+                  <li key={i}>
                     {contribution}
                   </li>
                 ))}
@@ -115,8 +118,8 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
         {resume.education.map((edu, index) => (
           <div key={index} className="space-y-2">
             <h3 className="text-xl font-semibold">{edu.university}</h3>
-            <p className="text-gray-700">{edu.degree}</p>
-            <p className="text-gray-600">
+            <p>{edu.degree}</p>
+            <p>
               {edu.startDate} — {edu.endDate}
             </p>
           </div>
@@ -148,6 +151,7 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
       style={{
         fontSize: `${config.fontSize}px`,
         fontFamily: config.font,
+        backgroundColor: config.primaryColor,
       }}
     >
       {/* Main content container */}
@@ -158,6 +162,8 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
             marginRight: `${config.margin}mm`,
             marginTop: `25.4mm`,
             marginBottom: `25.4mm`,
+            color: config.fontColor,
+       
           }}
           className="space-y-8"
         >
@@ -174,20 +180,21 @@ export const StandardTemplate = ({ resume, pageIndex }: StandardTemplateProps) =
       >
         <div
           className="absolute inset-0"
-          style={{ backgroundColor: config.primaryColor }}
+          style={{ backgroundColor: config.sidebarColor }}
         />
 
         <div
-          className="relative text-white"
+          className="relative"
           style={{
             marginLeft: `${config.margin}mm`,
             marginRight: `${config.margin}mm`,
             marginTop: `25.4mm`,
+            color: config.sidebarFontColor,
           }}
         >
           {hasPersonalInfo && (
             <>
-              <h2 className="text-xl font-semibold mb-4">Details</h2>
+              <h2 className="text-xl font-semibold mb-4 bg-transparent">Details</h2>
               <div className="space-y-2">
                 {resume.personalInfo.address && <p>{resume.personalInfo.address}</p>}
                 {resume.personalInfo.city && <p>{resume.personalInfo.city}</p>}

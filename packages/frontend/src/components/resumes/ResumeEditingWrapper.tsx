@@ -62,15 +62,44 @@ const UtilityBar = () => {
             <Palette className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent side='top' className="w-64">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Primary Color</label>
-            <Input
-              type="color"
-              value={resume.data.config.primaryColor}
-              onChange={(e) => updateConfig("primaryColor", e.target.value)}
-              className="h-8"
-            />
+        <PopoverContent side="top" align="start" className="w-64 z-50">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Primary Color</label>
+              <Input
+                type="color"
+                value={resume.data.config.primaryColor}
+                onChange={(e) => updateConfig("primaryColor", e.target.value)}
+                className="h-6"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Font Color</label>
+              <Input
+                type="color"
+                value={resume.data.config.fontColor}
+                onChange={(e) => updateConfig("fontColor", e.target.value)}
+                className="h-6"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Sidebar Color</label>
+              <Input
+                type="color"
+                value={resume.data.config.sidebarColor}
+                onChange={(e) => updateConfig("sidebarColor", e.target.value)}
+                className="h-6"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Sidebar Font</label>
+              <Input
+                type="color"
+                value={resume.data.config.sidebarFontColor}
+                onChange={(e) => updateConfig("sidebarFontColor", e.target.value)}
+                className="h-6"
+              />
+            </div>
           </div>
         </PopoverContent>
       </Popover>
