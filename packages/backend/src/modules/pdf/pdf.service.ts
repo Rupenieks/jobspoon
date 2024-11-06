@@ -7,6 +7,7 @@ import {
 import { env } from 'process';
 import { connect } from 'puppeteer';
 import { ResumeParserService } from '../resume-parser/resume-parser.service';
+import { PDFDocument } from 'pdf-lib';
 
 @Injectable()
 export class PDFService {
@@ -161,10 +162,7 @@ export class PDFService {
   }
 
   async generatePDF(resumeId: string, userId: string): Promise<Buffer> {
-    const resume = await this.resumeParserService.getResumeById(
-      resumeId,
-      userId,
-    );
+    const resume = await this.resumeParserService.getResumeById(resumeId, userId);
 
     if (!resume) {
       throw new NotFoundException(`Resume with ID ${resumeId} not found`);
@@ -195,23 +193,42 @@ export class PDFService {
         this.waitForImages(page),
       ]);
 
-      const previewElement = await page.$('.preview');
-      if (!previewElement) throw new Error('Preview element not found');
+      // Create a new PDF document
+      const mergedPdf = await PDFDocument.create();
 
-      // Get the actual height of the content
-      const height = await page.evaluate(
-        (element) => element.scrollHeight,
-        previewElement,
-      );
+      // Generate PDF for each page
+      for (let i = 0; i < resume.data.pages.length; i++) {
+        // Hide all pages except current
+        await page.evaluate((currentIndex) => {
+          document.querySelectorAll('.preview').forEach((el, index) => {
+            (el as HTMLElement).style.display = index === currentIndex ? 'block' : 'none';
+          });
+        }, i);
 
-      const pdfBuffer = await page.pdf({
-        width: '210mm',
+        // Generate PDF for current page
+        const singlePageBuffer = await page.pdf({
+          width: '210mm',
+          height: '297mm',
+          printBackground: true,
+          pageRanges: '1',
+          margin: {
+            top: '0',
+            right: '0',
+            bottom: '0',
+            left: '0',
+          },
+        });
 
-        printBackground: true,
-        pageRanges: '1',
-      });
+        // Load the single page PDF and copy it to the merged document
+        const singlePagePdf = await PDFDocument.load(singlePageBuffer);
+        const [copiedPage] = await mergedPdf.copyPages(singlePagePdf, [0]);
+        mergedPdf.addPage(copiedPage);
+      }
 
-      return Buffer.from(pdfBuffer);
+      // Save the final merged PDF
+      const finalPdfBytes = await mergedPdf.save();
+      return Buffer.from(finalPdfBytes);
+
     } catch (error) {
       this.logger.error('Error generating PDF:', error);
       throw new InternalServerErrorException(
