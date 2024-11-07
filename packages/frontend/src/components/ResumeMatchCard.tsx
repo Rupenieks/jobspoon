@@ -155,7 +155,9 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                     <TableHead>Position</TableHead>
                     <TableHead>Company</TableHead>
                     <TableHead>Location</TableHead>
+                    <TableHead>Posted</TableHead>
                     <TableHead>Seniority</TableHead>
+                    <TableHead>Application</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -165,6 +167,8 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                       <TableCell><Skeleton className="h-4 w-[140px]" /></TableCell>
                       <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
                       <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
                       <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
                       <TableCell className="text-right">
                         <Skeleton className="h-8 w-8 rounded-md ml-auto" />
@@ -180,6 +184,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                     <TableHead>Position</TableHead>
                     <TableHead>Company</TableHead>
                     <TableHead>Location</TableHead>
+                    <TableHead>Posted</TableHead>
                     <TableHead>Seniority</TableHead>
                     <TableHead>Application</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -200,6 +205,11 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                       </TableCell>
                       <TableCell>
                         {match.city}, {match.country}
+                      </TableCell>
+                      <TableCell>
+                        {match.datePosted 
+                          ? formatDistanceToNow(new Date(match.datePosted), { addSuffix: true })
+                          : "Not specified"}
                       </TableCell>
                       <TableCell>{match.seniority || "Not specified"}</TableCell>
                       <TableCell>

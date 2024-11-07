@@ -29,10 +29,7 @@ const JobMatchDrawer: React.FC<JobMatchDrawerProps> = ({
   const { match, isPending } = useGetMatch(matchId);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
-  const truncateDescription = (text: string) => {
-    if (text?.length <= 300) return text;
-    return isDescriptionExpanded ? text : `${text.slice(0, 300)}...`;
-  };
+
 
   if (!matchId) return null;
 
@@ -91,16 +88,8 @@ const JobMatchDrawer: React.FC<JobMatchDrawerProps> = ({
                       <h3 className="font-semibold mb-2">Description</h3>
                       <div className="border rounded-lg p-4 h-[calc(100%-2rem)] overflow-y-auto">
                         <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                          {match?.description && truncateDescription(match.description)}
-                          {match?.description && match.description.length > 300 && (
-                            <Button
-                              variant="link"
-                              onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                              className="px-0"
-                            >
-                              {isDescriptionExpanded ? "Show less" : "Show more"}
-                            </Button>
-                          )}
+                          {match?.description}
+            
                         </p>
                       </div>
                     </div>

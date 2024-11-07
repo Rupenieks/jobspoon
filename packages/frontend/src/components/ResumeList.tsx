@@ -1,13 +1,3 @@
-import React, { useMemo, useState, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useReadResumes } from "@/hooks/useReadResumes";
-import { useNavigate } from "react-router-dom";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
-import CreateResumeDialog from "./CreateResumeDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,10 +8,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteResumes } from "@/hooks/useDeleteResumes";
 import { useReadApplications } from "@/hooks/useReadApplications";
-import { Separator } from "./ui/separator";
+import { useReadResumes } from "@/hooks/useReadResumes";
 import { formatDistanceToNow } from 'date-fns';
+import { Plus, Trash2 } from "lucide-react";
+import React, { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import CreateResumeDialog from "./CreateResumeDialog";
+import { Separator } from "./ui/separator";
 
 const ResumeList: React.FC = () => {
   const { data: resumes, isLoading, error } = useReadResumes();
