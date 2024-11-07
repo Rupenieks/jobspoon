@@ -58,6 +58,14 @@ model Match {
   longitude       Float?
   latitude        Float?
   provider        String
+  datePosted      String?
+  hybrid          Boolean?
+  remote          Boolean?
+  salary          String?
+  reposted        Boolean?
+  dateReposted    String?
+  hiringTeam      Json?    // Stored as JSON array
+  company         Json?    // Stored as JSON object
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
