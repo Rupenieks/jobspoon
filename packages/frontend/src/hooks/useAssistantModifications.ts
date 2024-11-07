@@ -1,17 +1,20 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/utils/axiosConfig";
-import { TResume } from "@redundant/common";
+import { TResumeBase } from "@redundant/common";
+import { useMutation } from "@tanstack/react-query";
 
 const modifyResume = async ({
   resumeId,
   input,
+  includeJobDescription,
 }: {
   resumeId: string;
   input: string;
-}): Promise<TResume> => {
+  includeJobDescription: boolean;
+}): Promise<TResumeBase> => {
   const response = await axiosInstance.post(`/assistant/modify-resume`, {
     resumeId,
     input,
+    includeJobDescription: includeJobDescription ?? false,
   });
   return response.data;
 };

@@ -23,6 +23,11 @@ export class ApplicationController {
     return this.applicationService.getApplication(id);
   }
 
+  @Get('resume/:id')
+  async getApplicationsByResume(@Param('id') id: string) {
+    return this.applicationService.getApplicationsByResume(id);
+  }
+
   @Delete()
   async deleteApplications(@Body() data: { ids: string[] }) {
     await this.applicationService.deleteApplications(data.ids);

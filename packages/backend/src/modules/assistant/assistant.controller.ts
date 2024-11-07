@@ -8,13 +8,14 @@ export class AssistantController {
 
   @Post('modify-resume')
   async modifyResume(
-    @Body() body: { resumeId: string; input: string },
+    @Body() body: { resumeId: string; input: string; includeJobDescription: boolean },
   ): Promise<TResumeBase> {
-    const { resumeId, input } = body;
+    const { resumeId, input, includeJobDescription } = body;
     const modifiedResume =
       await this.assistantService.getAssistantModifications({
         resumeId,
         input,
+        includeJobDescription,
       });
     return modifiedResume;
   }

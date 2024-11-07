@@ -109,6 +109,8 @@ export const ResumeBaseSchema = z.object({
   id: z.string(),
   userId: z.string(),
   data: ResumeDataSchema,
+  matchId: z.string().nullish(),
+  applicationId: z.string().nullish(),
   createdAt: z.date().transform((date) => date.toISOString()),
   updatedAt: z.date().transform((date) => date.toISOString()),
 });

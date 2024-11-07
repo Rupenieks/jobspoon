@@ -300,7 +300,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
       <JobMatchDialog
         matchId={selectedMatchId}
         isOpen={!!selectedMatchId}
-        onClose={() => setSelectedMatchId(null)}
+        onClose={() => setSelectedMatchId(undefined)}
       />
     </Accordion>
   );

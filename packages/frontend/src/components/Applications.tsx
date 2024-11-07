@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowRight, FileText } from "lucide-react";
+import { ArrowRight, FileText, MoreVertical, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Tooltip,
@@ -20,10 +20,36 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "@/hooks/use-toast";
+import { useDeleteApplications } from "@/hooks/useDeleteApplications";
 
 const Applications: React.FC = () => {
   const { data: applications, isLoading } = useReadApplications();
+  const { mutateAsync: deleteApplication } = useDeleteApplications();
   const navigate = useNavigate();
+
+  const handleDelete = async (e: React.MouseEvent, applicationId: string) => {
+    e.stopPropagation();
+    try {
+      await deleteApplication([applicationId]);
+      toast({
+        title: "Application deleted",
+        description: "The application has been removed",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete application",
+        variant: "destructive",
+      });
+    }
+  };
 
   const TableContent = () => (
     <Table className="border rounded-lg">
@@ -34,6 +60,7 @@ const Applications: React.FC = () => {
           <TableHead className="font-semibold">Status</TableHead>
           <TableHead className="font-semibold">Resume</TableHead>
           <TableHead className="font-semibold">Created</TableHead>
+          <TableHead className="font-semibold"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -45,6 +72,7 @@ const Applications: React.FC = () => {
               <TableCell><Skeleton className="h-6 w-[80px]" /></TableCell>
               <TableCell><Skeleton className="h-8 w-8" /></TableCell>
               <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+              <TableCell><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
             </TableRow>
           ))
         ) : (
@@ -89,6 +117,24 @@ const Applications: React.FC = () => {
                 {formatDistanceToNow(new Date(application.createdAt), {
                   addSuffix: true,
                 })}
+              </TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={(e) => handleDelete(e, application.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))

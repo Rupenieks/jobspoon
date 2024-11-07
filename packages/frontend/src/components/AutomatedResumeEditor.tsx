@@ -3,19 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { useAssistantModifications } from "@/hooks/useAssistantModifications";
-import { TApplication } from "@redundant/common/src";
 import { AnimatePresence } from "framer-motion";
 import { Check, Terminal } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import CustomColorRing from "./loaders/ColorRing";
 import { useResumeState } from "./resumes/ResumeStateContext";
+import { useApplicationForResume } from "@/hooks/useApplicationForResume";
 
-interface AutomatedResumeEditorProps {
-  application?: TApplication;
-}
 
-const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
-  application,
+const AutomatedResumeEditor = ({
 }) => {
   const { resume, temporaryResume, setTemporaryResume, applyTemporaryResume } =
     useResumeState();
@@ -23,7 +19,7 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
   const [includeJobDescription, setIncludeJobDescription] = useState(false);
   const { mutate: modifyResume, isPending: isModifying } =
     useAssistantModifications();
-
+  const { data: application } = useApplicationForResume(resume?.id ?? "");
   const handleSaveChanges = useCallback(() => {
     applyTemporaryResume();
     toast({
@@ -43,15 +39,8 @@ const AutomatedResumeEditor: React.FC<AutomatedResumeEditorProps> = ({
     modifyResume(
       {
         resumeId: resume.id,
-        input: `user: ${automatedInput}${
-          includeJobDescription && application?.match
-            ? `\n\nCompany: ${application.match.companyName}
-               \nPosition: ${application.match.positionTitle}
-               \nSeniority: ${application.match.seniority}
-               \nDescription: ${application.match.description}
-               \nDetailed Description: ${application.match.longDescription}`
-            : ""
-        }`,
+        input: `user: ${automatedInput}`,
+        includeJobDescription,
       },
       {
         onSuccess: (modifiedResume) => {

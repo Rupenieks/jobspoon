@@ -52,27 +52,44 @@ export class AssistantService {
   async getAssistantModifications({
     resumeId,
     input,
+    includeJobDescription,
   }: {
     resumeId: string;
     input: string;
+    includeJobDescription: boolean;
   }): Promise<TResumeBase> {
     const resume = await this.prismaService.resume.findUnique({
       where: { id: resumeId },
     });
 
+    if (!resume) {
+      throw new Error('Resume not found');
+    }
+
     const parsedResume = ResumeBaseSchema.parse(resume);
 
-    const intputPayload = `
-      Here is the resume I want to modify:
-      ${JSON.stringify(parsedResume.data)}
 
+    let payload = `Here is the resume I want to modify:
+      ${JSON.stringify(parsedResume.data)}.
+      
       Here is the user's input:
-      ${input}
-    `;
+      ${input}`
+
+    if (includeJobDescription) {
+      const application = await this.prismaService.application.findUnique({
+        where: { resumeId_matchId: { resumeId: resume.id, matchId: resume.matchId } },
+        include: {  match: true },
+      });
+
+      if (application?.match) {
+        payload += `\n\nHere is the job description: ${application.match.longDescription}`;
+      }
+    }
+
 
     const output = await this.getAssistantOutput({
       assistantId: this.resumeModifierAssistantId,
-      userInput: intputPayload,
+      userInput: payload,
     });
 
     const cleanedOutput = this.cleanOutput(output);

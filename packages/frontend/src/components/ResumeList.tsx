@@ -31,14 +31,10 @@ const ResumeList: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { mutate: deleteResumes } = useDeleteResumes();
-
-  const { data: applications } = useReadApplications();
-
   const filteredResumes = useMemo(() => {
-    return resumes?.filter((resume) => {
-      return !applications?.some((application) => application.resumeId === resume.id);
-    });
-  }, [resumes, applications]);
+    return resumes?.filter((resume) => resume.applicationId === null)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  }, [resumes]);
 
 
   const handleResumeClick = useCallback(

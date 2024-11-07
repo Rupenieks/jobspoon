@@ -32,6 +32,9 @@ model Resume {
   data          Json     // This will store all resume data
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  matchId       String?
+  applicationId String?
   
   // Virtual fields for querying
   matches       Match[]  @relation("ResumeToMatch")

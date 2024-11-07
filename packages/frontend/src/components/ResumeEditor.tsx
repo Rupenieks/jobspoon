@@ -301,21 +301,6 @@ const ResumeEditor: React.FC = () => {
     []
   );
 
-  const availableFonts = useMemo(
-    () => ["Roboto", "Open Sans", "Lato", "Montserrat", "Source Sans Pro"],
-    []
-  );
-
-  const updateConfig = useCallback(
-    (key: keyof TResumeConfig, value: any) => {
-      if (!resume) return;
-      updateResumeField("config", {
-        ...resume?.data.config,
-        [key]: value,
-      });
-    },
-    [resume?.data.config, updateResumeField]
-  );
 
   const handleProfileImageUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
