@@ -34,7 +34,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ArrowRight, CheckCircle2, Crosshair, ExternalLink, FileText, MoreVertical, Pencil, Plus, RefreshCw } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import JobMatchDrawer from "./JobMatchDrawer";
+import JobMatchDialog from "./JobMatchDialog";
 
 interface ResumeMatchCardProps {
   resume: TResumeWithMatches;
@@ -297,7 +297,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
           </div>
         </AccordionContent>
       </AccordionItem>
-      <JobMatchDrawer
+      <JobMatchDialog
         matchId={selectedMatchId}
         isOpen={!!selectedMatchId}
         onClose={() => setSelectedMatchId(null)}
