@@ -1,14 +1,13 @@
-import React, { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Document, Page } from "react-pdf";
-import { TResume } from "@redundant/common/src";
 import { useProcessResume } from "@/hooks/useProcessResume";
-import { ColorRing } from "react-loader-spinner";
+import React, { useCallback, useMemo, useState } from "react";
+import { Document, Page } from "react-pdf";
 import CustomColorRing from "./loaders/ColorRing";
+import { TResumeBase } from "@redundant/common/src";
 
 interface CreateResumeDialogProps {
   isOpen: boolean;
@@ -39,7 +38,7 @@ const CreateResumeDialog: React.FC<CreateResumeDialogProps> = ({
       processResume(
         { type: "file", content: selectedFile },
         {
-          onSuccess: (data: TResume) => {
+          onSuccess: (data: TResumeBase) => {
             console.log("Successfully processed resume:", data);
             onOpenChange(false);
             setSelectedFile(null);
@@ -53,7 +52,7 @@ const CreateResumeDialog: React.FC<CreateResumeDialogProps> = ({
       processResume(
         { type: "text", content: resumeText },
         {
-          onSuccess: (data: TResume) => {
+          onSuccess: (data: TResumeBase) => {
             console.log("Successfully processed resume:", data);
             onOpenChange(false);
             setResumeText("");
@@ -80,9 +79,6 @@ const CreateResumeDialog: React.FC<CreateResumeDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button>Create New</Button>
-      </DialogTrigger>
       <DialogContent className="w-full max-w-3xl">
         <h2 className="text-lg font-semibold mb-4">Create New Resume</h2>
         {isPending ? (

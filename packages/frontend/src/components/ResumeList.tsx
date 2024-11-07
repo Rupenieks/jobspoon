@@ -6,7 +6,7 @@ import { useReadResumes } from "@/hooks/useReadResumes";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 import CreateResumeDialog from "./CreateResumeDialog";
 import {
   AlertDialog,
@@ -20,10 +20,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useDeleteResumes } from "@/hooks/useDeleteResumes";
 import { useReadApplications } from "@/hooks/useReadApplications";
+import { Separator } from "./ui/separator";
 
 const ResumeList: React.FC = () => {
   const { data: resumes, isLoading, error } = useReadResumes();
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedResumes, setSelectedResumes] = useState<Set<string>>(
     new Set()
@@ -40,9 +40,6 @@ const ResumeList: React.FC = () => {
     });
   }, [resumes, applications]);
 
-  const handleViewModeChange = useCallback((value: string) => {
-    setViewMode(value as "list" | "grid");
-  }, []);
 
   const handleResumeClick = useCallback(
     (resumeId: string) => {
@@ -104,7 +101,11 @@ const ResumeList: React.FC = () => {
     return filteredResumes?.map((resume) => (
       <Card
         key={resume.id}
-        className="cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden"
+        className="cursor-pointer relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
+        style={{
+          aspectRatio: '1/1.414', // A4 aspect ratio
+          maxHeight: '400px' // Limit maximum height
+        }}
       >
         <div className="absolute top-2 right-2 z-10">
           <Checkbox
@@ -118,36 +119,25 @@ const ResumeList: React.FC = () => {
         </div>
         <div 
           onClick={() => handleResumeClick(resume.id)}
-          className="flex"
+          className="h-full"
+          style={{ 
+            borderLeft: `8px solid ${resume.data.config.sidebarColor}`,
+            backgroundColor: resume.data.config.primaryColor,
+          }}
         >
-          <div 
-            className="w-3/4"
-            style={{ 
-              backgroundColor: resume.data.config.primaryColor,
-            }}
-          >
-            <CardHeader>
-              <CardTitle style={{ color: resume.data.config.fontColor }}>
-                {resume.data.personalInfo?.fullName}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p style={{ color: resume.data.config.fontColor }}>
-                {resume.data.personalInfo?.positionName}
-              </p>
-              <p style={{ color: resume.data.config.fontColor }}>
-                {resume.data.personalInfo?.profileBio?.slice(0, 24)}...
-              </p>
-            </CardContent>
-          </div>
-          <div 
-            className="w-1/4"
-            style={{ 
-              backgroundColor: resume.data.config.sidebarColor,
-            }}
-          >
-            {/* This div is just for the colored background */}
-          </div>
+          <CardHeader>
+            <CardTitle style={{ color: resume.data.config.fontColor }}>
+              {resume.data.personalInfo?.fullName}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p style={{ color: resume.data.config.fontColor }}>
+              {resume.data.personalInfo?.positionName}
+            </p>
+            <p style={{ color: resume.data.config.fontColor }}>
+              {resume.data.personalInfo?.profileBio?.slice(0, 24)}...
+            </p>
+          </CardContent>
         </div>
       </Card>
     ));
@@ -161,10 +151,9 @@ const ResumeList: React.FC = () => {
   ]);
 
   return (
-    <>
+    <div className="flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Resumes</h1>
-
         <div className="flex items-center space-x-4">
           <Button
             variant="destructive"
@@ -174,25 +163,22 @@ const ResumeList: React.FC = () => {
           >
             <Trash2 className="h-4 w-4" />
           </Button>
-          <Tabs value={viewMode} onValueChange={handleViewModeChange}>
-            <TabsList>
-              <TabsTrigger value="grid">Grid</TabsTrigger>
-              <TabsTrigger value="list">List</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <Button
+            variant="default"
+            size="icon"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
           <CreateResumeDialog
             isOpen={isDialogOpen}
             onOpenChange={setIsDialogOpen}
           />
         </div>
       </div>
-      <div
-        className={
-          viewMode === "grid"
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            : "space-y-4"
-        }
-      >
+      <Separator className="mb-6" />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {ResumeCards}
       </div>
 
@@ -218,7 +204,7 @@ const ResumeList: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   );
 };
 
