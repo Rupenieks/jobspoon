@@ -6,7 +6,7 @@ import { useReadResumes } from "@/hooks/useReadResumes";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import CreateResumeDialog from "./CreateResumeDialog";
 import {
   AlertDialog,
@@ -21,6 +21,7 @@ import {
 import { useDeleteResumes } from "@/hooks/useDeleteResumes";
 import { useReadApplications } from "@/hooks/useReadApplications";
 import { Separator } from "./ui/separator";
+import { formatDistanceToNow } from 'date-fns';
 
 const ResumeList: React.FC = () => {
   const { data: resumes, isLoading, error } = useReadResumes();
@@ -104,10 +105,9 @@ const ResumeList: React.FC = () => {
         className="cursor-pointer relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
         style={{
           aspectRatio: '1/1.414', // A4 aspect ratio
-          maxHeight: '400px' // Limit maximum height
         }}
       >
-        <div className="absolute top-2 right-2 z-10">
+        <div className="absolute top-4 right-4 z-10">
           <Checkbox
             className="bg-white data-[state=checked]:bg-white"
             checked={selectedResumes.has(resume.id)}
@@ -119,25 +119,46 @@ const ResumeList: React.FC = () => {
         </div>
         <div 
           onClick={() => handleResumeClick(resume.id)}
-          className="h-full"
+          className="h-full p-4 flex flex-col"
           style={{ 
             borderLeft: `8px solid ${resume.data.config.sidebarColor}`,
             backgroundColor: resume.data.config.primaryColor,
           }}
         >
-          <CardHeader>
-            <CardTitle style={{ color: resume.data.config.fontColor }}>
-              {resume.data.personalInfo?.fullName}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p style={{ color: resume.data.config.fontColor }}>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              {resume.data.profileImage && (
+                <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
+                  <img 
+                    src={resume.data.profileImage} 
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
+              <span 
+                className="text-lg font-semibold"
+                style={{ color: resume.data.config.fontColor }}
+              >
+                {resume.data.personalInfo?.fullName}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-auto">
+            <p 
+              className="text-xl font-medium"
+              style={{ color: resume.data.config.fontColor }}
+            >
               {resume.data.personalInfo?.positionName}
             </p>
-            <p style={{ color: resume.data.config.fontColor }}>
-              {resume.data.personalInfo?.profileBio?.slice(0, 24)}...
+            <p 
+              className="text-sm text-gray-500 mt-1"
+              style={{ color: resume.data.config.fontColor }}
+            >
+              Created {formatDistanceToNow(new Date(resume.createdAt))} ago
             </p>
-          </CardContent>
+          </div>
         </div>
       </Card>
     ));
