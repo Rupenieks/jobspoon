@@ -34,6 +34,7 @@ import { toast } from "@/hooks/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useReadApplications } from "@/hooks/useReadApplications";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface ResumeMatchCardProps {
   resume: TResumeWithMatches;
@@ -74,16 +75,16 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
 
 
   return (
-    <Accordion type="single" collapsible className="mb-6">
-      <AccordionItem value={resume.id} className="border rounded-lg shadow-sm">
-        <AccordionTrigger className="px-6 hover:no-underline [&[data-state=open]>div]:pb-0">
-          <div className="flex items-center justify-between w-full pr-8">
+    <Accordion type="single" collapsible className="mb-6 border-l-4" style={{borderLeftColor: resume.data.config.sidebarColor}}>
+      <AccordionItem value={resume.id} className="border-b">
+        <AccordionTrigger className={`hover:no-underline py-4 px-4 `} >
+          <div className="flex items-center justify-between w-full">
             <div className="flex-1">
               <div className="text-left">
                 <h3 className="font-semibold text-lg leading-tight mb-1">
                   {resume.data.personalInfo.positionName}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500 text-muted-foreground">
                   {resume.data.personalInfo.fullName} • Created{" "}
                   {formatDistanceToNow(new Date(resume.createdAt as string), {
                     addSuffix: true,
@@ -96,7 +97,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                 <Crosshair className="h-4 w-4" />
                 <span>{matchCount} matches</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mr-4">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -139,7 +140,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
           </div>
         </AccordionTrigger>
         <AccordionContent>
-          <div className="px-6 py-4">
+          <div className="py-4">
             {isPending ? (
               <Table>
                 <TableHeader>
@@ -166,7 +167,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                 </TableBody>
               </Table>
             ) : resume.matches && resume.matches.length > 0 ? (
-              <Table>
+              <Table className="border border-gray-200 rounded-m">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Position</TableHead>
@@ -230,7 +231,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                 </TableBody>
               </Table>
             ) : (
-              <div className="h-32 flex items-center justify-center">
+              <div className="h-24 flex items-center justify-center">
                 <p className="text-muted-foreground">
                   No matches found. Click the refresh button to find potential
                   opportunities.

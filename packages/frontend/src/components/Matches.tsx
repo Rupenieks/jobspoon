@@ -4,6 +4,7 @@ import { useMatchJobs } from "@/hooks/useMatchJobs";
 import { Skeleton } from "@/components/ui/skeleton";
 import ResumeMatchCard from "./ResumeMatchCard";
 import { useReadApplications } from "@/hooks/useReadApplications";
+import { Separator } from "./ui/separator";
 
 const ResumeSkeleton: React.FC = () => (
   <div className="mb-4">
@@ -44,9 +45,11 @@ const Matches: React.FC = () => {
   }, [resumes, isLoading, isPending, handleMatchJobs]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Job Matches</h1>
-      <p className="mb-8">Explore job opportunities matched to your resumes.</p>
+    <div className="container mx-auto px-4 py-8 flex flex-col">
+      <h1 className="text-3xl font-bold mb-6">Matches</h1>
+      <span className="mb-4 text-md text-gray-500">Here you can match your resumes to jobs based on the data you provided.</span>
+
+      <Separator className="my-4 mb-8" />
       {ResumeList}
     </div>
   );
