@@ -161,8 +161,10 @@ const ResumeList: React.FC = () => {
             </div>
           </div>
 
-          <span className="mt-6 text-xs text-gray-500">
-            {resume.data.personalInfo?.profileBio}
+          <span className="mt-6 text-xs text-gray-500" style={{ color: resume.data.config.fontColor }}>
+            {resume.data.personalInfo?.profileBio.length > 320 
+              ? `${resume.data.personalInfo?.profileBio.slice(0, 320)}...`
+              : resume.data.personalInfo?.profileBio}
           </span>
 
           <div className="mt-auto">
