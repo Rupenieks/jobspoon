@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useDeleteResumes } from "@/hooks/useDeleteResumes";
+import { useReadApplications } from "@/hooks/useReadApplications";
 
 const ResumeList: React.FC = () => {
   const { data: resumes, isLoading, error } = useReadResumes();
@@ -30,6 +31,14 @@ const ResumeList: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { mutate: deleteResumes } = useDeleteResumes();
+
+  const { data: applications } = useReadApplications();
+
+  const filteredResumes = useMemo(() => {
+    return resumes?.filter((resume) => {
+      return !applications?.some((application) => application.resumeId === resume.id);
+    });
+  }, [resumes, applications]);
 
   const handleViewModeChange = useCallback((value: string) => {
     setViewMode(value as "list" | "grid");
@@ -92,13 +101,14 @@ const ResumeList: React.FC = () => {
       );
     }
 
-    return resumes?.map((resume) => (
+    return filteredResumes?.map((resume) => (
       <Card
         key={resume.id}
-        className="cursor-pointer hover:shadow-md transition-shadow relative"
+        className="cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden"
       >
         <div className="absolute top-2 right-2 z-10">
           <Checkbox
+            className="bg-white data-[state=checked]:bg-white"
             checked={selectedResumes.has(resume.id)}
             onCheckedChange={(checked) =>
               handleCheckboxChange(resume.id, checked as boolean)
@@ -106,14 +116,38 @@ const ResumeList: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           />
         </div>
-        <div onClick={() => handleResumeClick(resume.id)}>
-          <CardHeader>
-            <CardTitle>{resume.data.personalInfo?.fullName}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{resume.data.personalInfo?.positionName}</p>
-            <p>{resume.data.personalInfo?.email}</p>
-          </CardContent>
+        <div 
+          onClick={() => handleResumeClick(resume.id)}
+          className="flex"
+        >
+          <div 
+            className="w-3/4"
+            style={{ 
+              backgroundColor: resume.data.config.primaryColor,
+            }}
+          >
+            <CardHeader>
+              <CardTitle style={{ color: resume.data.config.fontColor }}>
+                {resume.data.personalInfo?.fullName}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p style={{ color: resume.data.config.fontColor }}>
+                {resume.data.personalInfo?.positionName}
+              </p>
+              <p style={{ color: resume.data.config.fontColor }}>
+                {resume.data.personalInfo?.profileBio?.slice(0, 24)}...
+              </p>
+            </CardContent>
+          </div>
+          <div 
+            className="w-1/4"
+            style={{ 
+              backgroundColor: resume.data.config.sidebarColor,
+            }}
+          >
+            {/* This div is just for the colored background */}
+          </div>
         </div>
       </Card>
     ));
@@ -130,6 +164,7 @@ const ResumeList: React.FC = () => {
     <>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Resumes</h1>
+
         <div className="flex items-center space-x-4">
           <Button
             variant="destructive"
