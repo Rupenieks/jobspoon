@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import { TResumeWithMatches } from "@redundant/common";
 import { formatDistanceToNow } from "date-fns";
-import { Crosshair, ExternalLink, Pencil, RefreshCw, MoreVertical, FileText } from "lucide-react";
+import { Crosshair, ExternalLink, Pencil, RefreshCw, MoreVertical, FileText, CheckCircle2, ArrowRight, Plus } from "lucide-react";
 import React, { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -72,7 +72,13 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
     });
   }, [createApplication, resume.id]);
 
+  const handleGoToApplication = useCallback((applicationId: string) => {
+    navigate(`/applications/${applicationId}`);
+  }, [navigate]);
 
+  const getApplicationId = useCallback((matchId: string) => {
+    return applications?.find(app => app.matchId === matchId)?.id;
+  }, [applications]);
 
   return (
     <Accordion type="single" collapsible className="mb-6 border-l-4" style={{borderLeftColor: resume.data.config.sidebarColor}}>
@@ -174,12 +180,16 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                     <TableHead>Company</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>Seniority</TableHead>
+                    <TableHead>Application</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {resume.matches.map((match) => (
-                    <TableRow className={matchHasApplication(match.id) ? "bg-gray-100" : ""} key={match.id}>
+                    <TableRow 
+                      className={matchHasApplication(match.id) ? "bg-gray-100" : ""} 
+                      key={match.id}
+                    >
                       <TableCell className="font-medium">
                         {match.positionTitle}
                       </TableCell>
@@ -190,6 +200,44 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                         {match.city}, {match.country}
                       </TableCell>
                       <TableCell>{match.seniority || "Not specified"}</TableCell>
+                      <TableCell>
+                        <TooltipProvider>
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-2"
+                                onClick={() => {
+                                  if (matchHasApplication(match.id)) {
+                                    const appId = getApplicationId(match.id);
+                                    if (appId) handleGoToApplication(appId);
+                                  } else {
+                                    handleCreateApplication(match.id);
+                                  }
+                                }}
+                              >
+                                {matchHasApplication(match.id) ? (
+                                  <>
+                                    <ArrowRight className="h-4 w-4" />
+                                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <FileText className="h-4 w-4" />
+                                    <Plus className="h-4 w-4" />
+                                  </>
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {matchHasApplication(match.id) 
+                                ? "Go to application" 
+                                : "Create application"}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
                       <TableCell className="text-right">
                         <Popover>
                           <PopoverTrigger asChild>
@@ -213,15 +261,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                                   Apply Direct
                                 </Button>
                               )}
-                              <Button
-                                disabled={matchHasApplication(match.id)}
-                                variant="ghost"
-                                className="w-full justify-start"
-                                onClick={() => handleCreateApplication(match.id)}
-                              >
-                                <FileText className="h-4 w-4 mr-2" />
-                                Create App
-                              </Button>
+        
                             </div>
                           </PopoverContent>
                         </Popover>

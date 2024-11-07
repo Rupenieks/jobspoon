@@ -79,14 +79,31 @@ const ResumeList: React.FC = () => {
       return Array(6)
         .fill(0)
         .map((_, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <Skeleton className="h-4 w-3/4" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-4 w-1/2 mb-2" />
-              <Skeleton className="h-4 w-2/3" />
-            </CardContent>
+          <Card
+            key={index}
+            className="relative overflow-hidden"
+            style={{
+              aspectRatio: '1/1.414', // A4 aspect ratio
+            }}
+          >
+            <div 
+              className="h-full p-4 flex flex-col"
+              style={{ 
+                borderLeft: '8px solid #e5e7eb', // gray-200 color for skeleton
+              }}
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <Skeleton className="h-6 w-32" />
+                </div>
+              </div>
+
+              <div className="mt-auto">
+                <Skeleton className="h-7 w-48 mb-2" />
+                <Skeleton className="h-4 w-36" />
+              </div>
+            </div>
           </Card>
         ));
     }
@@ -174,7 +191,13 @@ const ResumeList: React.FC = () => {
   return (
     <div className="flex flex-col">
       <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold">Resumes</h1>
+
+      <span className="mb-4 text-md text-gray-500">Here you can access the resumes you have created</span>
+
+        </div>
+
         <div className="flex items-center space-x-4">
           <Button
             variant="destructive"
