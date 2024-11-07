@@ -76,8 +76,8 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
 
   return (
     <Accordion type="single" collapsible className="mb-6 border-l-4" style={{borderLeftColor: resume.data.config.sidebarColor}}>
-      <AccordionItem value={resume.id} className="border-b">
-        <AccordionTrigger className={`hover:no-underline py-4 px-4 `} >
+      <AccordionItem value={resume.id} className="border-none">
+        <AccordionTrigger className={`hover:no-underline py-4 px-4 border-t-2 border-r-2 border-b-2`} >
           <div className="flex items-center justify-between w-full">
             <div className="flex-1">
               <div className="text-left">
@@ -139,8 +139,8 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
             </div>
           </div>
         </AccordionTrigger>
-        <AccordionContent>
-          <div className="py-4">
+        <AccordionContent className="pb-0">
+          <div >
             {isPending ? (
               <Table>
                 <TableHeader>
@@ -167,7 +167,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                 </TableBody>
               </Table>
             ) : resume.matches && resume.matches.length > 0 ? (
-              <Table className="border border-gray-200 rounded-m">
+              <Table className="border border-gray-200 rounded-m h-full pb-0">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Position</TableHead>
