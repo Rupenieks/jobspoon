@@ -231,11 +231,10 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                 </TableBody>
               </Table>
             ) : (
-              <div className="h-24 flex items-center justify-center">
-                <p className="text-muted-foreground">
-                  No matches found. Click the refresh button to find potential
-                  opportunities.
-                </p>
+              <div className="h-24 flex items-center justify-center border border-gray-200 rounded-m items-center justify-center">
+                <span className="text-muted-foreground">
+                  Hit refresh to find jobs. 
+                </span>
               </div>
             )}
           </div>
