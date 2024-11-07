@@ -161,6 +161,10 @@ const ResumeList: React.FC = () => {
             </div>
           </div>
 
+          <span className="mt-6 text-xs text-gray-500">
+            {resume.data.personalInfo?.profileBio}
+          </span>
+
           <div className="mt-auto">
             <p 
               className="text-xl font-medium"
