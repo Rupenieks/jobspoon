@@ -1,16 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
-import { TMatchWithApplication } from "@redundant/common";
 import axiosInstance from "@/utils/axiosConfig";
+import { TMatchBase } from "@redundant/common";
+import { useQuery } from "@tanstack/react-query";
 
 export const useGetMatch = (id: string | undefined) => {
   const {
     data: match,
     isPending,
     error,
-  } = useQuery<TMatchWithApplication>({
+  } = useQuery<TMatchBase>({
     queryKey: ["match", id],
     queryFn: async () => {
-      if (!id) throw new Error("Match ID is required");
       const { data } = await axiosInstance.get(`/matches/${id}`);
       return data;
     },

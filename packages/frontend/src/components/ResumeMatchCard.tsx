@@ -6,6 +6,12 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
   Table,
   TableBody,
   TableCell,
@@ -19,22 +25,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "@/hooks/use-toast";
+import { useCreateApplication } from "@/hooks/useCreateApplication";
+import { useReadApplications } from "@/hooks/useReadApplications";
+import { ToastAction } from "@radix-ui/react-toast";
 import { TResumeWithMatches } from "@redundant/common";
 import { formatDistanceToNow } from "date-fns";
-import { Crosshair, ExternalLink, Pencil, RefreshCw, MoreVertical, FileText, CheckCircle2, ArrowRight, Plus } from "lucide-react";
-import React, { useCallback, useMemo } from "react";
+import { ArrowRight, CheckCircle2, Crosshair, ExternalLink, FileText, MoreVertical, Pencil, Plus, RefreshCw } from "lucide-react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { useCreateApplication } from "@/hooks/useCreateApplication";
-import { toast } from "@/hooks/use-toast";
-import { ToastAction } from "@radix-ui/react-toast";
-import { useReadApplications } from "@/hooks/useReadApplications";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import JobMatchDrawer from "./JobMatchDrawer";
 
 interface ResumeMatchCardProps {
   resume: TResumeWithMatches;
@@ -51,6 +51,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
   const matchCount = useMemo(() => resume.matches?.length || 0, [resume.matches]);
   const { mutateAsync: createApplication } = useCreateApplication();
   const { data: applications } = useReadApplications();
+  const [selectedMatchId, setSelectedMatchId] = useState<string | undefined>(undefined);
 
   const matchHasApplication = useCallback((matchId: string) => {
     return applications?.some((application) => application.matchId === matchId);
@@ -187,8 +188,9 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                 <TableBody>
                   {resume.matches.map((match) => (
                     <TableRow 
-                      className={matchHasApplication(match.id) ? "bg-gray-100" : ""} 
                       key={match.id}
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => setSelectedMatchId(match.id)}
                     >
                       <TableCell className="font-medium">
                         {match.positionTitle}
@@ -208,7 +210,8 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                                 variant="ghost"
                                 size="sm"
                                 className="flex items-center gap-2"
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   if (matchHasApplication(match.id)) {
                                     const appId = getApplicationId(match.id);
                                     if (appId) handleGoToApplication(appId);
@@ -241,7 +244,11 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
                       <TableCell className="text-right">
                         <Popover>
                           <PopoverTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </PopoverTrigger>
@@ -280,6 +287,11 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({
           </div>
         </AccordionContent>
       </AccordionItem>
+      <JobMatchDrawer
+        matchId={selectedMatchId}
+        isOpen={!!selectedMatchId}
+        onClose={() => setSelectedMatchId(null)}
+      />
     </Accordion>
   );
 };

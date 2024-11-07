@@ -66,6 +66,17 @@ export class JobsService {
           longDescription: match.longDescription,
           applyUrl: match.applyUrl,
           provider: match.provider,
+          domain: match.domain,
+          longitude: match.longitude,
+          latitude: match.latitude,
+          datePosted: match.datePosted,
+          hybrid: match.hybrid,
+          remote: match.remote,
+          salary: match.salary,
+          reposted: match.reposted,
+          dateReposted: match.dateReposted,
+          hiringTeam: match.hiringTeam,
+          company: match.company,
           resume: {
             connect: {
               id: resumeId,
