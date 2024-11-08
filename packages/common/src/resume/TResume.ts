@@ -1,144 +1,139 @@
-import { z } from "zod";
-import { MatchBaseSchema } from "../match";
-import { ApplicationBaseSchema } from "../application";
+import { z } from 'zod';
+import { MatchBaseSchema } from '../match';
+import { ApplicationBaseSchema } from '../application';
 
 // Base schemas for resume data
 export const ExperienceSchema = z.object({
-  positionTitle: z.string().nullish(),
-  startDate: z.string().nullish(),
-  endDate: z.string().nullish(),
-  company: z.string().nullish(),
-  contributions: z.array(z.string()).nullish(),
+	positionTitle: z.string().nullish(),
+	startDate: z.string().nullish(),
+	endDate: z.string().nullish(),
+	company: z.string().nullish(),
+	contributions: z.array(z.string()).nullish(),
 });
 
 export const EducationSchema = z.object({
-  university: z.string().nullish(),
-  degree: z.string().nullish(),
-  startDate: z.string().nullish(),
-  endDate: z.string().nullish(),
+	university: z.string().nullish(),
+	degree: z.string().nullish(),
+	startDate: z.string().nullish(),
+	endDate: z.string().nullish(),
 });
 
 export const ReferenceSchema = z.object({
-  name: z.string().nullish(),
-  position: z.string().nullish(),
-  number: z.string().nullish(),
-  email: z.string().nullish(),
+	name: z.string().nullish(),
+	position: z.string().nullish(),
+	number: z.string().nullish(),
+	email: z.string().nullish(),
 });
 
 // Add this before ResumeDataSchema
 export const ResumeConfigSchema = z.object({
-  primaryColor: z.string().default("#1f2937"), // Default to the current navy color
-  fontSize: z.number().default(16),
-  font: z.string().default("Roboto"),
-  margin: z.number().default(10), // 25.4mm is 1 inch, standard margin
-  fontColor: z.string().default("#ffffff"),
-  backgroundColor: z.string().default("#ffffff"),
-  sidebarColor: z.string().default("#f9fafb"),
-  sidebarFontColor: z.string().default("#ffffff"),
+	primaryColor: z.string().default('#1f2937'), // Default to the current navy color
+	fontSize: z.number().default(16),
+	font: z.string().default('Roboto'),
+	margin: z.number().default(10), // 25.4mm is 1 inch, standard margin
+	fontColor: z.string().default('#ffffff'),
+	backgroundColor: z.string().default('#ffffff'),
+	sidebarColor: z.string().default('#f9fafb'),
+	sidebarFontColor: z.string().default('#ffffff'),
 });
 
 // Define section types
-export const SectionTypeEnum = z.enum([
-  "personalInfo",
-  "experience",
-  "education",
-  "skills",
-]);
+export const SectionTypeEnum = z.enum(['personalInfo', 'experience', 'education', 'skills']);
 
 export type TSectionType = z.infer<typeof SectionTypeEnum>;
 
 // Define a section schema (removed order field)
 export const SectionSchema = z.object({
-  id: z.string(),
-  type: SectionTypeEnum,
-  title: z.string(),
+	id: z.string(),
+	type: SectionTypeEnum,
+	title: z.string(),
 });
 
 // Define a page schema
 export const PageSchema = z.object({
-  sections: z.array(SectionSchema),
+	sections: z.array(SectionSchema),
 });
 
 // This is the pure resume data schema (what's in the data field)
 export const ResumeDataSchema = z.object({
-  // Section data
-  personalInfo: z.object({
-    fullName: z.string().nullish(),
-    summary: z.string().nullish(),
-    country: z.string().nullish(),
-    city: z.string().nullish(),
-    address: z.string().nullish(),
-    email: z.string().nullish(),
-    phoneNumber: z.string().nullish(),
-    positionName: z.string().nullish(),
-    profileBio: z.string().default(""),
-  }),
-  experience: z.array(ExperienceSchema).nullish(),
-  education: z.array(EducationSchema).nullish(),
-  skills: z.array(z.string()).nullish(),
-  
-  // Page layout
-  pages: z.array(PageSchema).default([
-    {
-      sections: [
-        { id: "personal-info", type: "personalInfo", title: "Personal Information" },
-      { id: "experience", type: "experience", title: "Experience" },
-      { id: "education", type: "education", title: "Education" },
-      { id: "skills", type: "skills", title: "Skills" },
-      ],
-    },
-  ]),
-  
-  // Other configurations remain the same
-  config: ResumeConfigSchema.default({
-    primaryColor: "#ffffff",
-    fontSize: 16,
-    font: "Roboto", 
-    margin: 10,
-    fontColor: "#000000",
-    sidebarFontColor: "#ffffff",
-    backgroundColor: "#ffffff",
-    sidebarColor: "#000080",
-  }),
-  previewImage: z.string().nullish(),
-  profileImage: z.string().nullish(),
+	// Section data
+	personalInfo: z.object({
+		fullName: z.string().nullish(),
+		summary: z.string().nullish(),
+		country: z.string().nullish(),
+		city: z.string().nullish(),
+		address: z.string().nullish(),
+		email: z.string().nullish(),
+		phoneNumber: z.string().nullish(),
+		positionName: z.string().nullish(),
+		profileBio: z.string().default(''),
+	}),
+	experience: z.array(ExperienceSchema).nullish(),
+	education: z.array(EducationSchema).nullish(),
+	skills: z.array(z.string()).nullish(),
+
+	// Page layout
+	pages: z.array(PageSchema).default([
+		{
+			sections: [
+				{ id: 'personal-info', type: 'personalInfo', title: 'Personal Information' },
+				{ id: 'experience', type: 'experience', title: 'Experience' },
+				{ id: 'education', type: 'education', title: 'Education' },
+				{ id: 'skills', type: 'skills', title: 'Skills' },
+			],
+		},
+	]),
+
+	// Other configurations remain the same
+	config: ResumeConfigSchema.default({
+		primaryColor: '#ffffff',
+		fontSize: 16,
+		font: 'Roboto',
+		margin: 10,
+		fontColor: '#000000',
+		sidebarFontColor: '#ffffff',
+		backgroundColor: '#ffffff',
+		sidebarColor: '#000080',
+	}),
+	previewImage: z.string().nullish(),
+	profileImage: z.string().nullish(),
 });
 
 // Base Resume Model (no relations)
 export const ResumeBaseSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  data: ResumeDataSchema,
-  matchId: z.string().nullish(),
-  applicationId: z.string().nullish(),
-  createdAt: z.date().transform((date) => date.toISOString()),
-  updatedAt: z.date().transform((date) => date.toISOString()),
+	id: z.string(),
+	userId: z.string(),
+	data: ResumeDataSchema,
+	matchId: z.string().nullish(),
+	applicationId: z.string().nullish(),
+	createdAt: z.date().transform((date) => date.toISOString()),
+	updatedAt: z.date().transform((date) => date.toISOString()),
 });
 
 // Resume with Match IDs
 export const ResumeWithMatchIdsSchema = ResumeBaseSchema.extend({
-  matches: z.array(
-    z.object({
-      id: z.string(),
-      application: z.object({ id: z.string() }).nullable(),
-    })
-  ),
+	matches: z.array(
+		z.object({
+			id: z.string(),
+			application: z.object({ id: z.string() }).nullable(),
+		})
+	),
 });
 
 // Resume with Matches
 export const ResumeWithMatchesSchema = ResumeBaseSchema.extend({
-  matches: z.array(MatchBaseSchema),
+	matches: z.array(MatchBaseSchema),
 });
 
 // Resume with Application
 export const ResumeWithApplicationSchema = ResumeBaseSchema.extend({
-  application: ApplicationBaseSchema,
+	application: ApplicationBaseSchema,
 });
 
 // Full Resume Model (all relations)
 export const ResumeFullSchema = ResumeBaseSchema.extend({
-  matches: z.array(MatchBaseSchema).nullish(),
-  application: ApplicationBaseSchema.nullish(),
+	matches: z.array(MatchBaseSchema).nullish(),
+	application: ApplicationBaseSchema.nullish(),
 });
 
 // Types
@@ -146,9 +141,7 @@ export type TResumeData = z.infer<typeof ResumeDataSchema>;
 export type TResumeBase = z.infer<typeof ResumeBaseSchema>;
 export type TResumeWithMatchIds = z.infer<typeof ResumeWithMatchIdsSchema>;
 export type TResumeWithMatches = z.infer<typeof ResumeWithMatchesSchema>;
-export type TResumeWithApplication = z.infer<
-  typeof ResumeWithApplicationSchema
->;
+export type TResumeWithApplication = z.infer<typeof ResumeWithApplicationSchema>;
 export type TResumeFull = z.infer<typeof ResumeFullSchema>;
 
 // DTOs

@@ -13,13 +13,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useReadApplication } from '@/hooks/useReadApplication';
-import { Building2, ChevronLeft, MapPin } from 'lucide-react';
+import { Building2, ChevronLeft, MapPin, CheckCircle } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ResumeEditingWrapper from './resumes/ResumeEditingWrapper';
 import { ResumeStateProvider } from './resumes/ResumeStateContext';
 import CompanyLogo from './ui/company-logo';
 import { ScrollArea } from './ui/scroll-area';
+import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
 
 const LoadingSkeleton: React.FC = React.memo(() => (
 	<div className="container mx-auto p-4 space-y-8">
@@ -91,6 +92,8 @@ const ApplicationDetails: React.FC = () => {
 	const handleGoBack = useCallback(() => {
 		navigate('/applications');
 	}, [navigate]);
+
+	const { mutate: updateStage } = useUpdateApplicationStage();
 
 	if (isLoading) {
 		return <LoadingSkeleton />;
@@ -167,7 +170,11 @@ const ApplicationDetails: React.FC = () => {
 												<div>
 													<h4 className="font-medium">Total Funding</h4>
 													<p className="text-muted-foreground">
-														${(application.match.company?.totalFunding / 1000000).toFixed(1)}M
+														$
+														{application.match.company?.totalFunding
+															? (application.match.company.totalFunding / 1000000).toFixed(1)
+															: 'N/A'}
+														M
 													</p>
 												</div>
 												<div>
@@ -190,7 +197,7 @@ const ApplicationDetails: React.FC = () => {
 								<TabsContent value="tech">
 									<ScrollArea className="h-[300px]">
 										<div className="flex flex-wrap gap-2">
-											{application.match.company?.technologies.map((tech) => (
+											{application.match.company?.technologies?.map((tech) => (
 												<Badge key={tech} variant="secondary">
 													{tech}
 												</Badge>
@@ -220,43 +227,51 @@ const ApplicationDetails: React.FC = () => {
 					<Card>
 						<CardHeader>
 							<CardTitle>Application Progress</CardTitle>
+							<CardDescription>
+								When you have finished your resume and applied to the job, click here and we'll
+								provide you tips to help you succeed
+							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							<div>
-								<h3 className="font-semibold mb-2">Status</h3>
-								<Select value={status} onValueChange={setStatus}>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="started">
-											<Badge variant="secondary">Started</Badge>
-										</SelectItem>
-										<SelectItem value="applied">
-											<Badge variant="default">Applied</Badge>
-										</SelectItem>
-										<SelectItem value="in_progress">
-											<Badge variant="secondary">In Progress</Badge>
-										</SelectItem>
-										<SelectItem value="success">
-											<Badge variant="default">Success</Badge>
-										</SelectItem>
-										<SelectItem value="rejected">
-											<Badge variant="destructive">Rejected</Badge>
-										</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-
-							<div>
-								<h3 className="font-semibold mb-2">Notes</h3>
-								<Textarea
-									placeholder="Add notes about your application..."
-									value={notes}
-									onChange={(e) => setNotes(e.target.value)}
-									className="min-h-[200px]"
-								/>
-							</div>
+							{application.stage === 'not_applied' ? (
+								<Button
+									className="w-full"
+									variant="default"
+									onClick={() => updateStage({ applicationId: application.id, stage: 'applied' })}
+								>
+									<CheckCircle className="mr-2 h-4 w-4" />I have applied
+								</Button>
+							) : (
+								<div className="space-y-4">
+									<Select
+										value={application.stage}
+										onValueChange={(value) =>
+											updateStage({
+												applicationId: application.id,
+												stage: value as any,
+											})
+										}
+									>
+										<SelectTrigger>
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="applied">
+												<Badge variant="default">Applied</Badge>
+											</SelectItem>
+											<SelectItem value="interview">
+												<Badge variant="secondary">Interview</Badge>
+											</SelectItem>
+											<SelectItem value="success">
+												<Badge variant="success">Success</Badge>
+											</SelectItem>
+											<SelectItem value="rejected">
+												<Badge variant="destructive">Rejected</Badge>
+											</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+							)}
 						</CardContent>
 					</Card>
 

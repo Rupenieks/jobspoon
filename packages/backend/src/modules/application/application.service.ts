@@ -38,7 +38,6 @@ export class ApplicationService {
     try {
       // Wrap the creation of duplicate resume and application in a transaction
       return this.prisma.$transaction(async (prisma) => {
-
         // Create a duplicate resume for this application
         const duplicatedResume = await prisma.resume.create({
           data: {
@@ -55,13 +54,12 @@ export class ApplicationService {
           },
         });
 
-         await prisma.resume.update({
+        await prisma.resume.update({
           where: { id: resumeId },
           data: { applicationId: application.id },
         });
 
         return application;
-
       });
     } catch (err) {
       throw new Error(err);
@@ -94,7 +92,15 @@ export class ApplicationService {
   async getApplicationsByResume(resumeId: string) {
     return this.prisma.application.findFirst({
       where: { resumeId },
-      include: {  match: true },
+      include: { match: true },
+    });
+  }
+
+  async updateApplicationStage(id: string, stage: string) {
+    return this.prisma.application.update({
+      where: { id },
+      data: { stage },
+      include: { resume: true, match: true },
     });
   }
 }

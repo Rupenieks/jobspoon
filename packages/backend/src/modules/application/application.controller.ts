@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Delete,
+  Patch,
+} from '@nestjs/common';
 import { ApplicationService } from './application.service';
 
 @Controller('applications')
@@ -32,5 +40,13 @@ export class ApplicationController {
   async deleteApplications(@Body() data: { ids: string[] }) {
     await this.applicationService.deleteApplications(data.ids);
     return { message: 'Applications deleted successfully' };
+  }
+
+  @Patch(':id/stage')
+  async updateApplicationStage(
+    @Param('id') id: string,
+    @Body() data: { stage: string },
+  ) {
+    return this.applicationService.updateApplicationStage(id, data.stage);
   }
 }

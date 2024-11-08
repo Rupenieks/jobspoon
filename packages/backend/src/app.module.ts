@@ -10,6 +10,7 @@ import { ApplicationModule } from './modules/application/application.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { MatchModule } from './modules/match/match.module';
 import { PDFModule } from './modules/pdf/pdf.module';
+import { InsightModule } from './modules/insight/insight.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PDFModule } from './modules/pdf/pdf.module';
     StorageModule,
     MatchModule,
     PDFModule,
+    InsightModule,
   ],
   controllers: [AppController],
   providers: [AppService],
