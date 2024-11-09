@@ -11,16 +11,17 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
 import { useReadApplication } from '@/hooks/useReadApplication';
-import { Building2, ChevronLeft, MapPin, CheckCircle } from 'lucide-react';
+import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
+import { Building2, CheckCircle, ChevronLeft, MapPin } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ResumeEditingWrapper from './resumes/ResumeEditingWrapper';
 import { ResumeStateProvider } from './resumes/ResumeStateContext';
 import CompanyLogo from './ui/company-logo';
 import { ScrollArea } from './ui/scroll-area';
-import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
+import { usePollingInsights } from '@/hooks/usePollingInsights';
+import InsightCard from './insights/InsightCard';
 
 const LoadingSkeleton: React.FC = React.memo(() => (
 	<div className="container mx-auto p-4 space-y-8">
@@ -94,6 +95,42 @@ const ApplicationDetails: React.FC = () => {
 	}, [navigate]);
 
 	const { mutate: updateStage } = useUpdateApplicationStage();
+
+	const { isLoading: insightsLoading } = usePollingInsights(applicationId ?? undefined);
+
+	const renderedInsights = useMemo(() => {
+		if (!application?.insights || application.insights.length === 0) {
+			return (
+				<div className="text-center text-muted-foreground py-8">No insights available yet</div>
+			);
+		}
+
+		console.log('application insights:', application.insights);
+
+		// Get latest insights for current stage
+		const latestInsight = application.insights
+			.filter((insight) => insight.stage === application.stage)
+			.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+
+		if (!latestInsight) {
+			return (
+				<div className="text-center text-muted-foreground py-8">
+					No insights available for current stage
+				</div>
+			);
+		}
+
+		return latestInsight.data?.map((insightData, index) => (
+			<InsightCard
+				key={`${latestInsight.id}-${index}`}
+				insightData={insightData}
+				onApplyChanges={(changes) => {
+					// TODO: Implement resume changes
+					console.log('Applying changes:', changes);
+				}}
+			/>
+		));
+	}, [application?.insights, application?.stage]);
 
 	if (isLoading) {
 		return <LoadingSkeleton />;
@@ -274,13 +311,22 @@ const ApplicationDetails: React.FC = () => {
 							)}
 						</CardContent>
 					</Card>
-
 					<Card>
 						<CardHeader>
 							<CardTitle>Job Insights</CardTitle>
 							<CardDescription>AI-generated insights about this role</CardDescription>
 						</CardHeader>
-						<CardContent>{/* Add AI insights here */}</CardContent>
+						<CardContent className="space-y-4">
+							{insightsLoading ? (
+								<>
+									<Skeleton className="w-full h-[72px]" />
+									<Skeleton className="w-full h-[72px]" />
+									<Skeleton className="w-full h-[72px]" />
+								</>
+							) : (
+								renderedInsights
+							)}
+						</CardContent>
 					</Card>
 				</div>
 			</div>

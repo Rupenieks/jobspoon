@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Insight" ADD COLUMN     "hidden" BOOLEAN NOT NULL DEFAULT false,
+ALTER COLUMN "data" DROP NOT NULL;

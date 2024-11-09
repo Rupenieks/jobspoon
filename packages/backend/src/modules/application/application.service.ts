@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { InsightService } from '../insight/insight.service';
 
 @Injectable()
 export class ApplicationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private insightService: InsightService,
+  ) {}
 
   async createApplication(resumeId: string, matchId: string) {
     const resume = await this.prisma.resume.findUnique({
@@ -59,6 +63,18 @@ export class ApplicationService {
           data: { applicationId: application.id },
         });
 
+        // After creating the application, trigger insight generation
+        this.insightService
+          .startInsightCreationProcess({
+            applicationId: application.id,
+            stage: 'not_applied',
+            resumeId: duplicatedResume.id,
+            matchId,
+          })
+          .catch((error) => {
+            console.error('Error generating insights:', error);
+          });
+
         return application;
       });
     } catch (err) {
@@ -75,7 +91,7 @@ export class ApplicationService {
   async getApplication(id: string) {
     const application = await this.prisma.application.findUnique({
       where: { id },
-      include: { resume: true, match: true },
+      include: { resume: true, match: true, insights: true },
     });
 
     return application;

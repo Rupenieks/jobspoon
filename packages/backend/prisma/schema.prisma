@@ -89,6 +89,7 @@ model Application {
   notes     String?
 
   insights  Insight[]
+  insightGenerationRequests ApplicationInsightGenerationRequest[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -103,9 +104,25 @@ model Insight {
   applicationId String
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   stage         String      
-  data          Json        
+  data          Json?      
+  hidden        Boolean      @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+
+  @@index([applicationId])
+}
+
+model ApplicationInsightGenerationRequest {
+  id                String      @id @default(uuid())
+  applicationId     String
+  application       Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  resumeId          String // audit field
+  matchId           String // audit field
+  applicationStage  String
+  status           String      @default("STARTED")
+  generatedInsightId String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   @@index([applicationId])
 }
