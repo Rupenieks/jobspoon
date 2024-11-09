@@ -200,7 +200,9 @@ const ApplicationDetails: React.FC = () => {
 							<CardTitle>Resume</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<ResumeEditingWrapper />
+							<ResumeStateProvider resumeId={resumeId}>
+								<ResumeEditingWrapper />
+							</ResumeStateProvider>
 						</CardContent>
 					</Card>
 				</div>
@@ -280,4 +282,4 @@ const ApplicationDetails: React.FC = () => {
 	);
 };
 
-export default withApplicationResumeEditing(ApplicationDetails);
+export default ApplicationDetails;
