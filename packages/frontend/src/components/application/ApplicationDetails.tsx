@@ -18,69 +18,13 @@ import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
 import { Building2, CheckCircle, ChevronLeft, MapPin } from 'lucide-react';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import InsightCard from './insights/InsightCard';
-import ResumeEditingWrapper from './resumes/ResumeEditingWrapper';
-import { ResumeStateProvider } from './resumes/ResumeStateContext';
-import CompanyLogo from './ui/company-logo';
-import { ScrollArea } from './ui/scroll-area';
-
-const LoadingSkeleton: React.FC = React.memo(() => (
-	<div className="container mx-auto p-4 space-y-8">
-		{/* Back Button Skeleton */}
-		<Skeleton className="w-40 h-10" />
-
-		{/* Job Information Section Skeleton */}
-		<div className="bg-white shadow-md rounded-lg p-6">
-			<div className="space-y-4">
-				<div className="flex justify-between items-start">
-					<div className="space-y-2">
-						<Skeleton className="w-64 h-8" /> {/* Job Title */}
-						<div className="space-y-1">
-							<Skeleton className="w-48 h-4" /> {/* Company Name */}
-							<Skeleton className="w-40 h-4" /> {/* Location */}
-						</div>
-					</div>
-					<Skeleton className="w-32 h-4" /> {/* Posted Date */}
-				</div>
-
-				{/* Job Description Skeleton */}
-				<div className="border rounded-lg p-4">
-					<Skeleton className="w-40 h-5 mb-2" /> {/* Description Header */}
-					<div className="space-y-2">
-						<Skeleton className="w-full h-4" />
-						<Skeleton className="w-full h-4" />
-						<Skeleton className="w-3/4 h-4" />
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<Separator />
-
-		{/* Resume Editor Section Skeleton */}
-		<div className="bg-white shadow-md rounded-lg p-6">
-			<Skeleton className="w-32 h-6 mb-4" /> {/* Resume Header */}
-			<div className="space-y-4">
-				<Skeleton className="w-full h-[400px]" /> {/* Resume Editor */}
-			</div>
-		</div>
-
-		<Separator />
-
-		{/* Application Details Section Skeleton */}
-		<div className="grid grid-cols-2 gap-6">
-			<div className="space-y-2">
-				<Skeleton className="w-40 h-6" /> {/* Notes Header */}
-				<Skeleton className="w-full h-[150px]" /> {/* Notes Textarea */}
-			</div>
-
-			<div className="space-y-2">
-				<Skeleton className="w-40 h-6" /> {/* Status Header */}
-				<Skeleton className="w-full h-10" /> {/* Status Select */}
-			</div>
-		</div>
-	</div>
-));
+import InsightCard from '../insights/InsightCard';
+import ResumeEditingWrapper from '../resumes/ResumeEditingWrapper';
+import { ResumeStateProvider } from '../resumes/ResumeStateContext';
+import CompanyLogo from '../ui/company-logo';
+import { ScrollArea } from '../ui/scroll-area';
+import LoadingSkeleton from './ApplicationDetailsLoadingSkeleton';
+import withApplicationResumeEditing from './withApplicationResumeEditing';
 
 const ApplicationDetails: React.FC = () => {
 	const { applicationId } = useParams<{ applicationId: string }>();
@@ -256,9 +200,7 @@ const ApplicationDetails: React.FC = () => {
 							<CardTitle>Resume</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<ResumeStateProvider resumeId={resumeId}>
-								<ResumeEditingWrapper />
-							</ResumeStateProvider>
+							<ResumeEditingWrapper />
 						</CardContent>
 					</Card>
 				</div>
@@ -338,4 +280,4 @@ const ApplicationDetails: React.FC = () => {
 	);
 };
 
-export default ApplicationDetails;
+export default withApplicationResumeEditing(ApplicationDetails);

@@ -1,8 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TInsightData } from '@redundant/common';
-import { AlertCircle, AlertTriangle, Info, Wand2 } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Info } from 'lucide-react';
 
 interface InsightCardProps {
 	insightData: TInsightData;
@@ -40,7 +38,8 @@ const InsightCard: React.FC<InsightCardProps> = ({ insightData, onApplyChanges }
 			<AlertTitle>{insightData.title}</AlertTitle>
 			<AlertDescription className="flex justify-between items-start">
 				<span>{insightData.description}</span>
-				{insightData.resumeChangeData && Object.keys(insightData.resumeChangeData).length > 0 && (
+				{/* TODO: Add apply changes */}
+				{/* {insightData.resumeChangeData && Object.keys(insightData.resumeChangeData).length > 0 && (
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger asChild>
@@ -56,7 +55,7 @@ const InsightCard: React.FC<InsightCardProps> = ({ insightData, onApplyChanges }
 							<TooltipContent>Apply changes</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
-				)}
+				)} */}
 			</AlertDescription>
 		</Alert>
 	);
