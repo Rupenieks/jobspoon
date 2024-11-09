@@ -8,8 +8,9 @@ export class InsightController {
   @Get('application/:applicationId')
   async getInsightsByApplication(
     @Param('applicationId') applicationId: string,
+    @Query('stage') stage: string,
   ) {
-    return this.insightService.getInsightsByApplication(applicationId);
+    return this.insightService.getInsightsByApplication(applicationId, stage);
   }
 
   @Get('application/:applicationId/generation-request')

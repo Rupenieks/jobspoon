@@ -41,7 +41,7 @@ export class ApplicationService {
 
     try {
       // Wrap the creation of duplicate resume and application in a transaction
-      return this.prisma.$transaction(async (prisma) => {
+      const application = await this.prisma.$transaction(async (prisma) => {
         // Create a duplicate resume for this application
         const duplicatedResume = await prisma.resume.create({
           data: {
@@ -64,19 +64,22 @@ export class ApplicationService {
         });
 
         // After creating the application, trigger insight generation
-        this.insightService
-          .startInsightCreationProcess({
-            applicationId: application.id,
-            stage: 'not_applied',
-            resumeId: duplicatedResume.id,
-            matchId,
-          })
-          .catch((error) => {
-            console.error('Error generating insights:', error);
-          });
 
         return application;
       });
+
+      this.insightService
+        .startInsightCreationProcess({
+          applicationId: application.id,
+          stage: 'not_applied',
+          resumeId: application.resumeId,
+          matchId,
+        })
+        .catch((error) => {
+          console.error('Error generating insights:', error);
+        });
+
+      return application;
     } catch (err) {
       throw new Error(err);
     }

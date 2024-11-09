@@ -11,17 +11,18 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { usePollInsightGenerationRequest } from '@/hooks/usePollInsightGenerationRequest';
 import { useReadApplication } from '@/hooks/useReadApplication';
+import { useReadInsights } from '@/hooks/useReadInsights';
 import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
 import { Building2, CheckCircle, ChevronLeft, MapPin } from 'lucide-react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import InsightCard from './insights/InsightCard';
 import ResumeEditingWrapper from './resumes/ResumeEditingWrapper';
 import { ResumeStateProvider } from './resumes/ResumeStateContext';
 import CompanyLogo from './ui/company-logo';
 import { ScrollArea } from './ui/scroll-area';
-import { usePollingInsights } from '@/hooks/usePollingInsights';
-import InsightCard from './insights/InsightCard';
 
 const LoadingSkeleton: React.FC = React.memo(() => (
 	<div className="container mx-auto p-4 space-y-8">
@@ -85,8 +86,6 @@ const ApplicationDetails: React.FC = () => {
 	const { applicationId } = useParams<{ applicationId: string }>();
 	const navigate = useNavigate();
 	const { data: application, isLoading } = useReadApplication(applicationId);
-	const [notes, setNotes] = useState('');
-	const [status, setStatus] = useState('started');
 
 	const resumeId = useMemo(() => application?.resume.id, [application?.resume.id]);
 
@@ -96,21 +95,26 @@ const ApplicationDetails: React.FC = () => {
 
 	const { mutate: updateStage } = useUpdateApplicationStage();
 
-	const { isLoading: insightsLoading } = usePollingInsights(applicationId ?? undefined);
+	// Poll for generation request
+	const { isPolling: isPollingInsightsGenerationRequest } = usePollInsightGenerationRequest(
+		applicationId,
+		application?.stage
+	);
 
+	const { isLoading: insightsLoading, insights } = useReadInsights(
+		applicationId,
+		application?.stage
+	);
 	const renderedInsights = useMemo(() => {
-		if (!application?.insights || application.insights.length === 0) {
-			return (
-				<div className="text-center text-muted-foreground py-8">No insights available yet</div>
-			);
+		console.log('Insights', insights);
+		if (!insights || (insights && insights.length === 0)) {
+			return <div className="text-center text-muted-foreground py-8">No insights available</div>;
 		}
 
-		console.log('application insights:', application.insights);
-
 		// Get latest insights for current stage
-		const latestInsight = application.insights
-			.filter((insight) => insight.stage === application.stage)
-			.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+		const latestInsight = insights?.sort(
+			(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+		)[0];
 
 		if (!latestInsight) {
 			return (
@@ -130,7 +134,7 @@ const ApplicationDetails: React.FC = () => {
 				}}
 			/>
 		));
-	}, [application?.insights, application?.stage]);
+	}, [insights]);
 
 	if (isLoading) {
 		return <LoadingSkeleton />;
@@ -300,7 +304,7 @@ const ApplicationDetails: React.FC = () => {
 												<Badge variant="secondary">Interview</Badge>
 											</SelectItem>
 											<SelectItem value="success">
-												<Badge variant="success">Success</Badge>
+												<Badge variant="outline">Success</Badge>
 											</SelectItem>
 											<SelectItem value="rejected">
 												<Badge variant="destructive">Rejected</Badge>
@@ -317,7 +321,7 @@ const ApplicationDetails: React.FC = () => {
 							<CardDescription>AI-generated insights about this role</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							{insightsLoading ? (
+							{insightsLoading || isPollingInsightsGenerationRequest ? (
 								<>
 									<Skeleton className="w-full h-[72px]" />
 									<Skeleton className="w-full h-[72px]" />

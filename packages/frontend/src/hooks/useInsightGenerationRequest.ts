@@ -11,5 +11,6 @@ export const useInsightGenerationRequest = (applicationId: string | undefined, s
 			return data;
 		},
 		enabled: !!applicationId && !!stage,
+		staleTime: 0,
 	});
 };

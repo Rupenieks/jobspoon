@@ -30,10 +30,11 @@ export class InsightService {
     });
   }
 
-  async getInsightsByApplication(applicationId: string) {
+  async getInsightsByApplication(applicationId: string, stage?: string) {
     return this.prisma.insight.findMany({
       where: {
         applicationId,
+        stage,
       },
       orderBy: {
         createdAt: 'desc',
