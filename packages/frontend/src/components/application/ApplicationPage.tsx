@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button';
+import { useReadApplication } from '@/hooks/useReadApplication';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useReadApplication } from '@/hooks/useReadApplication';
-import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
-import ApplicationStepper from './ApplicationStepper';
 import ApplicationDetails from './ApplicationDetails';
-import { AnimatePresence, motion } from 'framer-motion';
+import ApplicationStepper from './ApplicationStepper';
+import AppliedStage from './AppliedStage';
 
 const stages = ['not_applied', 'applied', 'interview', 'success'] as const;
 
@@ -14,7 +14,6 @@ const ApplicationPage: React.FC = () => {
 	const { applicationId } = useParams<{ applicationId: string }>();
 	const navigate = useNavigate();
 	const { data: application, isLoading } = useReadApplication(applicationId);
-	const { mutate: updateStage } = useUpdateApplicationStage();
 	const [activeStage, setActiveStage] = useState<
 		'not_applied' | 'applied' | 'interview' | 'success' | 'rejected'
 	>(application?.stage || 'not_applied');
@@ -24,7 +23,9 @@ const ApplicationPage: React.FC = () => {
 		navigate('/applications');
 	};
 
-	const handleStageChange = (newStage: 'not_applied' | 'applied' | 'interview' | 'success') => {
+	const handleStageChange = (
+		newStage: 'not_applied' | 'applied' | 'interview' | 'success' | 'rejected'
+	) => {
 		const currentIndex = stages.indexOf(activeStage as any);
 		const newIndex = stages.indexOf(newStage);
 		setDirection(newIndex > currentIndex ? 1 : -1);
@@ -34,9 +35,9 @@ const ApplicationPage: React.FC = () => {
 	const currentView = useMemo(() => {
 		switch (activeStage) {
 			case 'not_applied':
-				return <ApplicationDetails />;
+				return <ApplicationDetails onChangeStage={handleStageChange} />;
 			case 'applied':
-				return <div>Applied</div>;
+				return <AppliedStage />;
 			case 'interview':
 				return <div>Interview</div>;
 			case 'success':

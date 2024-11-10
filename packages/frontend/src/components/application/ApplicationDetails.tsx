@@ -1,45 +1,61 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePollInsightGenerationRequest } from '@/hooks/usePollInsightGenerationRequest';
 import { useReadApplication } from '@/hooks/useReadApplication';
 import { useReadInsights } from '@/hooks/useReadInsights';
 import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
-import { Building2, CheckCircle, ChevronLeft, MapPin, Play } from 'lucide-react';
-import React, { useCallback, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { Building2, Check, MapPin, Play } from 'lucide-react';
+import React, { useCallback, useMemo, useState } from 'react';
+import ReactConfetti from 'react-confetti';
+import { useParams } from 'react-router-dom';
 import InsightCard from '../insights/InsightCard';
 import ResumeEditingWrapper from '../resumes/ResumeEditingWrapper';
 import { ResumeStateProvider } from '../resumes/ResumeStateContext';
 import CompanyLogo from '../ui/company-logo';
 import { ScrollArea } from '../ui/scroll-area';
 import LoadingSkeleton from './ApplicationDetailsLoadingSkeleton';
-import withApplicationResumeEditing from './withApplicationResumeEditing';
-import { cn } from '@/lib/utils';
 
-const ApplicationDetails: React.FC = () => {
+const ApplicationDetails: React.FC<{
+	onChangeStage: (stage: 'applied' | 'interview' | 'success' | 'rejected') => void;
+}> = ({ onChangeStage }) => {
 	const { applicationId } = useParams<{ applicationId: string }>();
-	const navigate = useNavigate();
 	const { data: application, isLoading } = useReadApplication(applicationId);
 
 	const resumeId = useMemo(() => application?.resume.id, [application?.resume.id]);
 
 	const { mutate: updateStage } = useUpdateApplicationStage();
 
-	const handleStartApplication = useCallback(() => {
-		if (!application) return;
-		updateStage({ applicationId: application.id, stage: 'applied' });
-	}, [updateStage, application]);
+	const [showConfetti, setShowConfetti] = useState(false);
+	const [buttonRect, setButtonRect] = useState({ x: 0, y: 0, width: 0, height: 0 });
+
+	const handleStartApplication = useCallback(
+		(event: React.MouseEvent<HTMLDivElement>) => {
+			if (!application) return;
+
+			if (application.stage === 'not_applied') {
+				// Get the button's position and dimensions for confetti
+				const rect = event.currentTarget.getBoundingClientRect();
+				setButtonRect({
+					x: rect.x,
+					y: rect.y,
+					width: rect.width,
+					height: rect.height,
+				});
+
+				setShowConfetti(true);
+				updateStage({ applicationId: application.id, stage: 'applied' });
+				onChangeStage('applied');
+				setTimeout(() => setShowConfetti(false), 1000);
+			} else {
+				// If already applied, just navigate to current stage
+				onChangeStage(application.stage as 'applied' | 'interview' | 'success' | 'rejected');
+			}
+		},
+		[updateStage, application, onChangeStage]
+	);
 
 	// Poll for generation request
 	const { isPolling: isPollingInsightsGenerationRequest } = usePollInsightGenerationRequest(
@@ -47,12 +63,8 @@ const ApplicationDetails: React.FC = () => {
 		application?.stage
 	);
 
-	const { isLoading: insightsLoading, insights } = useReadInsights(
-		applicationId,
-		application?.stage
-	);
+	const { isLoading: insightsLoading, insights } = useReadInsights(applicationId, 'not_applied');
 	const renderedInsights = useMemo(() => {
-		console.log('Insights', insights);
 		if (!insights || (insights && insights.length === 0)) {
 			return <div className="text-center text-muted-foreground py-8">No insights available</div>;
 		}
@@ -207,26 +219,59 @@ const ApplicationDetails: React.FC = () => {
 
 				{/* Right Column - Application Progress */}
 				<div className="space-y-6">
-					<Card
-						className={cn(
-							'bg-emerald-50 hover:bg-emerald-100 cursor-pointer',
-							'transition-colors duration-200',
-							'flex items-center justify-between p-6'
+					<div className="relative">
+						<Card
+							className={cn(
+								'bg-emerald-50 hover:bg-emerald-100 cursor-pointer',
+								'transition-colors duration-200',
+								'flex items-center justify-between p-6',
+								application.stage !== 'not_applied' && 'opacity-75'
+							)}
+							onClick={handleStartApplication}
+						>
+							<div className="space-y-1.5">
+								<h3 className="text-xl font-semibold text-emerald-900">
+									{application.stage === 'not_applied'
+										? 'Click when you have applied'
+										: 'You have already applied'}
+								</h3>
+								<CardDescription className="text-emerald-700">
+									{application.stage === 'not_applied'
+										? "We'll help you handle the next steps"
+										: 'Click here to go to current stage'}
+								</CardDescription>
+							</div>
+							<div className="flex items-center justify-center h-12 w-12 rounded-full bg-emerald-500 text-white">
+								{application.stage === 'not_applied' ? (
+									<Play className="h-6 w-6" />
+								) : (
+									<Check className="h-6 w-6" />
+								)}
+							</div>
+						</Card>
+						{showConfetti && (
+							<ReactConfetti
+								width={buttonRect.width}
+								height={300}
+								recycle={false}
+								numberOfPieces={50}
+								gravity={0.5}
+								initialVelocityY={3}
+								confettiSource={{
+									x: buttonRect.x,
+									y: buttonRect.y,
+									w: buttonRect.width,
+									h: 0,
+								}}
+								style={{
+									position: 'absolute',
+									top: 0,
+									left: 0,
+									pointerEvents: 'none',
+								}}
+							/>
 						)}
-						onClick={handleStartApplication}
-					>
-						<div className="space-y-1.5">
-							<h3 className="text-xl font-semibold text-emerald-900">
-								Click when you have applied
-							</h3>
-							<CardDescription className="text-emerald-700">
-								We'll help you handle the next steps
-							</CardDescription>
-						</div>
-						<div className="flex items-center justify-center h-12 w-12 rounded-full bg-emerald-500 text-white">
-							<Play className="h-6 w-6" />
-						</div>
-					</Card>
+					</div>
 					<Card>
 						<CardHeader>
 							<CardTitle>Tips</CardTitle>

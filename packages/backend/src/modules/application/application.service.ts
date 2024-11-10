@@ -116,10 +116,23 @@ export class ApplicationService {
   }
 
   async updateApplicationStage(id: string, stage: string) {
-    return this.prisma.application.update({
+    const updatedApplication = await this.prisma.application.update({
       where: { id },
       data: { stage },
       include: { resume: true, match: true },
     });
+
+    this.insightService
+      .startInsightCreationProcess({
+        applicationId: updatedApplication.id,
+        stage,
+        resumeId: updatedApplication.resumeId,
+        matchId: updatedApplication.matchId,
+      })
+      .catch((error) => {
+        console.error('Error generating insights:', error);
+      });
+
+    return updatedApplication;
   }
 }

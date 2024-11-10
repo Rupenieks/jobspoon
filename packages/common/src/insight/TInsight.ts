@@ -7,6 +7,14 @@ export const InsightDataSchema = z.object({
 	description: z.string(),
 	insightColor: z.enum(['default', 'warning', 'danger']).default('default'),
 	resumeChangeData: ResumeDataSchema.partial().nullish(),
+	additionalData: z
+		.array(
+			z.object({
+				label: z.string(),
+				text: z.string(),
+			})
+		)
+		.nullish(),
 });
 
 export const InsightBaseSchema = z.object({

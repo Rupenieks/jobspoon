@@ -23,8 +23,10 @@ export class AssistantService {
     process.env.RESUME_PARSER_ASSISTANT_ID ?? '';
   private resumeModifierAssistantId: string =
     process.env.RESUME_MODIFIER_ASSISTANT_ID ?? '';
-  private insightGeneratorAssistantId: string =
-    process.env.INSIGHT_GENERATOR_ASSISTANT_ID ?? '';
+  private insightGeneratorNotAppliedAssistantId: string =
+    process.env.INSIGHT_GENERATOR_ASSISTANT_NOT_APPLIED_ID ?? '';
+  private insightGeneratorAppliedAssistantId: string =
+    process.env.INSIGHT_GENERATOR_ASSISTANT_APPLIED_ID ?? '';
 
   constructor(private readonly prismaService: PrismaService) {
     this.openai = new OpenAI({
@@ -92,9 +94,23 @@ export class AssistantService {
       `Sending request to OpenAI assistant for insights generation`,
     );
 
+    let userInput: string;
+    let assistantId: string;
+    if (application.stage === 'not_applied') {
+      assistantId = this.insightGeneratorNotAppliedAssistantId;
+      userInput = `Here is the resume: ${resumeText}\n\nHere is the job description: ${jobDescription}`;
+    } else if (application.stage === 'applied') {
+      assistantId = this.insightGeneratorAppliedAssistantId;
+      const companyInfo = match.company;
+      delete companyInfo.technologies;
+      userInput = `Here is the job description: ${jobDescription}\n\nHere is the company information: ${JSON.stringify(companyInfo)}`;
+    } else {
+      assistantId = this.insightGeneratorAppliedAssistantId;
+    }
+
     const output = await this.getAssistantOutput({
-      assistantId: this.insightGeneratorAssistantId,
-      userInput: `Here is the resume: ${resumeText}\n\nHere is the job description: ${jobDescription}`,
+      assistantId: assistantId,
+      userInput,
     });
 
     this.logger.debug(`Received raw output from OpenAI assistant`);

@@ -1,5 +1,5 @@
+import axiosInstance from '@/utils/axiosConfig';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 
 export const useUpdateApplicationStage = () => {
 	const queryClient = useQueryClient();
@@ -12,11 +12,12 @@ export const useUpdateApplicationStage = () => {
 			applicationId: string;
 			stage: 'not_applied' | 'applied' | 'interview' | 'rejected' | 'success';
 		}) => {
-			const { data } = await axios.patch(`/api/applications/${applicationId}/stage`, { stage });
+			const { data } = await axiosInstance.patch(`/applications/${applicationId}/stage`, { stage });
 			return data;
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['applications'] });
+		onSuccess: (_, { applicationId }) => {
+			console.log('Invalidating application', applicationId);
+			queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
 		},
 	});
 };

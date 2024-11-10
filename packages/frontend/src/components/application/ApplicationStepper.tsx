@@ -23,16 +23,16 @@ const ApplicationStepper: React.FC<ApplicationStepperProps> = ({
 }) => {
 	const currentIndex = stages.findIndex((stage) => stage.id === applicationStage);
 	const progressPercentage = currentIndex === -1 ? 0 : (currentIndex / (stages.length - 1)) * 100;
+
 	return (
 		<div className="w-full">
 			<div className="relative flex flex-col justify-between mb-8 gap-4">
 				<div className="flex justify-between">
-					{/* Steps */}
 					{stages.map((stage, index) => {
 						const Icon = stage.icon;
 						const isActive = currentStage === stage.id;
 						const isCompleted = currentIndex > index;
-						const isClickable = index <= currentIndex + 1;
+						const isClickable = index <= currentIndex;
 
 						return (
 							<div
@@ -48,7 +48,7 @@ const ApplicationStepper: React.FC<ApplicationStepperProps> = ({
 									className={cn(
 										'z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background',
 										isActive && 'border-primary bg-primary text-primary-foreground',
-										isCompleted && 'border-primary bg-primary text-primary-foreground',
+										isCompleted && 'border-emerald-500 bg-emerald-500 text-white',
 										!isActive && !isCompleted && 'border-gray-300'
 									)}
 								>
@@ -58,7 +58,8 @@ const ApplicationStepper: React.FC<ApplicationStepperProps> = ({
 									className={cn(
 										'mt-2 text-sm font-medium',
 										isActive && 'text-primary',
-										!isActive && 'text-gray-500'
+										isCompleted && 'text-emerald-500',
+										!isActive && !isCompleted && 'text-gray-500'
 									)}
 								>
 									{stage.label}
@@ -68,7 +69,13 @@ const ApplicationStepper: React.FC<ApplicationStepperProps> = ({
 					})}
 				</div>
 
-				<Progress value={progressPercentage} className="h-1" />
+				<Progress
+					value={progressPercentage}
+					className={cn(
+						'h-1',
+						currentIndex > 0 && 'bg-emerald-100 [&>[role=progressbar]]:bg-emerald-500'
+					)}
+				/>
 			</div>
 		</div>
 	);

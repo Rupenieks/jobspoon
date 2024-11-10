@@ -36,26 +36,19 @@ const InsightCard: React.FC<InsightCardProps> = ({ insightData, onApplyChanges }
 		<Alert variant={getVariant()}>
 			<Icon className="h-4 w-4" />
 			<AlertTitle>{insightData.title}</AlertTitle>
-			<AlertDescription className="flex justify-between items-start">
-				<span>{insightData.description}</span>
-				{/* TODO: Add apply changes */}
-				{/* {insightData.resumeChangeData && Object.keys(insightData.resumeChangeData).length > 0 && (
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<Button
-									variant="ghost"
-									size="icon"
-									className="ml-2"
-									onClick={() => onApplyChanges?.(insightData.resumeChangeData)}
-								>
-									<Wand2 className="h-4 w-4" />
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent>Apply changes</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
-				)} */}
+			<AlertDescription className="space-y-2">
+				<p>{insightData.description}</p>
+
+				{insightData.additionalData && insightData.additionalData.length > 0 && (
+					<div className="mt-4 grid grid-cols-2 gap-2 text-sm border-t pt-2">
+						{insightData.additionalData.map((item, index) => (
+							<div key={index} className="flex flex-col">
+								<span className="text-muted-foreground font-medium">{item.label}</span>
+								<span>{item.text}</span>
+							</div>
+						))}
+					</div>
+				)}
 			</AlertDescription>
 		</Alert>
 	);
