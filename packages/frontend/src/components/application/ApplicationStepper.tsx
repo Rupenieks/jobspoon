@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 interface ApplicationStepperProps {
 	currentStage: 'not_applied' | 'applied' | 'interview' | 'success' | 'rejected';
 	onStageChange: (stage: 'not_applied' | 'applied' | 'interview' | 'success') => void;
+	applicationStage: 'not_applied' | 'applied' | 'interview' | 'success' | 'rejected';
 }
 
 const stages = [
@@ -15,8 +16,12 @@ const stages = [
 	{ id: 'success', label: 'Success', icon: Star },
 ] as const;
 
-const ApplicationStepper: React.FC<ApplicationStepperProps> = ({ currentStage, onStageChange }) => {
-	const currentIndex = stages.findIndex((stage) => stage.id === currentStage);
+const ApplicationStepper: React.FC<ApplicationStepperProps> = ({
+	currentStage,
+	onStageChange,
+	applicationStage,
+}) => {
+	const currentIndex = stages.findIndex((stage) => stage.id === applicationStage);
 	const progressPercentage = currentIndex === -1 ? 0 : (currentIndex / (stages.length - 1)) * 100;
 	return (
 		<div className="w-full">
