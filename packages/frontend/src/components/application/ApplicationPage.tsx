@@ -38,7 +38,7 @@ const ApplicationPage: React.FC = () => {
 			case 'not_applied':
 				return <ApplicationDetails onChangeStage={handleStageChange} />;
 			case 'applied':
-				return <AppliedStage />;
+				return <AppliedStage onStageChange={handleStageChange} />;
 			case 'interview':
 				return <div>Interview</div>;
 			case 'success':

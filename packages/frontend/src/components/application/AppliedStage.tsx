@@ -9,7 +9,9 @@ import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
 import InsightCard from '../insights/InsightCard';
 import { Skeleton } from '../ui/skeleton';
 
-const AppliedStage: React.FC = () => {
+const AppliedStage: React.FC<{ onStageChange: (stage: 'interview' | 'rejected') => void }> = ({
+	onStageChange,
+}) => {
 	const { applicationId } = useParams<{ applicationId: string }>();
 	const { mutate: updateStage } = useUpdateApplicationStage();
 
@@ -51,8 +53,9 @@ const AppliedStage: React.FC = () => {
 		(newStage: 'interview' | 'rejected') => {
 			if (!applicationId) return;
 			updateStage({ applicationId, stage: newStage });
+			onStageChange(newStage);
 		},
-		[applicationId, updateStage]
+		[applicationId, updateStage, onStageChange]
 	);
 
 	return (
