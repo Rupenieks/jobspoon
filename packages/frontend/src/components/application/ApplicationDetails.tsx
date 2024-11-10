@@ -15,7 +15,7 @@ import { usePollInsightGenerationRequest } from '@/hooks/usePollInsightGeneratio
 import { useReadApplication } from '@/hooks/useReadApplication';
 import { useReadInsights } from '@/hooks/useReadInsights';
 import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
-import { Building2, CheckCircle, ChevronLeft, MapPin } from 'lucide-react';
+import { Building2, CheckCircle, ChevronLeft, MapPin, Play } from 'lucide-react';
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import InsightCard from '../insights/InsightCard';
@@ -25,6 +25,7 @@ import CompanyLogo from '../ui/company-logo';
 import { ScrollArea } from '../ui/scroll-area';
 import LoadingSkeleton from './ApplicationDetailsLoadingSkeleton';
 import withApplicationResumeEditing from './withApplicationResumeEditing';
+import { cn } from '@/lib/utils';
 
 const ApplicationDetails: React.FC = () => {
 	const { applicationId } = useParams<{ applicationId: string }>();
@@ -33,11 +34,12 @@ const ApplicationDetails: React.FC = () => {
 
 	const resumeId = useMemo(() => application?.resume.id, [application?.resume.id]);
 
-	const handleGoBack = useCallback(() => {
-		navigate('/applications');
-	}, [navigate]);
-
 	const { mutate: updateStage } = useUpdateApplicationStage();
+
+	const handleStartApplication = useCallback(() => {
+		if (!application) return;
+		updateStage({ applicationId: application.id, stage: 'applied' });
+	}, [updateStage, application]);
 
 	// Poll for generation request
 	const { isPolling: isPollingInsightsGenerationRequest } = usePollInsightGenerationRequest(
@@ -205,60 +207,30 @@ const ApplicationDetails: React.FC = () => {
 
 				{/* Right Column - Application Progress */}
 				<div className="space-y-6">
-					<Card>
-						<CardHeader>
-							<CardTitle>Application Progress</CardTitle>
-							<CardDescription>
-								When you have finished your resume and applied to the job, click here and we'll
-								provide you tips to help you succeed
+					<Card
+						className={cn(
+							'bg-emerald-50 hover:bg-emerald-100 cursor-pointer',
+							'transition-colors duration-200',
+							'flex items-center justify-between p-6'
+						)}
+						onClick={handleStartApplication}
+					>
+						<div className="space-y-1.5">
+							<h3 className="text-xl font-semibold text-emerald-900">
+								Click when you have applied
+							</h3>
+							<CardDescription className="text-emerald-700">
+								We'll help you handle the next steps
 							</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							{application.stage === 'not_applied' ? (
-								<Button
-									className="w-full"
-									variant="default"
-									onClick={() => updateStage({ applicationId: application.id, stage: 'applied' })}
-								>
-									<CheckCircle className="mr-2 h-4 w-4" />I have applied
-								</Button>
-							) : (
-								<div className="space-y-4">
-									<Select
-										value={application.stage}
-										onValueChange={(value) =>
-											updateStage({
-												applicationId: application.id,
-												stage: value as any,
-											})
-										}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="applied">
-												<Badge variant="default">Applied</Badge>
-											</SelectItem>
-											<SelectItem value="interview">
-												<Badge variant="secondary">Interview</Badge>
-											</SelectItem>
-											<SelectItem value="success">
-												<Badge variant="outline">Success</Badge>
-											</SelectItem>
-											<SelectItem value="rejected">
-												<Badge variant="destructive">Rejected</Badge>
-											</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-							)}
-						</CardContent>
+						</div>
+						<div className="flex items-center justify-center h-12 w-12 rounded-full bg-emerald-500 text-white">
+							<Play className="h-6 w-6" />
+						</div>
 					</Card>
 					<Card>
 						<CardHeader>
-							<CardTitle>Job Insights</CardTitle>
-							<CardDescription>AI-generated insights about this role</CardDescription>
+							<CardTitle>Tips</CardTitle>
+							<CardDescription>Consider these points to help you succeed</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							{insightsLoading || isPollingInsightsGenerationRequest ? (
