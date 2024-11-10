@@ -25,6 +25,39 @@ import { toast } from '@/hooks/use-toast';
 import { useDeleteApplications } from '@/hooks/useDeleteApplications';
 import CompanyLogo from './ui/company-logo';
 
+const getStatusBadge = (stage: string) => {
+	switch (stage) {
+		case 'not_applied':
+			return <Badge variant="secondary">Not Applied</Badge>;
+		case 'applied':
+			return (
+				<Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">
+					Applied
+				</Badge>
+			);
+		case 'interview':
+			return (
+				<Badge variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-100">
+					Interview
+				</Badge>
+			);
+		case 'success':
+			return (
+				<Badge variant="secondary" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+					Success
+				</Badge>
+			);
+		case 'rejected':
+			return (
+				<Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100">
+					Rejected
+				</Badge>
+			);
+		default:
+			return <Badge variant="secondary">Unknown</Badge>;
+	}
+};
+
 const Applications: React.FC = () => {
 	const { data: applications, isLoading } = useReadApplications();
 	const { mutateAsync: deleteApplication } = useDeleteApplications();
@@ -99,9 +132,7 @@ const Applications: React.FC = () => {
 								</TableCell>
 								<TableCell>{application.match.positionTitle}</TableCell>
 
-								<TableCell>
-									<Badge variant="secondary">Started</Badge>
-								</TableCell>
+								<TableCell>{getStatusBadge(application.stage)}</TableCell>
 								<TableCell>
 									<TooltipProvider>
 										<Tooltip delayDuration={100}>
