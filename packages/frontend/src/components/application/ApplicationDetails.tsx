@@ -90,10 +90,6 @@ const ApplicationDetails: React.FC = () => {
 
 	return (
 		<div className="container mx-auto p-4 space-y-6">
-			<Button variant="ghost" onClick={handleGoBack}>
-				<ChevronLeft className="mr-2 h-4 w-4" /> Back to Applications
-			</Button>
-
 			<div className="grid grid-cols-3 gap-6">
 				{/* Left Column - Company & Job Info */}
 				<div className="col-span-2 space-y-6">

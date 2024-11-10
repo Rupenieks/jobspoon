@@ -20,7 +20,7 @@ export class TheirStackService {
         ...query,
         page: 0,
         limit: 25,
-        blur_company_data: true,
+        // blur_company_data: true,
       },
     };
 
@@ -73,7 +73,7 @@ export class TheirStackService {
       salary: job.salary_string,
       reposted: job.reposted,
       dateReposted: job.date_reposted,
-      hiringTeam: job.hiring_team?.map(member => ({
+      hiringTeam: job.hiring_team?.map((member) => ({
         firstName: member.first_name,
         fullName: member.full_name,
         linkedinUrl: member.linkedin_url,
@@ -136,7 +136,9 @@ export class TheirStackService {
 
     // Location filters
     if (resumeData.personalInfo?.country) {
-      query.job_country_code_or = [this.countryToISO(resumeData.personalInfo.country)];
+      query.job_country_code_or = [
+        this.countryToISO(resumeData.personalInfo.country),
+      ];
     }
 
     if (resumeData.personalInfo?.city) {

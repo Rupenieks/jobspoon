@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useReadApplication } from '@/hooks/useReadApplication';
 import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
 import ApplicationStepper from './ApplicationStepper';
+import ApplicationDetails from './ApplicationDetails';
 
 const ApplicationPage: React.FC = () => {
 	const { applicationId } = useParams<{ applicationId: string }>();
@@ -35,6 +36,8 @@ const ApplicationPage: React.FC = () => {
 			<div className="max-w-3xl mx-auto">
 				<ApplicationStepper currentStage={application.stage} onStageChange={handleStageChange} />
 			</div>
+
+			<ApplicationDetails />
 		</div>
 	);
 };

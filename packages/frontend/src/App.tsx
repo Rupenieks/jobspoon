@@ -9,7 +9,7 @@ import ResumeList from './components/ResumeList';
 import Resumes from './components/Resumes';
 import Start from './components/Start';
 import Applications from './components/Applications';
-import ApplicationDetails from './components/application/ApplicationDetails';
+import ApplicationPage from './components/application/ApplicationPage';
 
 const App: React.FC = () => {
 	const { loading, isAuthenticated } = useAuth();
@@ -34,7 +34,7 @@ const LayoutWrapper = React.memo(() => (
 			</Route>
 			<Route path="/matches" element={<Matches />} />
 			<Route path="/applications" element={<Applications />} />
-			<Route path="/applications/:applicationId" element={<ApplicationDetails />} />
+			<Route path="/applications/:applicationId" element={<ApplicationPage />} />
 			<Route path="*" element={<Navigate to="/start" replace />} />
 		</Routes>
 	</Layout>
