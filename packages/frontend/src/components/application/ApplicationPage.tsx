@@ -8,8 +8,29 @@ import ApplicationDetails from './ApplicationDetails';
 import ApplicationStepper from './ApplicationStepper';
 import AppliedStage from './AppliedStage';
 import RejectedStage from './RejectedStage';
+import { Skeleton } from '../ui/skeleton';
 
 const stages = ['not_applied', 'applied', 'interview', 'success'] as const;
+
+const LoadingSkeleton = () => (
+	<div className="container mx-auto p-4 space-y-6">
+		<Skeleton className="h-10 w-40" /> {/* Back button */}
+		<div className="max-w-3xl mx-auto">
+			<div className="flex justify-between mb-8">
+				{[...Array(4)].map((_, i) => (
+					<div key={i} className="flex flex-col items-center gap-2">
+						<Skeleton className="h-10 w-10 rounded-full" />
+						<Skeleton className="h-4 w-16" />
+					</div>
+				))}
+			</div>
+			<Skeleton className="h-1 w-full" /> {/* Progress bar */}
+		</div>
+		<div className="space-y-4">
+			<Skeleton className="h-[400px] w-full" /> {/* Main content area */}
+		</div>
+	</div>
+);
 
 const ApplicationPage: React.FC = () => {
 	const { applicationId } = useParams<{ applicationId: string }>();
@@ -17,8 +38,15 @@ const ApplicationPage: React.FC = () => {
 	const { data: application, isLoading } = useReadApplication(applicationId);
 	const [activeStage, setActiveStage] = useState<
 		'not_applied' | 'applied' | 'interview' | 'success' | 'rejected'
-	>(application?.stage || 'not_applied');
+	>();
 	const [direction, setDirection] = useState(1); // 1 for forward, -1 for backward
+
+	// Only set active stage once application is loaded
+	React.useEffect(() => {
+		if (application) {
+			setActiveStage(application.stage);
+		}
+	}, [application]);
 
 	const handleGoBack = () => {
 		navigate('/applications');
@@ -27,6 +55,8 @@ const ApplicationPage: React.FC = () => {
 	const handleStageChange = (
 		newStage: 'not_applied' | 'applied' | 'interview' | 'success' | 'rejected'
 	) => {
+		if (!application) return;
+
 		const currentIndex = stages.indexOf(activeStage as any);
 		const newIndex = stages.indexOf(newStage);
 		setDirection(newIndex > currentIndex ? 1 : -1);
@@ -34,6 +64,8 @@ const ApplicationPage: React.FC = () => {
 	};
 
 	const currentView = useMemo(() => {
+		if (!application || !activeStage) return null;
+
 		switch (activeStage) {
 			case 'not_applied':
 				return <ApplicationDetails onChangeStage={handleStageChange} />;
@@ -46,10 +78,10 @@ const ApplicationPage: React.FC = () => {
 			case 'rejected':
 				return <RejectedStage />;
 		}
-	}, [activeStage]);
+	}, [activeStage, application]);
 
-	if (isLoading || !application) {
-		return <div>Loading...</div>;
+	if (isLoading || !application || !activeStage) {
+		return <LoadingSkeleton />;
 	}
 
 	return (

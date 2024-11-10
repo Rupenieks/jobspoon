@@ -57,16 +57,16 @@ const InsightCard: React.FC<InsightCardProps> = ({ insightData, onApplyChanges }
 	return (
 		<Alert className={getStyles()}>
 			<Icon className={`h-4 w-4 ${getMutedStyles()}`} />
-			<AlertTitle>{insightData.title}</AlertTitle>
+			<AlertTitle className="line-clamp-1">{insightData.title}</AlertTitle>
 			<AlertDescription className="space-y-2">
 				<p className={getDescriptionStyles()}>{insightData.description}</p>
 
 				{insightData.additionalData && insightData.additionalData.length > 0 && (
 					<div className="mt-4 grid grid-cols-2 gap-2 text-sm border-t pt-2 border-current border-opacity-10">
 						{insightData.additionalData.map((item, index) => (
-							<div key={index} className="flex flex-col">
-								<span className={`font-medium ${getMutedStyles()}`}>{item.label}</span>
-								<span className={getDescriptionStyles()}>{item.text}</span>
+							<div key={index} className="flex flex-col min-w-0">
+								<span className={`font-medium ${getMutedStyles()} truncate`}>{item.label}</span>
+								<span className={`${getDescriptionStyles()} break-words`}>{item.text}</span>
 							</div>
 						))}
 					</div>
