@@ -19,32 +19,54 @@ const InsightCard: React.FC<InsightCardProps> = ({ insightData, onApplyChanges }
 		}
 	};
 
-	const getVariant = () => {
+	const getStyles = () => {
 		switch (insightData.insightColor) {
 			case 'danger':
-				return 'destructive';
+				return 'bg-red-50 border-red-200 text-red-900';
 			case 'warning':
-				return 'default';
+				return 'bg-amber-50 border-amber-200 text-amber-900';
 			default:
-				return 'default';
+				return 'bg-blue-50 border-blue-200 text-blue-900';
+		}
+	};
+
+	const getDescriptionStyles = () => {
+		switch (insightData.insightColor) {
+			case 'danger':
+				return 'text-red-700';
+			case 'warning':
+				return 'text-amber-700';
+			default:
+				return 'text-blue-700';
+		}
+	};
+
+	const getMutedStyles = () => {
+		switch (insightData.insightColor) {
+			case 'danger':
+				return 'text-red-500';
+			case 'warning':
+				return 'text-amber-500';
+			default:
+				return 'text-blue-500';
 		}
 	};
 
 	const Icon = getIcon();
 
 	return (
-		<Alert variant={getVariant()}>
-			<Icon className="h-4 w-4" />
+		<Alert className={getStyles()}>
+			<Icon className={`h-4 w-4 ${getMutedStyles()}`} />
 			<AlertTitle>{insightData.title}</AlertTitle>
 			<AlertDescription className="space-y-2">
-				<p>{insightData.description}</p>
+				<p className={getDescriptionStyles()}>{insightData.description}</p>
 
 				{insightData.additionalData && insightData.additionalData.length > 0 && (
-					<div className="mt-4 grid grid-cols-2 gap-2 text-sm border-t pt-2">
+					<div className="mt-4 grid grid-cols-2 gap-2 text-sm border-t pt-2 border-current border-opacity-10">
 						{insightData.additionalData.map((item, index) => (
 							<div key={index} className="flex flex-col">
-								<span className="text-muted-foreground font-medium">{item.label}</span>
-								<span>{item.text}</span>
+								<span className={`font-medium ${getMutedStyles()}`}>{item.label}</span>
+								<span className={getDescriptionStyles()}>{item.text}</span>
 							</div>
 						))}
 					</div>

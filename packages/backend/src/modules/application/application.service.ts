@@ -122,16 +122,20 @@ export class ApplicationService {
       include: { resume: true, match: true },
     });
 
-    this.insightService
-      .startInsightCreationProcess({
-        applicationId: updatedApplication.id,
-        stage,
-        resumeId: updatedApplication.resumeId,
-        matchId: updatedApplication.matchId,
-      })
-      .catch((error) => {
-        console.error('Error generating insights:', error);
-      });
+    const stagesToGenerateInsightsFor = ['applied', 'notApplied'];
+
+    if (stagesToGenerateInsightsFor.includes(stage)) {
+      this.insightService
+        .startInsightCreationProcess({
+          applicationId: updatedApplication.id,
+          stage,
+          resumeId: updatedApplication.resumeId,
+          matchId: updatedApplication.matchId,
+        })
+        .catch((error) => {
+          console.error('Error generating insights:', error);
+        });
+    }
 
     return updatedApplication;
   }

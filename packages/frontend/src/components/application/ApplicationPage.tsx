@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ApplicationDetails from './ApplicationDetails';
 import ApplicationStepper from './ApplicationStepper';
 import AppliedStage from './AppliedStage';
+import RejectedStage from './RejectedStage';
 
 const stages = ['not_applied', 'applied', 'interview', 'success'] as const;
 
@@ -43,7 +44,7 @@ const ApplicationPage: React.FC = () => {
 			case 'success':
 				return <div>Success</div>;
 			case 'rejected':
-				return <div>Rejected</div>;
+				return <RejectedStage />;
 		}
 	}, [activeStage]);
 
