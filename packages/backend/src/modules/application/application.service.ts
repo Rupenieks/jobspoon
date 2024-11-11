@@ -162,7 +162,7 @@ export class ApplicationService {
     // Combine all text
     const inputPayload = {
       userInput: notes,
-      parsedFileData: fileTexts.join('\n\n'),
+      parsedFileData: fileTexts.map((file) => file.text).join('\n\n'),
     };
 
     return await this.insightService.startInterviewAssistance({

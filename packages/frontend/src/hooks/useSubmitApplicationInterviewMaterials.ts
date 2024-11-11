@@ -32,8 +32,9 @@ export const useSubmitApplicationInterviewMaterials = () => {
 			return data;
 		},
 		onSuccess: (_, variables) => {
+			console.log('variables', variables);
 			queryClient.invalidateQueries({
-				queryKey: ['insights', variables.applicationId, 'interview'],
+				queryKey: ['insightGenerationRequest', variables.applicationId, 'interview'],
 			});
 		},
 	});

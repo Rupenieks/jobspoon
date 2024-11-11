@@ -8,12 +8,11 @@ import { useReadInsights } from '@/hooks/useReadInsights';
 import { useSubmitApplicationInterviewMaterials } from '@/hooks/useSubmitApplicationInterviewMaterials';
 import CustomIcon from '@/icons/CustomIcon';
 import { cn } from '@/lib/utils';
-import { FileText, Trash2 } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { Check, FileText, X } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import InsightCard from '../insights/InsightCard';
 import InterviewInsight from '../insights/InterviewInsight';
-import { ScrollArea } from '../ui/scroll-area';
+import CustomColorRing from '../loaders/ColorRing';
 import { Skeleton } from '../ui/skeleton';
 
 const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') => void }> = ({
@@ -32,6 +31,8 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 		'interview'
 	);
 
+	console.log('isPollingInsightsGenerationRequest', isPollingInsightsGenerationRequest);
+
 	const { isLoading: insightsLoading, insights } = useReadInsights(applicationId, 'interview');
 
 	console.log(insights);
@@ -42,6 +43,8 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 			setUploadedFiles((prev) => [...prev, ...Array.from(files)]);
 		}
 	}, []);
+
+	console.log(uploadedFiles);
 
 	const handleRemoveFile = useCallback((index: number) => {
 		setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
@@ -70,24 +73,6 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 		);
 	}, [applicationId, interviewNotes, uploadedFiles, submitMaterials]);
 
-	const renderedInsights = useMemo(() => {
-		if (!insights || insights.length === 0) {
-			return <div className="text-center text-muted-foreground py-8">No insights available</div>;
-		}
-
-		const latestInsight = insights.sort(
-			(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-		)[0];
-
-		return (
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-				{latestInsight.data?.map((insightData, index) => (
-					<InsightCard key={`${latestInsight.id}-${index}`} insightData={insightData} />
-				))}
-			</div>
-		);
-	}, [insights]);
-
 	return (
 		<div className="container mx-auto p-4 space-y-12">
 			{/* Top Section - Interview Icon */}
@@ -101,82 +86,90 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 				{/* Input Section */}
 				<Card>
 					<CardContent className="p-6">
-						<div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-							{/* Notes Section - Takes up 3 columns */}
-							<div className="lg:col-span-3 space-y-2">
-								<label htmlFor="interview-notes" className="text-sm font-medium">
-									Interview Notes
-								</label>
-								<Textarea
-									id="interview-notes"
-									placeholder="Add any notes about your interview process, requirements, or tasks..."
-									className="min-h-[120px] resize-none"
-									value={interviewNotes}
-									onChange={(e) => setInterviewNotes(e.target.value)}
-								/>
+						{isSubmitting || isPollingInsightsGenerationRequest ? (
+							<div className="flex flex-col items-center justify-center py-12">
+								<CustomColorRing colors={['#8B5CF6', '#6D28D9', '#4C1D95', '#3B0764', '#1E0038']} />
+								<p className="text-sm text-muted-foreground mt-4">Analyzing your materials...</p>
 							</div>
+						) : (
+							<>
+								<div className="flex flex-col lg:flex-row gap-6">
+									{/* Notes Section */}
+									<div className="flex-1 space-y-2">
+										<label htmlFor="interview-notes" className="text-sm font-medium">
+											Interview Notes
+										</label>
+										<Textarea
+											id="interview-notes"
+											placeholder="Add any notes about your interview process, requirements, or tasks. You may also paste your email conversation with the recruiter here."
+											className="min-h-[120px] resize-none"
+											value={interviewNotes}
+											onChange={(e) => setInterviewNotes(e.target.value)}
+										/>
+									</div>
 
-							{/* Upload Section - Takes up 2 columns */}
-							<div className="lg:col-span-2 space-y-4">
-								<div className="border-2 border-dashed rounded-lg hover:border-primary/50 transition-colors">
-									<Button
-										variant="ghost"
-										className="w-full h-auto p-0 hover:bg-transparent"
-										onClick={() => document.getElementById('file-upload')?.click()}
-									>
-										<div className="flex items-stretch w-full">
-											<div className="flex items-center justify-center w-24 min-h-[100px] border-r border-dashed">
-												<CustomIcon name="upload" className="w-12 h-12 text-muted-foreground" />
+									{/* Upload Section */}
+									<div className="w-full lg:w-72 space-y-4">
+										<div
+											onClick={() => document.getElementById('file-upload')?.click()}
+											className="border-2 border-dashed rounded-lg cursor-pointer hover:bg-purple-50 transition-colors items-center flex-col flex p-2"
+										>
+											<CustomIcon
+												name="upload"
+												className="w-16 h-16 text-muted-foreground flex-shrink-0"
+											/>
+
+											<div className="flex items-center gap-4 p-6">
+												<div className="text-left">
+													<span className="text-sm font-medium block">Upload files</span>
+													<span className="text-xs text-muted-foreground mt-1 block">
+														Add interview materials or documents
+													</span>
+												</div>
 											</div>
-											<div className="flex-1 flex flex-col justify-center p-4 text-left">
-												<span className="text-sm font-medium">Upload files</span>
-												<span className="text-xs text-muted-foreground mt-1 break-words">
-													Add interview materials or documents
-												</span>
-											</div>
+											<input
+												type="file"
+												id="file-upload"
+												className="hidden"
+												multiple
+												onChange={handleFileUpload}
+											/>
 										</div>
-									</Button>
-									<input
-										type="file"
-										id="file-upload"
-										className="hidden"
-										multiple
-										onChange={handleFileUpload}
-									/>
+									</div>
 								</div>
 
-								{uploadedFiles.length > 0 && (
-									<ScrollArea className="h-[150px] border rounded-md p-2">
-										<div className="space-y-2">
-											{uploadedFiles.map((file, index) => (
+								<Separator className="my-6" />
+								<div className="flex justify-between">
+									<div className="flex flex-wrap gap-2">
+										{uploadedFiles.length > 0 &&
+											uploadedFiles.map((file, index) => (
 												<div
 													key={index}
-													className="flex items-center justify-between p-2 bg-muted rounded-md"
+													className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-full text-sm border border-purple-100"
 												>
-													<div className="flex items-center gap-2">
-														<FileText className="h-4 w-4" />
-														<span className="text-sm truncate max-w-[200px]">{file.name}</span>
-													</div>
-													<Button variant="ghost" size="sm" onClick={() => handleRemoveFile(index)}>
-														<Trash2 className="h-4 w-4" />
+													<FileText className="h-4 w-4 text-muted-foreground" />
+													<span className="truncate max-w-[120px]">{file.name}</span>
+													<Button
+														variant="ghost"
+														size="sm"
+														className="h-4 w-4 p-0 hover:bg-transparent"
+														onClick={() => handleRemoveFile(index)}
+													>
+														<X className="h-3 w-3" />
 													</Button>
 												</div>
 											))}
-										</div>
-									</ScrollArea>
-								)}
-							</div>
-						</div>
-
-						<Separator className="my-6" />
-
-						<Button
-							className="w-full"
-							onClick={handleSubmit}
-							disabled={!interviewNotes && uploadedFiles.length === 0}
-						>
-							Submit Materials
-						</Button>
+									</div>
+									<Button
+										onClick={handleSubmit}
+										disabled={!interviewNotes && uploadedFiles.length === 0}
+									>
+										Submit Materials
+										<Check className="w-4 h-4 ml-2" />
+									</Button>
+								</div>
+							</>
+						)}
 					</CardContent>
 				</Card>
 
