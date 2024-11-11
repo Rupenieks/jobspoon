@@ -93,7 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 				>
 					<MenuIcon className="h-6 w-6" />
 				</Button>
-				<h1 className="text-xl font-bold flex-grow">VirtueVita</h1>
+				<h1 className="text-xl font-bold flex-grow">Jobspoon</h1>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Avatar className="cursor-pointer">
