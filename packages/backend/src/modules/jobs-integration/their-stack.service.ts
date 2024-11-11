@@ -142,7 +142,7 @@ export class TheirStackService {
     }
 
     if (resumeData.personalInfo?.city) {
-      query.job_location_pattern_or = [`.*${resumeData.personalInfo.city}.*`];
+      query.job_location_pattern_or = [resumeData.personalInfo.city];
     }
 
     // Position/Title filters
@@ -153,7 +153,7 @@ export class TheirStackService {
         .filter((word) => word.length > 2);
 
       if (words.length > 0) {
-        query.job_title_pattern_and = words.map((word) => `.*${word}.*`);
+        query.job_title_pattern_and = words;
       }
     }
 

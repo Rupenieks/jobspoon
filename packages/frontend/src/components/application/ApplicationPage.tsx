@@ -9,6 +9,7 @@ import ApplicationStepper from './ApplicationStepper';
 import AppliedStage from './AppliedStage';
 import RejectedStage from './RejectedStage';
 import { Skeleton } from '../ui/skeleton';
+import InterviewStage from './InterviewStage';
 
 const stages = ['not_applied', 'applied', 'interview', 'success'] as const;
 
@@ -72,7 +73,7 @@ const ApplicationPage: React.FC = () => {
 			case 'applied':
 				return <AppliedStage onStageChange={handleStageChange} />;
 			case 'interview':
-				return <div>Interview</div>;
+				return <InterviewStage />;
 			case 'success':
 				return <div>Success</div>;
 			case 'rejected':

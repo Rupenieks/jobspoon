@@ -29,10 +29,14 @@ export class ResumeParserService {
       pages: [
         {
           sections: [
-            { id: "personal-info", type: "personalInfo", title: "Personal Information" },
-            { id: "experience", type: "experience", title: "Experience" },
-            { id: "education", type: "education", title: "Education" },
-            { id: "skills", type: "skills", title: "Skills" },
+            {
+              id: 'personal-info',
+              type: 'personalInfo',
+              title: 'Personal Information',
+            },
+            { id: 'experience', type: 'experience', title: 'Experience' },
+            { id: 'education', type: 'education', title: 'Education' },
+            { id: 'skills', type: 'skills', title: 'Skills' },
           ],
         },
       ],

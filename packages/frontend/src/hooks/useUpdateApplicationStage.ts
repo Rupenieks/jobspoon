@@ -18,6 +18,7 @@ export const useUpdateApplicationStage = () => {
 		onSuccess: (_, { applicationId }) => {
 			console.log('Invalidating application', applicationId);
 			queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
+			queryClient.invalidateQueries({ queryKey: ['applications'] });
 		},
 	});
 };

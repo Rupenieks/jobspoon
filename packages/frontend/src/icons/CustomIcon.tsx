@@ -1,14 +1,17 @@
 import React from 'react';
 import WaitingIcon from './svg/waiting.svg?react';
 import ReflectionIcon from './svg/reflection.svg?react';
-
+import InterviewIcon from './svg/interview.svg?react';
+import UploadIcon from './svg/upload.svg?react';
 // Define all possible icon names
-export type IconName = 'waiting' | 'reflection';
+export type IconName = 'waiting' | 'reflection' | 'interview' | 'upload';
 
 // Map icon names to their components
 const iconMap: Record<IconName, React.FC<React.SVGProps<SVGSVGElement>>> = {
 	waiting: WaitingIcon,
 	reflection: ReflectionIcon,
+	interview: InterviewIcon,
+	upload: UploadIcon,
 };
 
 interface CustomIconProps extends React.SVGProps<SVGSVGElement> {

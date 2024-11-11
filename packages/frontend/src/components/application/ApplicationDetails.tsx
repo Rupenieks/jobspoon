@@ -7,7 +7,7 @@ import { useReadApplication } from '@/hooks/useReadApplication';
 import { useReadInsights } from '@/hooks/useReadInsights';
 import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
 import { cn } from '@/lib/utils';
-import { Building2, Check, MapPin, Play } from 'lucide-react';
+import { Building2, Check, LinkIcon, MapPin, Play } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import ReactConfetti from 'react-confetti';
 import { useParams } from 'react-router-dom';
@@ -17,6 +17,7 @@ import { ResumeStateProvider } from '../resumes/ResumeStateContext';
 import CompanyLogo from '../ui/company-logo';
 import { ScrollArea } from '../ui/scroll-area';
 import LoadingSkeleton from './ApplicationDetailsLoadingSkeleton';
+import { Button } from '../ui/button';
 
 const ApplicationDetails: React.FC<{
 	onChangeStage: (stage: 'applied' | 'interview' | 'success' | 'rejected') => void;
@@ -94,6 +95,11 @@ const ApplicationDetails: React.FC<{
 		));
 	}, [insights]);
 
+	const handleApplyNow = useCallback(() => {
+		if (!application) return;
+		window.open(application.match.applyUrl || '', '_blank');
+	}, [application]);
+
 	if (isLoading) {
 		return <LoadingSkeleton />;
 	}
@@ -109,10 +115,19 @@ const ApplicationDetails: React.FC<{
 				<div className="col-span-2 space-y-6">
 					<Card>
 						<CardHeader className="flex flex-row items-center gap-4">
-							<CompanyLogo domain={application.match.company?.domain || ''} />
-							<div>
-								<CardTitle>{application.match.positionTitle}</CardTitle>
-								<CardDescription>{application.match.companyName}</CardDescription>
+							<div className="flex items-center justify-between w-full">
+								<div className="flex items-center gap-4">
+									<CompanyLogo domain={application.match.company?.domain || ''} />
+									<div>
+										<CardTitle>{application.match.positionTitle}</CardTitle>
+										<CardDescription>{application.match.companyName}</CardDescription>
+									</div>
+								</div>
+
+								<Button variant="default" onClick={handleApplyNow}>
+									<Check className="h-4 w-4" />
+									Apply now
+								</Button>
 							</div>
 						</CardHeader>
 						<CardContent>
