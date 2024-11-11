@@ -1,7 +1,11 @@
 import React from 'react';
+// @ts-ignore
 import WaitingIcon from './svg/waiting.svg?react';
+// @ts-ignore
 import ReflectionIcon from './svg/reflection.svg?react';
+// @ts-ignore
 import InterviewIcon from './svg/interview.svg?react';
+// @ts-ignore
 import UploadIcon from './svg/upload.svg?react';
 // Define all possible icon names
 export type IconName = 'waiting' | 'reflection' | 'interview' | 'upload';

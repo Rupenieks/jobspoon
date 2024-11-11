@@ -9,7 +9,7 @@ export class ApplicationService {
     private insightService: InsightService,
   ) {}
 
-  async createApplication(resumeId: string, matchId: string) {
+  async createApplication(resumeId: string, matchId: string, userId: string) {
     const resume = await this.prisma.resume.findUnique({
       where: { id: resumeId },
     });
@@ -55,6 +55,7 @@ export class ApplicationService {
           data: {
             resumeId: duplicatedResume.id,
             matchId,
+            userId,
           },
         });
 
@@ -91,9 +92,9 @@ export class ApplicationService {
     });
   }
 
-  async getApplication(id: string) {
+  async getApplication(id: string, userId: string) {
     const application = await this.prisma.application.findUnique({
-      where: { id },
+      where: { id, userId },
       include: { resume: true, match: true, insights: true },
     });
 

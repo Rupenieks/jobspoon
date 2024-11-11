@@ -62,7 +62,7 @@ export class ResumeParserController {
   async getAllResumes(@Request() req): Promise<TResumeBase[]> {
     try {
       const resumes = await this.resumeParserService.getAllResumesForUser(
-        req.user.id,
+        req.user.userId,
       );
       return resumes;
     } catch (error) {

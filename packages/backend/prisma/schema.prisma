@@ -23,6 +23,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   resumes   Resume[]
+  matches   Match[]
+  applications Application[]
 }
 
 model Resume {
@@ -71,9 +73,11 @@ model Match {
   company         Json?    // Stored as JSON object
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  userId          String
   
   // Virtual field for querying
   application     Application?
+  user            User     @relation(fields: [userId], references: [id])
 
   @@unique([resumeId, integrationId])
   @@index([resumeId])
@@ -90,6 +94,9 @@ model Application {
 
   insights  Insight[]
   insightGenerationRequests ApplicationInsightGenerationRequest[]
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

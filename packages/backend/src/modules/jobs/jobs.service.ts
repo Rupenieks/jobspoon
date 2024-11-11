@@ -10,7 +10,7 @@ export class JobsService {
     private readonly prismaService: PrismaService,
   ) {}
 
-  async fetchJobs(resumeId: string): Promise<number> {
+  async fetchJobs(resumeId: string, userId: string): Promise<number> {
     const resume = await this.prismaService.resume.findUnique({
       where: { id: resumeId },
     });
@@ -23,7 +23,7 @@ export class JobsService {
 
     try {
       const jobs = await this.theirStackService.searchJobs(parsedResume);
-      await this.createMatches({ resumeId, matches: jobs });
+      await this.createMatches({ resumeId, matches: jobs, userId });
       return jobs.length;
     } catch (error) {
       console.error('Error fetching jobs:', error);
@@ -34,9 +34,11 @@ export class JobsService {
   private async createMatches({
     resumeId,
     matches,
+    userId,
   }: {
     resumeId: string;
     matches: TMatchBase[];
+    userId: string;
   }): Promise<void> {
     for (const match of matches) {
       if (!match.integrationId) {
@@ -77,6 +79,11 @@ export class JobsService {
           dateReposted: match.dateReposted,
           hiringTeam: match.hiringTeam,
           company: match.company,
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
           resume: {
             connect: {
               id: resumeId,

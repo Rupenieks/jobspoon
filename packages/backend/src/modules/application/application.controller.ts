@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
@@ -20,10 +21,14 @@ export class ApplicationController {
   constructor(private readonly applicationService: ApplicationService) {}
 
   @Post()
-  async createApplication(@Body() data: { resumeId: string; matchId: string }) {
+  async createApplication(
+    @Body() data: { resumeId: string; matchId: string },
+    @Req() req,
+  ) {
     return await this.applicationService.createApplication(
       data.resumeId,
       data.matchId,
+      req.user.userId,
     );
   }
 
@@ -33,8 +38,8 @@ export class ApplicationController {
   }
 
   @Get(':id')
-  async getApplication(@Param('id') id: string) {
-    return this.applicationService.getApplication(id);
+  async getApplication(@Param('id') id: string, @Req() req) {
+    return this.applicationService.getApplication(id, req.user.userId);
   }
 
   @Get('resume/:id')

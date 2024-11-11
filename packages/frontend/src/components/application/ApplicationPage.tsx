@@ -59,6 +59,8 @@ const ApplicationPage: React.FC = () => {
 		if (!application) return;
 
 		const currentIndex = stages.indexOf(activeStage as any);
+
+		// @ts-ignore
 		const newIndex = stages.indexOf(newStage);
 		setDirection(newIndex > currentIndex ? 1 : -1);
 		setActiveStage(newStage);
@@ -73,7 +75,7 @@ const ApplicationPage: React.FC = () => {
 			case 'applied':
 				return <AppliedStage onStageChange={handleStageChange} />;
 			case 'interview':
-				return <InterviewStage />;
+				return <InterviewStage onStageChange={handleStageChange} />;
 			case 'success':
 				return <div>Success</div>;
 			case 'rejected':

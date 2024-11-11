@@ -12,6 +12,7 @@ export const ApplicationBaseSchema = z.object({
 		.default('not_applied'),
 	createdAt: z.date().transform((date) => date.toISOString()),
 	updatedAt: z.date().transform((date) => date.toISOString()),
+	userId: z.string(),
 });
 
 // Application with Resume

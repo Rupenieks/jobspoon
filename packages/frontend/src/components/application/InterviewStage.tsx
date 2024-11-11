@@ -31,8 +31,6 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 		'interview'
 	);
 
-	console.log('isPollingInsightsGenerationRequest', isPollingInsightsGenerationRequest);
-
 	const { isLoading: insightsLoading, insights } = useReadInsights(applicationId, 'interview');
 
 	console.log(insights);
