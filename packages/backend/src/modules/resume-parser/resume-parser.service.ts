@@ -13,7 +13,6 @@ import {
   ResumeFullSchema,
 } from '@redundant/common';
 import { StorageService } from '../storage/storage.service';
-import { randomUUID } from 'crypto';
 
 @Injectable()
 export class ResumeParserService {
@@ -22,26 +21,6 @@ export class ResumeParserService {
     private readonly prismaService: PrismaService,
     private readonly storageService: StorageService,
   ) {}
-
-  private addPagesStructure(resume: TResumeData): TResumeData {
-    return {
-      ...resume,
-      pages: [
-        {
-          sections: [
-            {
-              id: 'personal-info',
-              type: 'personalInfo',
-              title: 'Personal Information',
-            },
-            { id: 'experience', type: 'experience', title: 'Experience' },
-            { id: 'education', type: 'education', title: 'Education' },
-            { id: 'skills', type: 'skills', title: 'Skills' },
-          ],
-        },
-      ],
-    };
-  }
 
   async parseResume(buffer: Buffer, userId: string): Promise<TResumeBase> {
     const text = await this.parsePdfToText(buffer);

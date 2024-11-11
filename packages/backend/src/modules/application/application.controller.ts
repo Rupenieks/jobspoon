@@ -6,10 +6,16 @@ import {
   Param,
   Delete,
   Patch,
+  UseInterceptors,
+  UploadedFiles,
+  UseGuards,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 import { ApplicationService } from './application.service';
 
 @Controller('applications')
+@UseGuards(AuthGuard('jwt'))
 export class ApplicationController {
   constructor(private readonly applicationService: ApplicationService) {}
 
@@ -48,5 +54,19 @@ export class ApplicationController {
     @Body() data: { stage: string },
   ) {
     return this.applicationService.updateApplicationStage(id, data.stage);
+  }
+
+  @Post(':id/interview-materials')
+  @UseInterceptors(FilesInterceptor('files', 5)) // Max 5 files
+  async submitInterviewMaterials(
+    @Param('id') applicationId: string,
+    @Body('notes') notes: string,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    return this.applicationService.processInterviewMaterials(
+      applicationId,
+      notes,
+      files,
+    );
   }
 }

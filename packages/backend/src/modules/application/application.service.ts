@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import * as pdf from 'pdf-parse';
 import { InsightService } from '../insight/insight.service';
-
+import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class ApplicationService {
   constructor(
@@ -138,5 +138,38 @@ export class ApplicationService {
     }
 
     return updatedApplication;
+  }
+
+  async processInterviewMaterials(
+    applicationId: string,
+    notes: string,
+    files: Express.Multer.File[],
+  ) {
+    const application = await this.prisma.application.findUnique({
+      where: { id: applicationId },
+      include: { match: true, resume: true },
+    });
+
+    if (!application) {
+      throw new NotFoundException(`Application ${applicationId} not found`);
+    }
+
+    // Extract text from all files
+    const fileTexts = await Promise.all(
+      files.map(async (file) => await pdf(file.buffer)),
+    );
+
+    // Combine all text
+    const inputPayload = {
+      userInput: notes,
+      parsedFileData: fileTexts.join('\n\n'),
+    };
+
+    return await this.insightService.startInterviewAssistance({
+      applicationId,
+      payload: inputPayload,
+      resumeId: application.resumeId,
+      matchId: application.matchId,
+    });
   }
 }

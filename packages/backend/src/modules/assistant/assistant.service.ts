@@ -27,6 +27,8 @@ export class AssistantService {
     process.env.INSIGHT_GENERATOR_ASSISTANT_NOT_APPLIED_ID ?? '';
   private insightGeneratorAppliedAssistantId: string =
     process.env.INSIGHT_GENERATOR_ASSISTANT_APPLIED_ID ?? '';
+  private interviewAssistanceAssistantId: string =
+    process.env.INTERVIEW_ASSISTANCE_ASSISTANT_ID ?? '';
 
   constructor(private readonly prismaService: PrismaService) {
     this.openai = new OpenAI({
@@ -61,6 +63,41 @@ export class AssistantService {
       console.error('Error parsing resume:', err);
       throw new Error('Failed to parse resume');
     }
+  }
+
+  async createInterviewAssistance({
+    applicationId,
+    payload,
+  }: {
+    applicationId: string;
+    payload: {
+      userInput: string;
+      parsedFileData: string;
+    };
+  }): Promise<TInsightData[]> {
+    this.logger.log(
+      `Starting insight generation for application ${applicationId}`,
+    );
+
+    const application = await this.prismaService.application.findUnique({
+      where: { id: applicationId },
+    });
+
+    if (!application) {
+      this.logger.error(`Application ${applicationId} not found`);
+      throw new Error('Application not found');
+    }
+
+    const output = await this.getAssistantOutput({
+      assistantId: this.interviewAssistanceAssistantId,
+      userInput: JSON.stringify(payload),
+    });
+
+    const cleanedOutput = this.cleanOutput(output);
+
+    const parsedOutput = JSON.parse(cleanedOutput);
+
+    return parsedOutput.data;
   }
 
   async createAssistantInsights({
