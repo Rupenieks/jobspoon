@@ -10,16 +10,25 @@ import Resumes from './components/Resumes';
 import Start from './components/Start';
 import Applications from './components/Applications';
 import ApplicationPage from './components/application/ApplicationPage';
+import Onboarding from './components/onboarding/Onboarding';
+import { useReadUser } from './hooks/useReadUser';
 
 const App: React.FC = () => {
 	const { loading, isAuthenticated } = useAuth();
+	const { data: userData } = useReadUser();
 
 	const content = useMemo(() => {
 		if (loading) {
 			return <div>Loading...</div>;
 		}
-		return isAuthenticated ? <LayoutWrapper /> : <LoginScreen />;
-	}, [loading, isAuthenticated]);
+		if (!isAuthenticated) {
+			return <LoginScreen />;
+		}
+		if (!userData?.isOnboarded) {
+			return <Onboarding />;
+		}
+		return <LayoutWrapper />;
+	}, [loading, isAuthenticated, userData]);
 
 	return <Router>{content}</Router>;
 };

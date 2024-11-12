@@ -124,6 +124,7 @@ export class TheirStackService {
   private async buildJobQuery(
     resume: TResumeBase,
   ): Promise<TTheirStackJobSearchQuery> {
+    // Add discovered_at_gte per user to not get duplicated jobs
     const resumeData = resume.data;
     const query: TTheirStackJobSearchQuery = {
       posted_at_max_age_days: 7, // Required filter

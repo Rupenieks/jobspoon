@@ -13,6 +13,7 @@ import {
   ResumeFullSchema,
 } from '@redundant/common';
 import { StorageService } from '../storage/storage.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class ResumeParserService {
@@ -20,6 +21,7 @@ export class ResumeParserService {
     private readonly assistantService: AssistantService,
     private readonly prismaService: PrismaService,
     private readonly storageService: StorageService,
+    private readonly userService: UserService,
   ) {}
 
   async parseResume(buffer: Buffer, userId: string): Promise<TResumeBase> {
@@ -27,6 +29,27 @@ export class ResumeParserService {
     const parsedResume = await this.assistantService.parseResume(text);
     const storedResume = await this.storeResume(parsedResume, userId);
     return storedResume;
+  }
+
+  async onboardingCreate(userId: string): Promise<TResumeBase[]> {
+    const user = await this.userService.findById(userId);
+    const newResumes = user.desiredJobTitles.map((title) => {
+      return {
+        data: {
+          personalInfo: {
+            positionName: title,
+            fullName: user.fullName,
+            country: user.country,
+            city: user.city,
+          },
+        },
+      };
+    });
+
+    const storedResumes = await Promise.all(
+      newResumes.map((resume) => this.storeResume(resume.data, userId)),
+    );
+    return storedResumes;
   }
 
   private async parsePdfToText(buffer: Buffer): Promise<string> {
@@ -53,6 +76,10 @@ export class ResumeParserService {
   async getAllResumesForUser(userId: string): Promise<TResumeBase[]> {
     const resumes = await this.prismaService.resume.findMany({
       where: { userId },
+      include: {
+        matches: true,
+        applications: true,
+      },
     });
 
     return resumes.map((resume) => ResumeBaseSchema.parse(resume));

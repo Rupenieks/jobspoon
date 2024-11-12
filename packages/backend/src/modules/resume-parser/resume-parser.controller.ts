@@ -27,6 +27,11 @@ import {
 export class ResumeParserController {
   constructor(private readonly resumeParserService: ResumeParserService) {}
 
+  @Post('onboarding-create')
+  async onboardingCreate(@Request() req): Promise<TResumeBase[]> {
+    return await this.resumeParserService.onboardingCreate(req.user.userId);
+  }
+
   @Post('process')
   @UseInterceptors(FileInterceptor('file'))
   async processResume(

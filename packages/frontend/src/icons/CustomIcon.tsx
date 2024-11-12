@@ -7,8 +7,17 @@ import ReflectionIcon from './svg/reflection.svg?react';
 import InterviewIcon from './svg/interview.svg?react';
 // @ts-ignore
 import UploadIcon from './svg/upload.svg?react';
-// Define all possible icon names
-export type IconName = 'waiting' | 'reflection' | 'interview' | 'upload';
+// @ts-ignore
+import OnlineResumeIcon from './svg/online-resume.svg?react';
+// @ts-ignore
+import PersonalInfoIcon from './svg/personal-info.svg?react';
+export type IconName =
+	| 'waiting'
+	| 'reflection'
+	| 'interview'
+	| 'upload'
+	| 'online-resume'
+	| 'personal-info';
 
 // Map icon names to their components
 const iconMap: Record<IconName, React.FC<React.SVGProps<SVGSVGElement>>> = {
@@ -16,6 +25,8 @@ const iconMap: Record<IconName, React.FC<React.SVGProps<SVGSVGElement>>> = {
 	reflection: ReflectionIcon,
 	interview: InterviewIcon,
 	upload: UploadIcon,
+	'online-resume': OnlineResumeIcon,
+	'personal-info': PersonalInfoIcon,
 };
 
 interface CustomIconProps extends React.SVGProps<SVGSVGElement> {

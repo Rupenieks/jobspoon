@@ -364,6 +364,9 @@ importers:
       webfontloader:
         specifier: ^1.6.28
         version: 1.6.28
+      zod:
+        specifier: ^3.22.4
+        version: 3.23.8
     devDependencies:
       '@types/node':
         specifier: ^22.8.0
