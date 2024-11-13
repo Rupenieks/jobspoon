@@ -19,6 +19,7 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   TResumeBase,
   TResumeData,
+  TResumeFull,
   TResumeWithMatches,
 } from '@redundant/common';
 
@@ -127,7 +128,7 @@ export class ResumeParserController {
   async getResume(
     @Param('id') id: string,
     @Request() req,
-  ): Promise<TResumeBase> {
+  ): Promise<TResumeFull> {
     try {
       const resume = await this.resumeParserService.getResumeById(
         id,

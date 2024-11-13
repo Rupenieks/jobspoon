@@ -48,7 +48,7 @@ model Resume {
   // Virtual fields for querying
   matches       Match[]  @relation("ResumeToMatch")
   applications  Application[]
-  jobMatchRun   JobMatchRun[]
+  jobMatchRuns   JobMatchRun[]
 
   @@index([userId])
 }

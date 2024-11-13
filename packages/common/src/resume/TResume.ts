@@ -109,6 +109,7 @@ export const ResumeBaseSchema = z.object({
 	applicationId: z.string().nullish(),
 	createdAt: z.date().transform((date) => date.toISOString()),
 	updatedAt: z.date().transform((date) => date.toISOString()),
+	canRunJobsMatch: z.boolean().optional(),
 });
 
 // Resume with Match IDs
@@ -119,16 +120,19 @@ export const ResumeWithMatchIdsSchema = ResumeBaseSchema.extend({
 			application: z.object({ id: z.string() }).nullable(),
 		})
 	),
+	canRunJobsMatch: z.boolean().optional(),
 });
 
 // Resume with Matches
 export const ResumeWithMatchesSchema = ResumeBaseSchema.extend({
 	matches: z.array(MatchBaseSchema),
+	canRunJobsMatch: z.boolean().optional(),
 });
 
 // Resume with Application
 export const ResumeWithApplicationSchema = ResumeBaseSchema.extend({
 	application: ApplicationBaseSchema,
+	canRunJobsMatch: z.boolean().optional(),
 });
 
 // Full Resume Model (all relations)
@@ -136,6 +140,7 @@ export const ResumeFullSchema = ResumeBaseSchema.extend({
 	matches: z.array(MatchBaseSchema).nullish(),
 	application: ApplicationBaseSchema.nullish(),
 	jobMatchRuns: z.array(JobMatchRunBaseSchema).nullish(),
+	canRunJobsMatch: z.boolean().optional(),
 });
 
 // Types

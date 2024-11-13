@@ -73,17 +73,48 @@ export class ResumeParserService {
     return parsed;
   }
 
+  private async checkCanRunJobsMatch(
+    resumeId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const lastRun = await this.prismaService.jobMatchRun.findFirst({
+      where: {
+        userId,
+        resumeId,
+        createdAt: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)), // Start of today
+        },
+      },
+    });
+
+    return !lastRun;
+  }
+
+  private async addCanRunJobsMatch<T extends { id: string; userId: string }>(
+    resume: T,
+  ): Promise<T & { canRunJobsMatch: boolean }> {
+    const canRunJobsMatch = await this.checkCanRunJobsMatch(
+      resume.id,
+      resume.userId,
+    );
+    return { ...resume, canRunJobsMatch };
+  }
+
   async getAllResumesForUser(userId: string): Promise<TResumeBase[]> {
     const resumes = await this.prismaService.resume.findMany({
       where: { userId },
       include: {
         matches: true,
         applications: true,
-        jobMatchRun: true,
+        jobMatchRuns: true,
       },
     });
 
-    return resumes.map((resume) => ResumeBaseSchema.parse(resume));
+    const resumesWithFlag = await Promise.all(
+      resumes.map((resume) => this.addCanRunJobsMatch(resume)),
+    );
+
+    return resumesWithFlag.map((resume) => ResumeFullSchema.parse(resume));
   }
 
   async getResumesWithMatches(userId: string): Promise<TResumeWithMatches[]> {
@@ -93,11 +124,15 @@ export class ResumeParserService {
       },
       include: {
         matches: true,
-        jobMatchRun: true,
+        jobMatchRuns: true,
       },
     });
 
-    return resumes.map((resume) => ResumeWithMatchesSchema.parse(resume));
+    const resumesWithFlag = await Promise.all(
+      resumes.map((resume) => this.addCanRunJobsMatch(resume)),
+    );
+
+    return resumesWithFlag.map((resume) => ResumeFullSchema.parse(resume));
   }
 
   async parseResumeText(text: string, userId: string): Promise<TResumeBase> {
@@ -156,16 +191,14 @@ export class ResumeParserService {
     );
   }
 
-  async getResumeById(id: string, userId: string): Promise<TResumeWithMatches> {
+  async getResumeById(id: string, userId: string): Promise<TResumeFull> {
     const resume = await this.prismaService.resume.findUnique({
       where: { id, userId },
       include: {
         matches: true,
-        jobMatchRun: true,
+        jobMatchRuns: true,
       },
     });
-
-    const parsed = ResumeWithMatchesSchema.parse(resume);
 
     if (!resume || resume.userId !== userId) {
       throw new NotFoundException(
@@ -173,7 +206,8 @@ export class ResumeParserService {
       );
     }
 
-    return parsed;
+    const resumeWithFlag = await this.addCanRunJobsMatch(resume);
+    return ResumeFullSchema.parse(resumeWithFlag);
   }
 
   async deleteResumes(ids: string[], userId: string): Promise<void> {

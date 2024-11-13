@@ -31,6 +31,9 @@ export type TTheirStackJobSearchQuery = {
   min_salary_usd?: number;
   max_salary_usd?: number;
 
+  // Date Filters
+  discovered_at_gte?: string;
+
   // Technology Filters
   job_technology_slug_or?: string[];
   job_technology_slug_not?: string[];

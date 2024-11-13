@@ -11,11 +11,11 @@ export class TheirStackService {
   private readonly apiKey = process.env.THEIRSTACK_API_KEY;
   private readonly logger = new Logger(TheirStackService.name);
 
-  async searchJobs(resume: TResumeBase) {
-    const query = await this.buildJobQuery(resume);
+  async searchJobs(resume: TResumeBase, lastRunDate: Date | null) {
+    const query = await this.buildJobQuery(resume, lastRunDate);
 
     this.logger.log(
-      `Searching jobs for resume ${resume.id} in ${query.job_country_code_or?.[0]} - ${query.job_location_pattern_or?.[0] || 'no city'}`,
+      `Searching jobs for resume ${resume.id} in ${query.job_country_code_or?.[0]} - ${query.job_location_pattern_or?.[0] || 'no city'}${lastRunDate ? ` since ${lastRunDate.toISOString()}` : ''}`,
     );
     this.logger.debug('Job search query:', query);
 
@@ -141,6 +141,7 @@ export class TheirStackService {
 
   private async buildJobQuery(
     resume: TResumeBase,
+    lastRunDate: Date | null,
   ): Promise<TTheirStackJobSearchQuery> {
     const resumeData = resume.data;
     const query: TTheirStackJobSearchQuery = {
@@ -151,6 +152,13 @@ export class TheirStackService {
         { desc: true, field: 'discovered_at' },
       ],
     };
+
+    if (lastRunDate) {
+      query.discovered_at_gte = lastRunDate.toISOString();
+      this.logger.debug(
+        `Added discovered_at_gte filter: ${lastRunDate.toISOString()}`,
+      );
+    }
 
     this.logger.debug(`Building job query for resume ${resume.id}`);
 

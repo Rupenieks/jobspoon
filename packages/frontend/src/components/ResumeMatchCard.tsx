@@ -40,6 +40,7 @@ import { ResumeDetailsDialog } from './dialogs/ResumeDetailsDialog';
 import JobMatchDialog from './JobMatchDialog';
 import { ResumeStateProvider } from './resumes/ResumeStateContext';
 import CompanyLogo from './ui/company-logo';
+import { Badge } from './ui/badge';
 
 interface ResumeMatchCardProps {
 	resumeId: string;
@@ -73,7 +74,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 			const application = await createApplication({ resumeId: resume.id, matchId });
 			toast({
 				title: 'Application created',
-				description: 'Resume matched to job. Click the button below to view the application.',
+				description: 'Resume matched to job.',
 				action: (
 					<ToastAction
 						altText="Dismiss"
@@ -158,8 +159,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 							</div>
 							<div className="flex items-center gap-6">
 								<div className="flex items-center gap-2 text-muted-foreground">
-									<Crosshair className="h-4 w-4" />
-									<span>{matchCount} matches</span>
+									<Badge variant="outline">{matchCount} matches</Badge>
 								</div>
 								<div className="flex items-center gap-2 mr-4">
 									<TooltipProvider>
@@ -189,7 +189,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 														e.stopPropagation();
 														handleRefreshClick(e);
 													}}
-													disabled={isPending}
+													disabled={isPending || !resume.canRunJobsMatch}
 												>
 													<RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
 												</Button>

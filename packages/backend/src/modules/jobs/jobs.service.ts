@@ -25,6 +25,18 @@ export class JobsService {
     return !lastRun;
   }
 
+  private async getLastRunDate(resumeId: string): Promise<Date | null> {
+    const lastRun = await this.prismaService.jobMatchRun.findFirst({
+      where: {
+        resumeId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    return lastRun?.createdAt || null;
+  }
+
   async fetchJobs(resumeId: string, userId: string): Promise<number> {
     const canRun = await this.canUserRunJobMatch(userId, resumeId);
     if (!canRun) {
@@ -41,10 +53,10 @@ export class JobsService {
       throw new NotFoundException(`Resume with ID ${resumeId} not found`);
     }
 
+    const lastRunDate = await this.getLastRunDate(resumeId);
     const parsedResume = ResumeBaseSchema.parse(resume);
 
     try {
-      // Create the job match run first
       const jobMatchRun = await this.prismaService.jobMatchRun.create({
         data: {
           userId,
@@ -52,7 +64,10 @@ export class JobsService {
         },
       });
 
-      const jobs = await this.theirStackService.searchJobs(parsedResume);
+      const jobs = await this.theirStackService.searchJobs(
+        parsedResume,
+        lastRunDate,
+      );
       await this.createMatches({
         resumeId,
         matches: jobs,
