@@ -79,6 +79,7 @@ export class ResumeParserService {
       include: {
         matches: true,
         applications: true,
+        jobMatchRun: true,
       },
     });
 
@@ -92,6 +93,7 @@ export class ResumeParserService {
       },
       include: {
         matches: true,
+        jobMatchRun: true,
       },
     });
 
@@ -159,6 +161,7 @@ export class ResumeParserService {
       where: { id, userId },
       include: {
         matches: true,
+        jobMatchRun: true,
       },
     });
 

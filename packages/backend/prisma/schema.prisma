@@ -30,6 +30,8 @@ model User {
   resumes         Resume[]
   matches         Match[]
   applications    Application[]
+
+  jobMatchRuns    JobMatchRun[]
 }
 
 model Resume {
@@ -45,7 +47,8 @@ model Resume {
   
   // Virtual fields for querying
   matches       Match[]  @relation("ResumeToMatch")
-  applications  Application[] 
+  applications  Application[]
+  jobMatchRun   JobMatchRun[]
 
   @@index([userId])
 }
@@ -83,9 +86,12 @@ model Match {
   // Virtual field for querying
   application     Application?
   user            User     @relation(fields: [userId], references: [id])
+  jobMatchRun     JobMatchRun? @relation(fields: [jobMatchRunId], references: [id])
+  jobMatchRunId   String?
 
   @@unique([resumeId, integrationId])
   @@index([resumeId])
+  @@index([jobMatchRunId])
 }
 
 model Application {
@@ -137,4 +143,19 @@ model ApplicationInsightGenerationRequest {
   updatedAt        DateTime    @updatedAt
 
   @@index([applicationId])
+}
+
+model JobMatchRun {
+  id        String   @id @default(cuid())
+  userId    String
+  resumeId  String
+  matches   Match[]
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  resume Resume @relation(fields: [resumeId], references: [id])
+
+  @@index([userId])
+  @@index([resumeId])
+  @@index([createdAt])
 }

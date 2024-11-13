@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { ApplicationBaseSchema } from '../application';
+import { JobMatchRunBaseSchema } from '../jobMatchRun/TJobMatchRun';
+import { ApplicationBaseSchema } from '../application/TApplication';
 
 // Company Schema
 export const CompanySchema = z.object({
@@ -35,30 +36,30 @@ export const MatchBaseSchema = z.object({
 	id: z.string(),
 	resumeId: z.string(),
 	integrationId: z.string(),
-	companyName: z.string().nullish(),
-	companyUrl: z.string().nullish(),
-	seniority: z.string().nullish(),
+	companyName: z.string().nullable(),
+	companyUrl: z.string().nullable(),
+	seniority: z.string().nullable(),
 	positionTitle: z.string(),
-	description: z.string().nullish(),
-	longDescription: z.string().nullish(),
+	description: z.string().nullable(),
+	longDescription: z.string().nullable(),
 	country: z.string(),
 	city: z.string(),
-	applyUrl: z.string().nullish(),
-	domain: z.string().nullish(),
-	longitude: z.number().nullish(),
-	latitude: z.number().nullish(),
+	applyUrl: z.string().nullable(),
+	domain: z.string().nullable(),
+	longitude: z.number().nullable(),
+	latitude: z.number().nullable(),
 	provider: z.string(),
+	datePosted: z.string().nullable(),
+	hybrid: z.boolean().nullable(),
+	remote: z.boolean().nullable(),
+	salary: z.string().nullable(),
+	reposted: z.boolean().nullable(),
+	dateReposted: z.string().nullable(),
+	hiringTeam: z.any().nullable(),
+	company: z.any().nullable(),
+	jobMatchRunId: z.string().nullable(),
 	createdAt: z.date().transform((date) => date.toISOString()),
 	updatedAt: z.date().transform((date) => date.toISOString()),
-	datePosted: z.string().nullish(),
-	hybrid: z.boolean().nullish(),
-	remote: z.boolean().nullish(),
-	salary: z.string().nullish(),
-	reposted: z.boolean().nullish(),
-	dateReposted: z.string().nullish(),
-	hiringTeam: z.array(HiringTeamMemberSchema).nullish(),
-	company: CompanySchema.nullish(),
-	userId: z.string(),
 });
 
 // Match with Application
@@ -66,5 +67,11 @@ export const MatchWithApplicationSchema = MatchBaseSchema.extend({
 	application: ApplicationBaseSchema.nullish(),
 });
 
+// Match with Job Match Run
+export const MatchWithJobMatchRunSchema = MatchBaseSchema.extend({
+	jobMatchRun: JobMatchRunBaseSchema.nullable(),
+});
+
 export type TMatchBase = z.infer<typeof MatchBaseSchema>;
 export type TMatchWithApplication = z.infer<typeof MatchWithApplicationSchema>;
+export type TMatchWithJobMatchRun = z.infer<typeof MatchWithJobMatchRunSchema>;

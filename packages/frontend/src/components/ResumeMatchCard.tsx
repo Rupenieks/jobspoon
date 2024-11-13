@@ -40,6 +40,7 @@ import CompanyLogo from './ui/company-logo';
 import { useReadResume } from '@/hooks/useReadResume';
 import { ResumeDetailsDialog } from './dialogs/ResumeDetailsDialog';
 import { ResumeStateProvider } from './resumes/ResumeStateContext';
+import CustomIcon from '@/icons/CustomIcon';
 
 interface ResumeMatchCardProps {
 	resumeId: string;
@@ -357,8 +358,11 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 									</TableBody>
 								</Table>
 							) : (
-								<div className="h-24 flex items-center justify-center border border-gray-200 rounded-m items-center justify-center">
-									<span className="text-muted-foreground">Hit refresh to find jobs.</span>
+								<div className="h-24 flex flex-col gap-3 p-4 h-fit items-center justify-center border border-gray-200 rounded-m items-center justify-center">
+									<CustomIcon name="no-data" className="h-12 w-12" />
+									<span className="text-muted-foreground text-sm text-center">
+										Hit refresh to find jobs.
+									</span>
 								</div>
 							)}
 						</div>

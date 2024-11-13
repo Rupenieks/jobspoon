@@ -10,7 +10,29 @@ export class JobsService {
     private readonly prismaService: PrismaService,
   ) {}
 
+  async canUserRunJobMatch(userId: string, resumeId: string): Promise<boolean> {
+    // Check if the user has run a job match today per resume
+    const lastRun = await this.prismaService.jobMatchRun.findFirst({
+      where: {
+        userId,
+        resumeId,
+        createdAt: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)), // Start of today
+        },
+      },
+    });
+
+    return !lastRun;
+  }
+
   async fetchJobs(resumeId: string, userId: string): Promise<number> {
+    const canRun = await this.canUserRunJobMatch(userId, resumeId);
+    if (!canRun) {
+      throw new Error(
+        'You can only run job matching once per day for each resume',
+      );
+    }
+
     const resume = await this.prismaService.resume.findUnique({
       where: { id: resumeId },
     });
@@ -22,8 +44,22 @@ export class JobsService {
     const parsedResume = ResumeBaseSchema.parse(resume);
 
     try {
+      // Create the job match run first
+      const jobMatchRun = await this.prismaService.jobMatchRun.create({
+        data: {
+          userId,
+          resumeId,
+        },
+      });
+
       const jobs = await this.theirStackService.searchJobs(parsedResume);
-      await this.createMatches({ resumeId, matches: jobs, userId });
+      await this.createMatches({
+        resumeId,
+        matches: jobs,
+        userId,
+        jobMatchRunId: jobMatchRun.id,
+      });
+
       return jobs.length;
     } catch (error) {
       console.error('Error fetching jobs:', error);
@@ -35,10 +71,12 @@ export class JobsService {
     resumeId,
     matches,
     userId,
+    jobMatchRunId,
   }: {
     resumeId: string;
     matches: TMatchBase[];
     userId: string;
+    jobMatchRunId: string;
   }): Promise<void> {
     for (const match of matches) {
       if (!match.integrationId) {
@@ -55,6 +93,7 @@ export class JobsService {
         },
         update: {
           ...match,
+          jobMatchRunId,
         },
         create: {
           integrationId: match.integrationId,

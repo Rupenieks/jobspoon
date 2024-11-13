@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { MatchBaseSchema } from '../match';
 import { ApplicationBaseSchema } from '../application';
+import { JobMatchRunBaseSchema } from '../jobMatchRun/TJobMatchRun';
 
 // Base schemas for resume data
 export const ExperienceSchema = z.object({
@@ -134,6 +135,7 @@ export const ResumeWithApplicationSchema = ResumeBaseSchema.extend({
 export const ResumeFullSchema = ResumeBaseSchema.extend({
 	matches: z.array(MatchBaseSchema).nullish(),
 	application: ApplicationBaseSchema.nullish(),
+	jobMatchRuns: z.array(JobMatchRunBaseSchema).nullish(),
 });
 
 // Types
