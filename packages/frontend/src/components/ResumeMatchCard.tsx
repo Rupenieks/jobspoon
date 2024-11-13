@@ -37,16 +37,18 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import JobMatchDialog from './JobMatchDialog';
 import CompanyLogo from './ui/company-logo';
+import { useReadResume } from '@/hooks/useReadResume';
 
 interface ResumeMatchCardProps {
-	resume: TResumeWithMatches;
+	resumeId: string;
 	isPending: boolean;
 	onMatchJobs: (resumeId: string) => void;
 }
 
-const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resume, isPending, onMatchJobs }) => {
+const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, onMatchJobs }) => {
 	const navigate = useNavigate();
-	const matchCount = useMemo(() => resume.matches?.length || 0, [resume.matches]);
+	const { resume } = useReadResume(resumeId);
+	const matchCount = useMemo(() => resume?.matches?.length || 0, [resume?.matches]);
 	const { mutateAsync: createApplication } = useCreateApplication();
 	const { data: applications } = useReadApplications();
 	const [selectedMatchId, setSelectedMatchId] = useState<string | undefined>(undefined);
@@ -59,12 +61,12 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resume, isPending, on
 	);
 
 	const handleEditResume = useCallback(() => {
-		navigate(`/resumes/${resume.id}`);
-	}, [navigate, resume.id]);
+		navigate(`/resumes/${resume?.id}`);
+	}, [navigate, resume?.id]);
 
 	const handleCreateApplication = useCallback(
 		async (matchId: string) => {
-			if (!matchId) return;
+			if (!matchId || !resume) return;
 			const application = await createApplication({ resumeId: resume.id, matchId });
 			toast({
 				title: 'Application created',
@@ -81,7 +83,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resume, isPending, on
 				),
 			});
 		},
-		[createApplication, resume.id]
+		[createApplication, resume?.id]
 	);
 
 	const handleGoToApplication = useCallback(
@@ -97,6 +99,8 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resume, isPending, on
 		},
 		[applications]
 	);
+
+	if (!resume) return null;
 
 	return (
 		<Accordion

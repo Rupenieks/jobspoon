@@ -154,12 +154,15 @@ export class ResumeParserService {
     );
   }
 
-  async getResumeById(id: string, userId: string): Promise<TResumeBase> {
+  async getResumeById(id: string, userId: string): Promise<TResumeWithMatches> {
     const resume = await this.prismaService.resume.findUnique({
       where: { id, userId },
+      include: {
+        matches: true,
+      },
     });
 
-    const parsed = ResumeBaseSchema.parse(resume);
+    const parsed = ResumeWithMatchesSchema.parse(resume);
 
     if (!resume || resume.userId !== userId) {
       throw new NotFoundException(
