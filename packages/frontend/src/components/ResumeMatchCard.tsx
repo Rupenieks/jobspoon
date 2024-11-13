@@ -19,8 +19,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { toast } from '@/hooks/use-toast';
 import { useCreateApplication } from '@/hooks/useCreateApplication';
 import { useReadApplications } from '@/hooks/useReadApplications';
+import { useReadResume } from '@/hooks/useReadResume';
+import CustomIcon from '@/icons/CustomIcon';
 import { ToastAction } from '@radix-ui/react-toast';
-import { TMatchBase, TResumeWithMatches } from '@redundant/common';
 import { formatDistanceToNow } from 'date-fns';
 import {
 	ArrowRight,
@@ -35,12 +36,10 @@ import {
 } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import JobMatchDialog from './JobMatchDialog';
-import CompanyLogo from './ui/company-logo';
-import { useReadResume } from '@/hooks/useReadResume';
 import { ResumeDetailsDialog } from './dialogs/ResumeDetailsDialog';
+import JobMatchDialog from './JobMatchDialog';
 import { ResumeStateProvider } from './resumes/ResumeStateContext';
-import CustomIcon from '@/icons/CustomIcon';
+import CompanyLogo from './ui/company-logo';
 
 interface ResumeMatchCardProps {
 	resumeId: string;
