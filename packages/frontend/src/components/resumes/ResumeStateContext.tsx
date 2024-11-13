@@ -19,6 +19,8 @@ interface ResumeStateContextType {
 	updateEntireResume: (newResumeData: TResumeData) => void;
 	setTemporaryResume: (resume: TResumeBase | null) => void;
 	applyTemporaryResume: () => void;
+	isPending: boolean;
+	updateResumePersonalInfo: (field: keyof TResumeData['personalInfo'], value: string) => void;
 }
 
 const ResumeStateContext = React.createContext<ResumeStateContextType>(
@@ -33,7 +35,7 @@ interface ResumeStateProviderProps {
 export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({ resumeId, children }) => {
 	const { resume: initialResume, isLoading, error } = useReadResume(resumeId);
 	const [resume, setResume] = useState<TResumeBase | null>(null);
-	const { mutate: updateResume } = useUpdateResume();
+	const { mutate: updateResume, isPending } = useUpdateResume();
 	const [temporaryResume, setTemporaryResume] = useState<TResumeBase | null>(null);
 	useEffect(() => {
 		if (initialResume) {
@@ -176,6 +178,22 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({ resume
 		}
 	}, [temporaryResume, resume, applyTemporaryResume]);
 
+	const updateResumePersonalInfo = useCallback(
+		(field: keyof TResumeData['personalInfo'], value: string) => {
+			setResume((prev) => {
+				if (!prev) return prev;
+				const updatedPersonalInfo = {
+					...prev.data.personalInfo,
+					[field]: value,
+				};
+				const updatedData = { ...prev.data, personalInfo: updatedPersonalInfo };
+				debouncedSave({ ...updatedData });
+				return { ...prev, data: updatedData };
+			});
+		},
+		[debouncedSave]
+	);
+
 	const value = useMemo(
 		() => ({
 			resume,
@@ -192,6 +210,8 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({ resume
 			updateEntireResume,
 			setTemporaryResume,
 			applyTemporaryResume,
+			isPending,
+			updateResumePersonalInfo,
 		}),
 		[
 			resume,
@@ -208,6 +228,8 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({ resume
 			updateEntireResume,
 			setTemporaryResume,
 			applyTemporaryResume,
+			isPending,
+			updateResumePersonalInfo,
 		]
 	);
 
