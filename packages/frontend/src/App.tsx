@@ -12,6 +12,7 @@ import Applications from './components/Applications';
 import ApplicationPage from './components/application/ApplicationPage';
 import Onboarding from './components/onboarding/Onboarding';
 import { useReadUser } from './hooks/useReadUser';
+import { ThemeProvider } from './components/ThemeProvider';
 
 const App: React.FC = () => {
 	const { loading, isAuthenticated } = useAuth();
@@ -30,7 +31,11 @@ const App: React.FC = () => {
 		return <LayoutWrapper />;
 	}, [loading, isAuthenticated, userData]);
 
-	return <Router>{content}</Router>;
+	return (
+		<ThemeProvider defaultTheme="default">
+			<Router>{content}</Router>
+		</ThemeProvider>
+	);
 };
 
 const LayoutWrapper = React.memo(() => (
