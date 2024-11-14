@@ -242,6 +242,7 @@ const UtilityBar = () => {
 								<SelectItem value="standard">Standard</SelectItem>
 								<SelectItem value="modern">Modern</SelectItem>
 								<SelectItem value="fineprint">Fineprint</SelectItem>
+								<SelectItem value="hipster">Hipster</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>

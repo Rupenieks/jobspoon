@@ -166,6 +166,42 @@ export const ModernTemplate = ({ resume, pageIndex }: ModernTemplateProps) => {
 		);
 	}, [resume.experience, config.sidebarColor]);
 
+	const renderSidebarSection = (sectionType: string) => {
+		switch (sectionType) {
+			case 'personalInfo':
+				return profileSection;
+			case 'education':
+				return educationSection;
+			case 'skills':
+				return skillsSection;
+			default:
+				return null;
+		}
+	};
+
+	const renderMainSection = (sectionType: string) => {
+		switch (sectionType) {
+			case 'personalInfo':
+				return mainProfileSection;
+			case 'experience':
+				return experienceSection;
+			default:
+				return null;
+		}
+	};
+
+	const currentPage = resume.pages[pageIndex];
+
+	// Determine which sections go in which column
+	const sidebarTypes = ['personalInfo', 'education', 'skills'];
+	const mainTypes = ['experience', 'personalInfo'];
+
+	const sidebarSections = currentPage.sections.filter((section) =>
+		sidebarTypes.includes(section.type)
+	);
+
+	const mainSections = currentPage.sections.filter((section) => mainTypes.includes(section.type));
+
 	return (
 		<div
 			className="flex min-h-[297mm] w-[210mm] relative"
@@ -185,9 +221,9 @@ export const ModernTemplate = ({ resume, pageIndex }: ModernTemplateProps) => {
 						color: config.sidebarFontColor,
 					}}
 				>
-					{profileSection}
-					{educationSection}
-					{skillsSection}
+					{sidebarSections.map((section) => (
+						<div key={section.id}>{renderSidebarSection(section.type)}</div>
+					))}
 				</div>
 			</div>
 
@@ -200,8 +236,9 @@ export const ModernTemplate = ({ resume, pageIndex }: ModernTemplateProps) => {
 						color: config.fontColor,
 					}}
 				>
-					{mainProfileSection}
-					{experienceSection}
+					{mainSections.map((section) => (
+						<div key={section.id}>{renderMainSection(section.type)}</div>
+					))}
 				</div>
 			</div>
 		</div>

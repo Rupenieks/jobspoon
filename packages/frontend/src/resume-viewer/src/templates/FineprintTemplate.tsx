@@ -180,6 +180,23 @@ export const FineprintTemplate = ({ resume, pageIndex }: FineprintTemplateProps)
 		);
 	}, [resume.skills]);
 
+	const renderSection = (sectionType: string) => {
+		switch (sectionType) {
+			case 'personalInfo':
+				return headerSection;
+			case 'experience':
+				return experienceSection;
+			case 'education':
+				return educationSection;
+			case 'skills':
+				return additionalSection;
+			default:
+				return null;
+		}
+	};
+
+	const currentPage = resume.pages[pageIndex];
+
 	return (
 		<div
 			className="min-h-[297mm] w-[210mm] relative"
@@ -202,11 +219,9 @@ export const FineprintTemplate = ({ resume, pageIndex }: FineprintTemplateProps)
 					padding: `${config.margin}mm`,
 				}}
 			>
-				{headerSection}
-				{summarySection}
-				{experienceSection}
-				{educationSection}
-				{additionalSection}
+				{currentPage.sections.map((section) => (
+					<div key={section.id}>{renderSection(section.type)}</div>
+				))}
 			</div>
 		</div>
 	);
