@@ -144,7 +144,7 @@ export const ModernTemplate = ({ resume, pageIndex }: ModernTemplateProps) => {
 							<div className="flex justify-between items-start">
 								<div>
 									<h3 className="font-semibold text-lg">{exp.positionTitle}</h3>
-									<p className="text-gray-600">{exp.company}</p>
+									<p>{exp.company}</p>
 								</div>
 								<p className="text-sm whitespace-nowrap">
 									{exp.startDate} — {exp.endDate}
