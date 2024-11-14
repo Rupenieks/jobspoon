@@ -4,7 +4,7 @@ import axios from 'axios';
 import { TTheirStackJobsResponse } from './types/TTheirStackJobsResponse';
 import { TTechnologyResponse } from './types/TTheirStackTechnologyResponse';
 import { TTheirStackJobSearchQuery } from './types/TTheirStackJobSearchQuery';
-
+import { countryToAlpha2 } from 'country-to-iso';
 @Injectable()
 export class TheirStackService {
   private readonly apiUrl = 'https://api.theirstack.com/v1';
@@ -121,22 +121,7 @@ export class TheirStackService {
   }
 
   private countryToISO(country: string): string {
-    const countryMap: Record<string, string> = {
-      germany: 'DE',
-      england: 'GB',
-      'united kingdom': 'GB',
-      uk: 'GB',
-      france: 'FR',
-      spain: 'ES',
-      italy: 'IT',
-      netherlands: 'NL',
-      poland: 'PL',
-      ireland: 'IE',
-      // Add more mappings as needed
-    };
-
-    const normalizedCountry = country.trim().toLowerCase();
-    return countryMap[normalizedCountry] || normalizedCountry.toUpperCase();
+    return countryToAlpha2(country);
   }
 
   private async buildJobQuery(
