@@ -159,7 +159,6 @@ export const OpusTemplate = ({ resume, pageIndex }: OpusTemplateProps) => {
 				fontSize: `${config.fontSize}px`,
 				fontFamily: config.font,
 				backgroundColor: config.primaryColor,
-				height: '297mm',
 			}}
 		>
 			<div className="h-full flex flex-col">
