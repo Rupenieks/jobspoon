@@ -14,6 +14,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Crosshair1Icon } from '@radix-ui/react-icons';
 import { ScrollArea } from './ui/scroll-area';
+import { useReadUser } from '@/hooks/useReadUser';
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -21,6 +22,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
 	const { user, signOut } = useAuth();
+	const { data: userData } = useReadUser();
 	const location = useLocation();
 	const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -83,93 +85,59 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 	}, []);
 
 	return (
-		<div className="flex flex-col h-screen">
-			<nav className="bg-gray-800 text-white p-4 flex items-center">
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={toggleSidebar}
-					className="mr-4 text-white hover:bg-gray-700"
-				>
-					<MenuIcon className="h-6 w-6" />
-				</Button>
-				<h1 className="text-xl font-bold flex-grow">Jobspoon</h1>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Avatar className="cursor-pointer">
-							<AvatarImage
-								src={
-									user?.picture
-										? `https://images.weserv.nl/?url=${encodeURIComponent(user.picture)}`
-										: undefined
-								}
-								alt={user?.fullName}
-							/>
-							<AvatarFallback>{userInitials}</AvatarFallback>
-						</Avatar>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent>
-						<DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</nav>
+		<div className="flex h-screen">
+			<aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+				<div className="p-6 flex flex-col items-center border-b border-gray-200">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Avatar className="cursor-pointer w-16 h-16">
+								<AvatarImage
+									src={
+										userData?.picture
+											? `https://images.weserv.nl/?url=${encodeURIComponent(userData.picture)}`
+											: undefined
+									}
+									alt={userData?.fullName}
+								/>
+								<AvatarFallback>{userInitials}</AvatarFallback>
+							</Avatar>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent>
+							<DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+					<span className="mt-4 font-medium text-gray-700">{userData?.fullName}</span>
+				</div>
 
-			<div className="flex flex-1 overflow-hidden">
-				<aside
-					className={cn(
-						'bg-gray-100 transition-all duration-300 ease-in-out',
-						isCollapsed ? 'w-16' : 'w-42'
-					)}
-				>
-					<ul className="space-y-2 p-4">
+				<nav className="flex-1 p-4">
+					<ul className="space-y-2">
 						{navItems.map((item) => (
-							<li key={item.label} className="relative">
-								<TooltipProvider>
-									{isCollapsed ? (
-										<Tooltip delayDuration={0}>
-											<TooltipTrigger asChild>
-												<Link
-													to={item.path}
-													className={cn(
-														'flex items-center p-2 rounded overflow-hidden justify-center',
-														isNavItemActive(item.path)
-															? 'bg-gray-200 font-semibold'
-															: 'hover:bg-gray-200'
-													)}
-												>
-													<span className="flex-shrink-0">{item.icon}</span>
-												</Link>
-											</TooltipTrigger>
-											<TooltipContent side="right">
-												<p>{item.label}</p>
-											</TooltipContent>
-										</Tooltip>
-									) : (
-										<Link
-											to={item.path}
-											className={cn(
-												'flex items-center p-2 rounded overflow-hidden pr-8',
-												isNavItemActive(item.path)
-													? 'bg-gray-200 font-semibold'
-													: 'hover:bg-gray-200'
-											)}
-										>
-											<span className="flex-shrink-0">{item.icon}</span>
-											<span className="ml-2 whitespace-nowrap transition-all duration-300 ease-in-out opacity-100 w-auto">
-												{item.label}
-											</span>
-										</Link>
+							<li key={item.label}>
+								<Link
+									to={item.path}
+									className={cn(
+										'flex items-center px-4 py-3 rounded-lg transition-colors',
+										isNavItemActive(item.path)
+											? 'bg-gray-100 text-gray-900 font-medium'
+											: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
 									)}
-								</TooltipProvider>
+								>
+									<span className="flex-shrink-0">{item.icon}</span>
+									<span className="ml-3">{item.label}</span>
+								</Link>
 							</li>
 						))}
 					</ul>
-				</aside>
+				</nav>
 
-				<ScrollArea className="flex-1">
-					<main className="p-8">{children}</main>
-				</ScrollArea>
-			</div>
+				<div className="p-6 border-t border-gray-200">
+					<span className="text-gray-600 font-semibold">Jobspoon</span>
+				</div>
+			</aside>
+
+			<ScrollArea className="flex-1">
+				<main className="p-8">{children}</main>
+			</ScrollArea>
 		</div>
 	);
 };
