@@ -103,7 +103,12 @@ export class ResumeParserService {
 
   async getAllResumesForUser(userId: string): Promise<TResumeBase[]> {
     const resumes = await this.prismaService.resume.findMany({
-      where: { userId },
+      where: {
+        userId,
+        applications: {
+          none: {}, // This filters out resumes that have applications
+        },
+      },
       include: {
         matches: true,
         applications: true,
@@ -133,33 +138,38 @@ export class ResumeParserService {
     return runs;
   }
 
+  async getJobRunsRemaining(userId: string): Promise<number> {
+    const MAX_RUNS_PER_DAY = 3;
+    const todayRuns = await this.getTodayJobRunsCount(userId);
+    return Math.max(0, MAX_RUNS_PER_DAY - todayRuns);
+  }
+
   async getResumesWithMatches(
     userId: string,
   ): Promise<TResumesWithRunsRemaining> {
     const resumes = await this.prismaService.resume.findMany({
       where: {
         userId,
+        applications: {
+          none: {}, // This filters out resumes that have applications
+        },
       },
       include: {
         matches: true,
+        applications: true,
         jobMatchRuns: true,
       },
     });
-
-    const todayRunsCount = await this.getTodayJobRunsCount(userId);
-    const jobRunsRemaining = Math.max(0, 3 - todayRunsCount);
 
     const resumesWithFlag = await Promise.all(
       resumes.map((resume) => this.addCanRunJobsMatch(resume)),
     );
 
-    const parsedResumes = resumesWithFlag.map((resume) =>
-      ResumeFullSchema.parse(resume),
-    );
+    const jobRunsRemaining = await this.getJobRunsRemaining(userId);
 
     return {
+      resumes: resumesWithFlag.map((resume) => ResumeFullSchema.parse(resume)),
       jobRunsRemaining,
-      resumes: parsedResumes,
     };
   }
 

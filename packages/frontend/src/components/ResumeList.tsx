@@ -160,6 +160,13 @@ const ResumeList: React.FC = () => {
 							: resume.data.personalInfo?.profileBio}
 					</span>
 
+					<span
+						className="mt-6 text-xs text-gray-500"
+						style={{ color: resume.data.config.fontColor }}
+					>
+						{resume.data.skills?.length > 0 ? resume.data.skills.join(', ') : 'No skills'}
+					</span>
+
 					<div className="mt-auto">
 						<p className="text-xl font-medium" style={{ color: resume.data.config.fontColor }}>
 							{resume.data.personalInfo?.positionName}
