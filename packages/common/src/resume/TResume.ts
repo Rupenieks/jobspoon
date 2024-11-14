@@ -56,7 +56,7 @@ export const PageSchema = z.object({
 });
 
 // First, let's define the template types
-export const ResumeTemplateEnum = z.enum(['standard', 'modern', 'fineprint', 'Hipster']);
+export const ResumeTemplateEnum = z.enum(['standard', 'modern', 'fineprint', 'hipster', 'opus']);
 export type TResumeTemplate = z.infer<typeof ResumeTemplateEnum>;
 
 // This is the pure resume data schema (what's in the data field)
