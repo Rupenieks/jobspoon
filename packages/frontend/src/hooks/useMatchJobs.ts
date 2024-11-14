@@ -13,7 +13,7 @@ export const useMatchJobs = () => {
 	return useMutation({
 		mutationFn: matchJobs,
 		onSuccess: (_, resumeId) => {
-			queryClient.invalidateQueries({ queryKey: ['resumes'] });
+			queryClient.invalidateQueries({ queryKey: ['resumes-with-matches'] });
 			queryClient.invalidateQueries({ queryKey: ['resume', resumeId] });
 			toast({
 				title: 'Jobs matched',

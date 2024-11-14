@@ -21,6 +21,7 @@ import {
   TResumeData,
   TResumeFull,
   TResumeWithMatches,
+  TResumesWithRunsRemaining,
 } from '@redundant/common';
 
 @Controller('resume-parser')
@@ -77,18 +78,11 @@ export class ResumeParserController {
     }
   }
 
-  @Get('with-matches')
-  async getResumesWithMatches(@Request() req): Promise<TResumeWithMatches[]> {
-    try {
-      return await this.resumeParserService.getResumesWithMatches(
-        req.user.userId,
-      );
-    } catch (error) {
-      console.error('Error fetching resumes with matches:', error);
-      throw new InternalServerErrorException(
-        'Error fetching resumes with matches',
-      );
-    }
+  @Get('matches')
+  async getResumesWithMatches(
+    @Request() req,
+  ): Promise<TResumesWithRunsRemaining> {
+    return this.resumeParserService.getResumesWithMatches(req.user.userId);
   }
 
   @Put(':id/images')

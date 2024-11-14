@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ResumeMatchCard from './ResumeMatchCard';
 import { useReadApplications } from '@/hooks/useReadApplications';
 import { Separator } from './ui/separator';
+import { Badge } from './ui/badge';
 
 const ResumeSkeleton: React.FC = () => (
 	<div className="mb-4">
@@ -13,7 +14,7 @@ const ResumeSkeleton: React.FC = () => (
 );
 
 const Matches: React.FC = () => {
-	const { data: resumes, isLoading } = useReadResumesWithMatches();
+	const { resumes, jobRunsRemaining, isLoading } = useReadResumesWithMatches();
 	const { mutate: matchJobs, isPending } = useMatchJobs();
 	const { data: applications } = useReadApplications();
 
@@ -46,7 +47,10 @@ const Matches: React.FC = () => {
 
 	return (
 		<div className="container mx-auto px-4 py-8 flex flex-col">
-			<h1 className="text-3xl font-bold mb-6">Matches</h1>
+			<div className="flex justify-between items-center mb-6">
+				<h1 className="text-3xl font-bold">Matches</h1>
+				<Badge variant="secondary">{jobRunsRemaining} job runs remaining today</Badge>
+			</div>
 			<span className="mb-4 text-md text-gray-500">
 				Here you can match your resumes to jobs based on the data you provided.
 			</span>

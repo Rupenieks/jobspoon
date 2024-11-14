@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/utils/axiosConfig';
-import { TResumeWithMatches } from '@redundant/common';
+import { TResumeFull } from '@redundant/common';
+import { useQuery } from '@tanstack/react-query';
 
-const fetchResume = async (id: string): Promise<TResumeWithMatches> => {
+const fetchResume = async (id: string): Promise<TResumeFull> => {
 	const response = await axiosInstance.get(`http://localhost:3000/resume-parser/${id}`, {
 		headers: {
 			Authorization: `Bearer ${localStorage.getItem('token')}`,

@@ -11,13 +11,27 @@ export class JobsService {
   ) {}
 
   async canUserRunJobMatch(userId: string, resumeId: string): Promise<boolean> {
-    // Check if the user has run a job match today per resume
+    // Check total runs today
+    const todayRuns = await this.prismaService.jobMatchRun.count({
+      where: {
+        userId,
+        createdAt: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        },
+      },
+    });
+
+    if (todayRuns >= 3) {
+      return false;
+    }
+
+    // Check if this specific resume was run today
     const lastRun = await this.prismaService.jobMatchRun.findFirst({
       where: {
         userId,
         resumeId,
         createdAt: {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)), // Start of today
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
         },
       },
     });

@@ -33,6 +33,7 @@ import {
 	Pencil,
 	Plus,
 	RefreshCw,
+	Clock,
 } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -41,12 +42,41 @@ import JobMatchDialog from './JobMatchDialog';
 import { ResumeStateProvider } from './resumes/ResumeStateContext';
 import CompanyLogo from './ui/company-logo';
 import { Badge } from './ui/badge';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 interface ResumeMatchCardProps {
 	resumeId: string;
 	isPending: boolean;
 	onMatchJobs: (resumeId: string) => void;
 }
+
+const formatTimeUntilMidnight = () => {
+	const now = new Date();
+	const midnight = new Date(now);
+	midnight.setHours(24, 0, 0, 0);
+
+	const diffMs = midnight.getTime() - now.getTime();
+	const hours = Math.floor(diffMs / (1000 * 60 * 60));
+	const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+	if (hours > 0) {
+		return `${hours}h ${minutes}m`;
+	}
+	return `${minutes}m`;
+};
+
+const getTimeProgress = () => {
+	const now = new Date();
+	const midnight = new Date(now);
+	midnight.setHours(24, 0, 0, 0);
+
+	const totalDayMs = 24 * 60 * 60 * 1000;
+	const elapsedMs = now.getTime() - new Date(now).setHours(0, 0, 0, 0);
+
+	// Return percentage of day completed
+	return (elapsedMs / totalDayMs) * 100;
+};
 
 const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, onMatchJobs }) => {
 	const navigate = useNavigate();
@@ -159,6 +189,26 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 							</div>
 							<div className="flex items-center gap-6">
 								<div className="flex items-center gap-2 text-muted-foreground">
+									<Badge variant="secondary">
+										Last match run: {'  '}
+										{resume?.jobMatchRuns?.sort(
+											(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+										)[0]?.createdAt
+											? formatDistanceToNow(
+													new Date(
+														resume.jobMatchRuns.sort(
+															(a, b) =>
+																new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+														)[0].createdAt
+													),
+													{
+														addSuffix: true,
+													}
+												)
+											: 'Never'}
+									</Badge>
+								</div>
+								<div className="flex items-center gap-2 text-muted-foreground">
 									<Badge variant="outline">{matchCount} matches</Badge>
 								</div>
 								<div className="flex items-center gap-2 mr-4">
@@ -182,19 +232,43 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 									<TooltipProvider>
 										<Tooltip>
 											<TooltipTrigger asChild>
-												<Button
-													size="icon"
-													variant="default"
-													onClick={(e) => {
-														e.stopPropagation();
-														handleRefreshClick(e);
-													}}
-													disabled={isPending || !resume.canRunJobsMatch}
-												>
-													<RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
-												</Button>
+												{resume.canRunJobsMatch ? (
+													<Button
+														size="icon"
+														variant="default"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleRefreshClick(e);
+														}}
+														disabled={isPending}
+													>
+														<RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
+													</Button>
+												) : (
+													<div className="w-10 h-10">
+														<CircularProgressbar
+															value={getTimeProgress()}
+															strokeWidth={50}
+															styles={buildStyles({
+																strokeLinecap: 'butt',
+
+																// Colors
+																pathColor: '#1f2937',
+																trailColor: '#f3f4f6',
+																// No text
+																textSize: 0,
+															})}
+														/>
+													</div>
+												)}
 											</TooltipTrigger>
-											<TooltipContent>Find matches</TooltipContent>
+											<TooltipContent>
+												{resume.canRunJobsMatch ? (
+													'Find matches'
+												) : (
+													<>Can match jobs again in {formatTimeUntilMidnight()}</>
+												)}
+											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
 								</div>

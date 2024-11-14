@@ -160,3 +160,10 @@ export type TResumeUpdateDTO = z.infer<typeof ResumeUpdateDTOSchema>;
 
 // Add this type export
 export type TResumeConfig = z.infer<typeof ResumeConfigSchema>;
+
+export const ResumesWithRunsRemainingSchema = z.object({
+	jobRunsRemaining: z.number(),
+	resumes: z.array(ResumeFullSchema),
+});
+
+export type TResumesWithRunsRemaining = z.infer<typeof ResumesWithRunsRemainingSchema>;

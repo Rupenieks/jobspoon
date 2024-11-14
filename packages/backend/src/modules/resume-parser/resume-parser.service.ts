@@ -11,6 +11,7 @@ import {
   ResumeWithMatchesSchema,
   TResumeFull,
   ResumeFullSchema,
+  TResumesWithRunsRemaining,
 } from '@redundant/common';
 import { StorageService } from '../storage/storage.service';
 import { UserService } from '../user/user.service';
@@ -117,7 +118,24 @@ export class ResumeParserService {
     return resumesWithFlag.map((resume) => ResumeFullSchema.parse(resume));
   }
 
-  async getResumesWithMatches(userId: string): Promise<TResumeWithMatches[]> {
+  private async getTodayJobRunsCount(userId: string): Promise<number> {
+    const today = new Date(new Date().setHours(0, 0, 0, 0));
+
+    const runs = await this.prismaService.jobMatchRun.count({
+      where: {
+        userId,
+        createdAt: {
+          gte: today,
+        },
+      },
+    });
+
+    return runs;
+  }
+
+  async getResumesWithMatches(
+    userId: string,
+  ): Promise<TResumesWithRunsRemaining> {
     const resumes = await this.prismaService.resume.findMany({
       where: {
         userId,
@@ -128,11 +146,21 @@ export class ResumeParserService {
       },
     });
 
+    const todayRunsCount = await this.getTodayJobRunsCount(userId);
+    const jobRunsRemaining = Math.max(0, 3 - todayRunsCount);
+
     const resumesWithFlag = await Promise.all(
       resumes.map((resume) => this.addCanRunJobsMatch(resume)),
     );
 
-    return resumesWithFlag.map((resume) => ResumeFullSchema.parse(resume));
+    const parsedResumes = resumesWithFlag.map((resume) =>
+      ResumeFullSchema.parse(resume),
+    );
+
+    return {
+      jobRunsRemaining,
+      resumes: parsedResumes,
+    };
   }
 
   async parseResumeText(text: string, userId: string): Promise<TResumeBase> {
