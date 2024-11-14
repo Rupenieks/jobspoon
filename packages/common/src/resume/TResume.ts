@@ -26,16 +26,16 @@ export const ReferenceSchema = z.object({
 	email: z.string().nullish(),
 });
 
-// Add this before ResumeDataSchema
 export const ResumeConfigSchema = z.object({
-	primaryColor: z.string().default('#1f2937'), // Default to the current navy color
+	primaryColor: z.string().default('#1f2937'),
 	fontSize: z.number().default(16),
 	font: z.string().default('Roboto'),
-	margin: z.number().default(10), // 25.4mm is 1 inch, standard margin
+	margin: z.number().default(10),
 	fontColor: z.string().default('#ffffff'),
 	backgroundColor: z.string().default('#ffffff'),
 	sidebarColor: z.string().default('#f9fafb'),
 	sidebarFontColor: z.string().default('#ffffff'),
+	template: z.string().default('standard'),
 });
 
 // Define section types
@@ -55,6 +55,10 @@ export const PageSchema = z.object({
 	sections: z.array(SectionSchema),
 });
 
+// First, let's define the template types
+export const ResumeTemplateEnum = z.enum(['standard', 'modern']);
+export type TResumeTemplate = z.infer<typeof ResumeTemplateEnum>;
+
 // This is the pure resume data schema (what's in the data field)
 export const ResumeDataSchema = z.object({
 	// Section data
@@ -73,7 +77,6 @@ export const ResumeDataSchema = z.object({
 	education: z.array(EducationSchema).nullish(),
 	skills: z.array(z.string()).nullish(),
 
-	// Page layout
 	pages: z.array(PageSchema).default([
 		{
 			sections: [
@@ -85,7 +88,6 @@ export const ResumeDataSchema = z.object({
 		},
 	]),
 
-	// Other configurations remain the same
 	config: ResumeConfigSchema.default({
 		primaryColor: '#ffffff',
 		fontSize: 16,
@@ -95,6 +97,7 @@ export const ResumeDataSchema = z.object({
 		sidebarFontColor: '#ffffff',
 		backgroundColor: '#ffffff',
 		sidebarColor: '#000080',
+		template: 'standard',
 	}),
 	previewImage: z.string().nullish(),
 	profileImage: z.string().nullish(),
