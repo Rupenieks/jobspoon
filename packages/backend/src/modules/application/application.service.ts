@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import * as pdf from 'pdf-parse';
 import { InsightService } from '../insight/insight.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ApplicationAnalytics, ApplicationStages } from '@redundant/common';
+
 @Injectable()
 export class ApplicationService {
   constructor(
@@ -172,5 +174,59 @@ export class ApplicationService {
       resumeId: application.resumeId,
       matchId: application.matchId,
     });
+  }
+
+  async getDashboardAnalytics(userId: string): Promise<ApplicationAnalytics> {
+    const applications = await this.prisma.application.findMany({
+      where: { userId },
+      select: {
+        stage: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    const applicationStages = ApplicationStages.map((stage) => ({
+      name: stage,
+      value: applications.filter((app) => app.stage === stage).length,
+    }));
+
+    const weeklyApplications =
+      applications.length > 0
+        ? (() => {
+            const firstApplication = applications[0];
+            const today = new Date();
+            const firstDate = new Date(firstApplication.createdAt);
+
+            const weeksDiff = Math.ceil(
+              (today.getTime() - firstDate.getTime()) /
+                (7 * 24 * 60 * 60 * 1000),
+            );
+
+            return Array.from({ length: weeksDiff })
+              .map((_, index) => {
+                const weekEnd = new Date();
+                weekEnd.setDate(weekEnd.getDate() - index * 7);
+                const weekStart = new Date(weekEnd);
+                weekStart.setDate(weekEnd.getDate() - 7);
+
+                return {
+                  week: weekStart.toISOString(),
+                  applications: applications.filter(
+                    (app) =>
+                      app.createdAt >= weekStart && app.createdAt < weekEnd,
+                  ).length,
+                };
+              })
+              .reverse();
+          })()
+        : [];
+
+    return {
+      applicationStages,
+      weeklyApplications,
+    };
   }
 }

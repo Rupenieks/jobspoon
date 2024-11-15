@@ -1,1 +1,2 @@
-export * from "./TApplication";
+export * from './TApplication';
+export * from './ApplicationAnalytics';

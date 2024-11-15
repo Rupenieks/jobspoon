@@ -74,4 +74,9 @@ export class ApplicationController {
       files,
     );
   }
+
+  @Get('analytics/dashboard')
+  async getDashboardAnalytics(@Req() req) {
+    return this.applicationService.getDashboardAnalytics(req.user.userId);
+  }
 }

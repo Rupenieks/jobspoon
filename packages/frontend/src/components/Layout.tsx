@@ -1,20 +1,12 @@
 import { useAuth } from '@/auth/AuthProvider';
+import { useReadUser } from '@/hooks/useReadUser';
+import CustomIcon from '@/icons/CustomIcon';
 import { cn } from '@/lib/utils';
-import { FileTextIcon, Home, MenuIcon, RocketIcon } from 'lucide-react';
+import { Crosshair1Icon } from '@radix-ui/react-icons';
+import { FileTextIcon, Home, RocketIcon } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Button } from './ui/button';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import { Crosshair1Icon } from '@radix-ui/react-icons';
 import { ScrollArea } from './ui/scroll-area';
-import { useReadUser } from '@/hooks/useReadUser';
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -88,29 +80,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 		<div className="flex h-screen bg-background">
 			<aside className="w-64 border-r border-border bg-card flex flex-col">
 				<div className="p-6 flex flex-col items-center border-b border-border">
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Avatar className="cursor-pointer w-16 h-16">
-								<AvatarImage
-									src={
-										userData?.picture
-											? `https://images.weserv.nl/?url=${encodeURIComponent(userData.picture)}`
-											: undefined
-									}
-									alt={userData?.fullName}
-								/>
-								<AvatarFallback className="bg-muted text-muted-foreground">
-									{userInitials}
-								</AvatarFallback>
-							</Avatar>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent>
-							<DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-								Logout
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-					<span className="mt-4 font-medium text-card-foreground">{userData?.fullName}</span>
+					<span className="text-sm text-muted-foreground">
+						<CustomIcon name="jobspoon" className="h-12" />
+					</span>
 				</div>
 
 				<nav className="flex-1 p-4">
@@ -134,11 +106,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 					</ul>
 				</nav>
 
-				<div className="p-4 border-t border-border">
-					<span className="text-sm text-muted-foreground">
-						© {new Date().getFullYear()} Jobspoon
-					</span>
-				</div>
+				<div className="p-4 border-t border-border"></div>
 			</aside>
 
 			<div className="flex-1 flex flex-col min-h-0">
