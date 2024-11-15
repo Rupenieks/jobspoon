@@ -44,6 +44,7 @@ import CompanyLogo from './ui/company-logo';
 import { Badge } from './ui/badge';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { cn } from '@/lib/utils';
 
 interface ResumeMatchCardProps {
 	resumeId: string;
@@ -171,15 +172,18 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 			>
 				<AccordionItem value={resume.id} className="border-none">
 					<AccordionTrigger
-						className={`hover:no-underline py-4 px-4 border-t-2 border-r-2 border-b-2`}
+						className={cn(
+							'hover:no-underline py-4 px-4',
+							'border-t-2 border-r-2 border-b-2 border-border'
+						)}
 					>
 						<div className="flex items-center justify-between w-full">
 							<div className="flex-1">
 								<div className="text-left">
-									<h3 className="font-semibold text-lg leading-tight mb-1">
+									<h3 className="font-semibold text-lg leading-tight mb-1 text-foreground">
 										{resume.data.personalInfo.positionName}
 									</h3>
-									<p className="text-sm text-gray-500 text-muted-foreground">
+									<p className="text-sm text-muted-foreground">
 										{resume.data.personalInfo.fullName} • Created{' '}
 										{formatDistanceToNow(new Date(resume.createdAt as string), {
 											addSuffix: true,
@@ -188,7 +192,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 								</div>
 							</div>
 							<div className="flex items-center gap-6">
-								<div className="flex items-center gap-2 text-muted-foreground">
+								<div className="flex items-center gap-2">
 									<Badge variant="secondary">
 										Last match run: {'  '}
 										{resume?.jobMatchRuns?.sort(
@@ -208,8 +212,8 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 											: 'Never'}
 									</Badge>
 								</div>
-								<div className="flex items-center gap-2 text-muted-foreground">
-									<Badge variant="outline">{matchCount} matches</Badge>
+								<div className="flex items-center gap-2">
+									<Badge variant="info">{matchCount} matches</Badge>
 								</div>
 								<div className="flex items-center gap-2 mr-4">
 									<TooltipProvider>
@@ -242,7 +246,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 														}}
 														disabled={isPending}
 													>
-														<RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
+														<RefreshCw className={cn('h-4 w-4', isPending && 'animate-spin')} />
 													</Button>
 												) : (
 													<div className="w-10 h-10">
@@ -251,11 +255,8 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 															strokeWidth={50}
 															styles={buildStyles({
 																strokeLinecap: 'butt',
-
-																// Colors
-																pathColor: '#1f2937',
-																trailColor: '#f3f4f6',
-																// No text
+																pathColor: 'hsl(var(--foreground))',
+																trailColor: 'hsl(var(--muted))',
 																textSize: 0,
 															})}
 														/>
@@ -319,7 +320,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 									</TableBody>
 								</Table>
 							) : resume.matches && resume.matches.length > 0 ? (
-								<Table className="border border-gray-200 rounded-m h-full pb-0">
+								<Table className="border border-border rounded-md">
 									<TableHeader>
 										<TableRow>
 											<TableHead>Company</TableHead>
@@ -431,8 +432,13 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 									</TableBody>
 								</Table>
 							) : (
-								<div className="h-24 flex flex-col gap-3 p-4 h-fit items-center justify-center border border-gray-200 rounded-m items-center justify-center">
-									<CustomIcon name="no-data" className="h-12 w-12" />
+								<div
+									className={cn(
+										'h-24 flex flex-col gap-3 p-4 h-fit items-center justify-center',
+										'border border-border rounded-md'
+									)}
+								>
+									<CustomIcon name="no-data" className="h-12 w-12 text-muted-foreground" />
 									<span className="text-muted-foreground text-sm text-center">
 										Hit refresh to find jobs.
 									</span>

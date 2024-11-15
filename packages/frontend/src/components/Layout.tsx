@@ -1,6 +1,6 @@
 import { useAuth } from '@/auth/AuthProvider';
 import { cn } from '@/lib/utils';
-import { FileIcon, FileTextIcon, Home, MenuIcon, RocketIcon } from 'lucide-react';
+import { FileTextIcon, Home, MenuIcon, RocketIcon } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -85,9 +85,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 	}, []);
 
 	return (
-		<div className="flex h-screen">
-			<aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-				<div className="p-6 flex flex-col items-center border-b border-gray-200">
+		<div className="flex h-screen bg-background">
+			<aside className="w-64 border-r border-border bg-card flex flex-col">
+				<div className="p-6 flex flex-col items-center border-b border-border">
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Avatar className="cursor-pointer w-16 h-16">
@@ -99,14 +99,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 									}
 									alt={userData?.fullName}
 								/>
-								<AvatarFallback>{userInitials}</AvatarFallback>
+								<AvatarFallback className="bg-muted text-muted-foreground">
+									{userInitials}
+								</AvatarFallback>
 							</Avatar>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
-							<DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
+							<DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+								Logout
+							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
-					<span className="mt-4 font-medium text-gray-700">{userData?.fullName}</span>
+					<span className="mt-4 font-medium text-card-foreground">{userData?.fullName}</span>
 				</div>
 
 				<nav className="flex-1 p-4">
@@ -118,8 +122,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 									className={cn(
 										'flex items-center px-4 py-3 rounded-lg transition-colors',
 										isNavItemActive(item.path)
-											? 'bg-gray-100 text-gray-900 font-medium'
-											: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+											? 'bg-accent text-accent-foreground font-medium'
+											: 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground'
 									)}
 								>
 									<span className="flex-shrink-0">{item.icon}</span>
@@ -130,14 +134,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 					</ul>
 				</nav>
 
-				<div className="p-6 border-t border-gray-200">
-					<span className="text-gray-600 font-semibold">Jobspoon</span>
+				<div className="p-4 border-t border-border">
+					<span className="text-sm text-muted-foreground">
+						© {new Date().getFullYear()} Jobspoon
+					</span>
 				</div>
 			</aside>
 
-			<ScrollArea className="flex-1">
-				<main className="p-8">{children}</main>
-			</ScrollArea>
+			<div className="flex-1 flex flex-col min-h-0">
+				<ScrollArea className="flex-1">
+					<main className="p-8">{children}</main>
+				</ScrollArea>
+			</div>
 		</div>
 	);
 };

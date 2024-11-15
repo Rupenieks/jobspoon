@@ -32,7 +32,7 @@ const App: React.FC = () => {
 	}, [loading, isAuthenticated, userData]);
 
 	return (
-		<ThemeProvider defaultTheme="professional">
+		<ThemeProvider defaultTheme="professionalLight">
 			<Router>{content}</Router>
 		</ThemeProvider>
 	);

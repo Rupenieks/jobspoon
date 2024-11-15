@@ -10,6 +10,7 @@ import AppliedStage from './AppliedStage';
 import RejectedStage from './RejectedStage';
 import { Skeleton } from '../ui/skeleton';
 import InterviewStage from './InterviewStage';
+import SuccessStage from './SuccessStage';
 
 const stages = ['not_applied', 'applied', 'interview', 'success'] as const;
 
@@ -77,7 +78,7 @@ const ApplicationPage: React.FC = () => {
 			case 'interview':
 				return <InterviewStage onStageChange={handleStageChange} />;
 			case 'success':
-				return <div>Success</div>;
+				return <SuccessStage />;
 			case 'rejected':
 				return <RejectedStage />;
 		}

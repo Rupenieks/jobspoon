@@ -24,35 +24,20 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { useDeleteApplications } from '@/hooks/useDeleteApplications';
 import CompanyLogo from './ui/company-logo';
+import { Separator } from './ui/separator';
 
 const getStatusBadge = (stage: string) => {
 	switch (stage) {
 		case 'not_applied':
 			return <Badge variant="secondary">Not Applied</Badge>;
 		case 'applied':
-			return (
-				<Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">
-					Applied
-				</Badge>
-			);
+			return <Badge variant="info">Applied</Badge>;
 		case 'interview':
-			return (
-				<Badge variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-100">
-					Interview
-				</Badge>
-			);
+			return <Badge variant="warning">Interview</Badge>;
 		case 'success':
-			return (
-				<Badge variant="secondary" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-					Success
-				</Badge>
-			);
+			return <Badge variant="success">Success</Badge>;
 		case 'rejected':
-			return (
-				<Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100">
-					Rejected
-				</Badge>
-			);
+			return <Badge variant="destructive">Rejected</Badge>;
 		default:
 			return <Badge variant="secondary">Unknown</Badge>;
 	}
@@ -187,6 +172,10 @@ const Applications: React.FC = () => {
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<h1 className="text-3xl font-bold mb-6">Your Applications</h1>
+			<span>
+				Track your applications, use them to help improve your resume and move through the process
+			</span>
+			<Separator className="my-6" />
 			<div className="border rounded-lg">
 				<TableContent />
 			</div>
