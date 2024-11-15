@@ -170,11 +170,16 @@ const Applications: React.FC = () => {
 	);
 
 	return (
-		<div className="container mx-auto px-4 py-8">
-			<h1 className="text-3xl font-bold mb-6">Your Applications</h1>
-			<span>
-				Track your applications, use them to help improve your resume and move through the process
-			</span>
+		<div className="container mx-auto px-4 flex flex-col">
+			<div className="flex justify-between items-center">
+				<div className="flex flex-col gap-1.5">
+					<h1 className="text-2xl font-semibold tracking-tight">Your Applications</h1>
+					<p className="text-sm text-muted-foreground">
+						Track your applications, use them to help improve your resume and move through the
+						process
+					</p>
+				</div>
+			</div>
 			<Separator className="my-6" />
 			<div className="border rounded-lg">
 				<TableContent />

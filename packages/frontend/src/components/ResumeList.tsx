@@ -27,14 +27,8 @@ const ResumeList: React.FC = () => {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [selectedResumes, setSelectedResumes] = useState<Set<string>>(new Set());
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-	const { data: applications } = useReadApplications();
 	const navigate = useNavigate();
 	const { mutate: deleteResumes } = useDeleteResumes();
-	const filteredResumes = useMemo(() => {
-		return resumes
-			?.filter((resume) => !applications?.some((app) => app.resumeId === resume.id))
-			.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-	}, [resumes, applications]);
 
 	const handleResumeClick = useCallback(
 		(resumeId: string) => {
@@ -80,7 +74,7 @@ const ResumeList: React.FC = () => {
 						<div
 							className="h-full p-4 flex flex-col"
 							style={{
-								borderLeft: '8px solid #e5e7eb', // gray-200 color for skeleton
+								borderLeft: '8px solid hsl(var(--border))', // Using theme border color
 							}}
 						>
 							<div className="flex justify-between items-center">
@@ -101,13 +95,13 @@ const ResumeList: React.FC = () => {
 
 		if (error) {
 			return (
-				<div className="col-span-full text-center text-red-500">
+				<div className="col-span-full text-center text-destructive">
 					Error loading resumes. Please try again later.
 				</div>
 			);
 		}
 
-		return filteredResumes?.map((resume) => (
+		return resumes?.map((resume) => (
 			<Card
 				key={resume.id}
 				className="cursor-pointer relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
@@ -117,7 +111,6 @@ const ResumeList: React.FC = () => {
 			>
 				<div className="absolute top-4 right-4 z-10">
 					<Checkbox
-						className="bg-white data-[state=checked]:bg-white"
 						checked={selectedResumes.has(resume.id)}
 						onCheckedChange={(checked) => handleCheckboxChange(resume.id, checked as boolean)}
 						onClick={(e) => e.stopPropagation()}
@@ -151,19 +144,13 @@ const ResumeList: React.FC = () => {
 						</div>
 					</div>
 
-					<span
-						className="mt-6 text-xs text-gray-500"
-						style={{ color: resume.data.config.fontColor }}
-					>
+					<span className="mt-6 text-xs" style={{ color: resume.data.config.fontColor }}>
 						{resume.data.personalInfo?.profileBio.length > 320
 							? `${resume.data.personalInfo?.profileBio.slice(0, 320)}...`
 							: resume.data.personalInfo?.profileBio}
 					</span>
 
-					<span
-						className="mt-6 text-xs text-gray-500"
-						style={{ color: resume.data.config.fontColor }}
-					>
+					<span className="mt-6 text-xs" style={{ color: resume.data.config.fontColor }}>
 						{resume.data.skills?.length > 0 ? resume.data.skills.join(', ') : 'No skills'}
 					</span>
 
@@ -171,10 +158,7 @@ const ResumeList: React.FC = () => {
 						<p className="text-xl font-medium" style={{ color: resume.data.config.fontColor }}>
 							{resume.data.personalInfo?.positionName}
 						</p>
-						<p
-							className="text-sm text-gray-500 mt-1"
-							style={{ color: resume.data.config.fontColor }}
-						>
+						<p className="text-sm mt-1" style={{ color: resume.data.config.fontColor }}>
 							Created {formatDistanceToNow(new Date(resume.createdAt))} ago
 						</p>
 					</div>
@@ -184,16 +168,14 @@ const ResumeList: React.FC = () => {
 	}, [resumes, isLoading, error, handleResumeClick, selectedResumes, handleCheckboxChange]);
 
 	return (
-		<div className="flex flex-col">
-			<div className="flex justify-between items-center mb-6">
-				<div className="flex flex-col gap-2">
-					<h1 className="text-2xl font-bold">Resumes</h1>
-
-					<span className="mb-4 text-md text-gray-500">
+		<div className="container mx-auto px-4 flex flex-col">
+			<div className="flex justify-between items-center">
+				<div className="flex flex-col gap-1.5">
+					<h1 className="text-2xl font-semibold tracking-tight">Resumes</h1>
+					<p className="text-sm text-muted-foreground">
 						Here you can access the resumes you have created
-					</span>
+					</p>
 				</div>
-
 				<div className="flex items-center space-x-4">
 					<Button
 						variant="destructive"
@@ -209,7 +191,7 @@ const ResumeList: React.FC = () => {
 					<CreateResumeDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} />
 				</div>
 			</div>
-			<Separator className="mb-6" />
+			<Separator className="my-6" />
 
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">{ResumeCards}</div>
 

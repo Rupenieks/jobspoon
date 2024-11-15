@@ -46,16 +46,17 @@ const Matches: React.FC = () => {
 	}, [resumes, isLoading, isPending, handleMatchJobs]);
 
 	return (
-		<div className="container mx-auto px-4 py-8 flex flex-col">
-			<div className="flex justify-between items-center mb-6">
-				<h1 className="text-3xl font-bold">Matches</h1>
-				<Badge variant={'info'}>{jobRunsRemaining} job runs remaining today</Badge>
+		<div className="container mx-auto px-4 flex flex-col">
+			<div className="flex justify-between items-center">
+				<div className="flex flex-col gap-1.5">
+					<h1 className="text-2xl font-semibold tracking-tight">Matches</h1>
+					<p className="text-sm text-muted-foreground">
+						Here you can match your resumes to jobs based on the data you provided
+					</p>
+				</div>
+				<Badge variant="info">{jobRunsRemaining} job runs remaining today</Badge>
 			</div>
-			<span className="mb-4 text-md text-gray-500">
-				Here you can match your resumes to jobs based on the data you provided.
-			</span>
-
-			<Separator className="my-4 mb-8" />
+			<Separator className="my-6" />
 			{ResumeList}
 		</div>
 	);

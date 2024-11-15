@@ -42,7 +42,7 @@ const LayoutWrapper = React.memo(() => (
 	<Layout>
 		<Routes>
 			<Route path="/" element={<Start />} />
-			<Route path="/resumes" element={<Resumes />}>
+			<Route path="/resumes" element={<ResumeList />}>
 				<Route index element={<ResumeList />} />
 				<Route path=":resumeId" element={<ResumeDetails />} />
 			</Route>
