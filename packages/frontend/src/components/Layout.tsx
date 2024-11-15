@@ -13,10 +13,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-	const { user, signOut } = useAuth();
-	const { data: userData } = useReadUser();
 	const location = useLocation();
-	const [isCollapsed, setIsCollapsed] = useState(false);
 
 	const navItems = useMemo(
 		() => [
@@ -48,20 +45,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 		[]
 	);
 
-	const handleSignOut = useCallback(() => {
-		signOut();
-	}, [signOut]);
-
-	const userInitials = useMemo(() => {
-		return user?.fullName
-			? user.fullName
-					.split(' ')
-					.map((n) => n[0])
-					.join('')
-					.toUpperCase()
-			: '';
-	}, [user?.fullName]);
-
 	const isNavItemActive = useCallback(
 		(itemPath: string) => {
 			if (itemPath === '/') {
@@ -71,10 +54,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 		},
 		[location.pathname]
 	);
-
-	const toggleSidebar = useCallback(() => {
-		setIsCollapsed((prev) => !prev);
-	}, []);
 
 	return (
 		<div className="flex h-screen bg-background">

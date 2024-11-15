@@ -1,23 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
-	ResponsiveContainer,
-	PieChart,
-	Pie,
-	Cell,
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	Tooltip,
-	Area,
-} from 'recharts';
+	ChartConfig,
+	DonutChartContainer,
+	DonutChartTooltipContent,
+} from '@/components/ui/donut-chart';
+import { useReadDashboardAnalytics } from '@/hooks/useReadDashboardAnalytics';
+import { useReadUser } from '@/hooks/useReadUser';
 import CustomIcon, { IconName } from '@/icons/CustomIcon';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
-import { useReadDashboardAnalytics } from '@/hooks/useReadDashboardAnalytics';
-import { Skeleton } from './ui/skeleton';
 import { useMemo } from 'react';
-import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { Cell, Label, Pie, PieChart, Tooltip } from 'recharts';
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Skeleton } from './ui/skeleton';
 
 const stageColors = {
 	not_applied: 'hsl(240 4.8% 95.9%)',
@@ -36,20 +31,23 @@ const QuickActionCard = ({
 	title: string;
 	onClick: () => void;
 }) => (
-	<Card
+	<div
 		className={cn(
-			'cursor-pointer transition-colors',
-			'hover:bg-muted/50',
-			'flex items-center gap-4 p-4',
-			'h-48'
+			'cursor-pointer transition-all duration-200',
+			'bg-card hover:scale-[1.02]',
+			'flex flex-col items-center gap-6 p-8',
+			'h-56 rounded-lg border border-border',
+			'shadow-sm hover:shadow-md'
 		)}
 		onClick={onClick}
 	>
-		<CustomIcon name={icon} className="w-8 h-8" />
+		<CustomIcon name={icon} className="w-48 h-48" />
 		<div>
-			<h3 className="font-semibold">{title}</h3>
+			<Button variant="ghost" size="sm">
+				{title}
+			</Button>
 		</div>
-	</Card>
+	</div>
 );
 
 const LoadingSkeleton = () => (
@@ -66,22 +64,39 @@ const LoadingSkeleton = () => (
 	</div>
 );
 
-const formatStageName = (stage: string) => {
-	return stage
-		.split('_')
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(' ');
-};
-
 const Start = () => {
 	const navigate = useNavigate();
 	const { data: analytics, isLoading } = useReadDashboardAnalytics();
-	const userName = 'John'; // TODO: Get from user context
+	const { data: user } = useReadUser();
+	const userName = user?.fullName ?? 'User';
 
 	const totalApplications = useMemo(() => {
 		if (!analytics) return 0;
 		return analytics.applicationStages.reduce((sum, stage) => sum + stage.value, 0);
 	}, [analytics]);
+
+	const chartConfig = {
+		not_applied: {
+			label: 'Not Applied',
+			color: stageColors.not_applied,
+		},
+		applied: {
+			label: 'Applied',
+			color: stageColors.applied,
+		},
+		interview: {
+			label: 'Interview',
+			color: stageColors.interview,
+		},
+		success: {
+			label: 'Success',
+			color: stageColors.success,
+		},
+		rejected: {
+			label: 'Rejected',
+			color: stageColors.rejected,
+		},
+	} satisfies ChartConfig;
 
 	if (isLoading) {
 		return <LoadingSkeleton />;
@@ -92,14 +107,10 @@ const Start = () => {
 			<h1 className="text-3xl font-bold">Welcome back, {userName}</h1>
 
 			{/* Quick Actions */}
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-2 gap-6">
+				<QuickActionCard icon="create" title="Create Resume" onClick={() => navigate('/resumes')} />
 				<QuickActionCard
-					icon="create"
-					title="Create Resume"
-					onClick={() => navigate('/resumes/new')}
-				/>
-				<QuickActionCard
-					icon="applications"
+					icon="todo-list"
 					title="View Applications"
 					onClick={() => navigate('/applications')}
 				/>
@@ -109,115 +120,64 @@ const Start = () => {
 			<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 				{/* Application Stages */}
 				<Card className="lg:col-span-4">
-					<CardHeader>
+					<CardHeader className="bg-card">
 						<CardTitle>Application Stages</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="h-[300px] relative">
-							<ResponsiveContainer width="100%" height="100%">
-								<PieChart>
-									<Pie
-										data={analytics?.applicationStages}
-										dataKey="value"
-										nameKey="name"
-										cx="50%"
-										cy="50%"
-										innerRadius={60}
-										outerRadius={80}
-										paddingAngle={2}
-									>
-										{analytics?.applicationStages.map((entry, index) => (
-											<Cell
-												key={`cell-${index}`}
-												fill={stageColors[entry.name as keyof typeof stageColors]}
-											/>
-										))}
-									</Pie>
-									<Tooltip
-										contentStyle={{
-											backgroundColor: 'hsl(var(--background))',
-											border: '1px solid hsl(var(--border))',
-											borderRadius: '6px',
-											padding: '8px',
-										}}
-										formatter={(value: number, name: string) => [
-											`${value} application${value !== 1 ? 's' : ''}`,
-											formatStageName(name),
-										]}
-										itemStyle={{
-											color: 'hsl(var(--foreground))',
-											padding: '4px 0',
-										}}
-										labelStyle={{
-											color: 'hsl(var(--foreground))',
-											fontWeight: 'bold',
-										}}
-									/>
-								</PieChart>
-							</ResponsiveContainer>
-							{/* Center text */}
-							<div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-								<span className="text-3xl font-bold">{totalApplications}</span>
-								<span className="text-sm text-muted-foreground">Applications</span>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-
-				{/* Weekly Applications */}
-				<Card className="lg:col-span-8">
-					<CardHeader>
-						<CardTitle>Weekly Applications</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="h-[300px]">
-							<ResponsiveContainer width="100%" height="100%">
-								<LineChart data={analytics?.weeklyApplications}>
-									<defs>
-										<linearGradient id="colorApplications" x1="0" y1="0" x2="0" y2="1">
-											<stop offset="5%" stopColor="hsl(var(--info) / 0.2)" stopOpacity={0.8} />
-											<stop offset="95%" stopColor="hsl(var(--info) / 0.2)" stopOpacity={0} />
-										</linearGradient>
-									</defs>
-									<XAxis
-										dataKey="week"
-										stroke="hsl(var(--muted-foreground))"
-										fontSize={12}
-										tickFormatter={(date) => format(new Date(date), 'MMM d')}
-									/>
-									<YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-									<Tooltip
-										contentStyle={{
-											backgroundColor: 'hsl(var(--background))',
-											border: '1px solid hsl(var(--border))',
+						<DonutChartContainer
+							config={chartConfig}
+							className="mx-auto aspect-square max-h-[300px]"
+						>
+							<PieChart>
+								<Pie
+									data={analytics?.applicationStages}
+									dataKey="value"
+									nameKey="name"
+									cx="50%"
+									cy="50%"
+									innerRadius={60}
+									outerRadius={80}
+									paddingAngle={2}
+								>
+									{analytics?.applicationStages.map((entry, index) => (
+										<Cell
+											key={`cell-${index}`}
+											fill={stageColors[entry.name as keyof typeof stageColors]}
+										/>
+									))}
+									<Label
+										content={({ viewBox }) => {
+											if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+												return (
+													<text
+														x={viewBox.cx}
+														y={viewBox.cy}
+														textAnchor="middle"
+														dominantBaseline="middle"
+													>
+														<tspan
+															x={viewBox.cx}
+															y={viewBox.cy}
+															className="fill-foreground text-3xl font-bold"
+														>
+															{totalApplications}
+														</tspan>
+														<tspan
+															x={viewBox.cx}
+															y={(viewBox.cy || 0) + 24}
+															className="fill-muted-foreground"
+														>
+															Applications
+														</tspan>
+													</text>
+												);
+											}
 										}}
 									/>
-									{/* Area under the line */}
-									<Area
-										type="monotone"
-										dataKey="applications"
-										fillOpacity={1}
-										fill="url(#colorApplications)"
-									/>
-									{/* Line on top */}
-									<Line
-										type="monotone"
-										dataKey="applications"
-										stroke="#2563eb"
-										strokeWidth={2}
-										dot={{
-											fill: '#2563eb',
-											r: 4,
-										}}
-										activeDot={{
-											r: 6,
-											stroke: '#2563eb',
-											strokeWidth: 2,
-										}}
-									/>
-								</LineChart>
-							</ResponsiveContainer>
-						</div>
+								</Pie>
+								<Tooltip content={<DonutChartTooltipContent />} />
+							</PieChart>
+						</DonutChartContainer>
 					</CardContent>
 				</Card>
 			</div>

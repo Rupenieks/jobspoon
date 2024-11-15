@@ -21,6 +21,8 @@ import AstronautIcon from './svg/astronaut.svg?react';
 import JobSpooonLogo from './svg/logo.svg?react';
 // @ts-ignore
 import JobSpoon from './svg/jobspoon.svg?react';
+// @ts-ignore
+import TodoListIcon from './svg/todo-list.svg?react';
 
 export type IconName =
 	| 'waiting'
@@ -33,7 +35,8 @@ export type IconName =
 	| 'create'
 	| 'astronaut'
 	| 'logo'
-	| 'jobspoon';
+	| 'jobspoon'
+	| 'todo-list';
 // Map icon names to their components
 const iconMap: Record<IconName, React.FC<React.SVGProps<SVGSVGElement>>> = {
 	waiting: WaitingIcon,
@@ -47,6 +50,7 @@ const iconMap: Record<IconName, React.FC<React.SVGProps<SVGSVGElement>>> = {
 	astronaut: AstronautIcon,
 	logo: JobSpooonLogo,
 	jobspoon: JobSpoon,
+	'todo-list': TodoListIcon,
 };
 
 interface CustomIconProps extends React.SVGProps<SVGSVGElement> {
