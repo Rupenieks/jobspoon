@@ -6,6 +6,7 @@ import CustomIcon from '@/icons/CustomIcon';
 import { ArrowLeft, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { z } from 'zod';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const schema = z.object({
 	desiredJobTitles: z
@@ -90,47 +91,54 @@ export const JobTitlesStep: React.FC<JobTitlesStepProps> = ({ initialData, onSub
 
 			<form onSubmit={handleSubmit} className="space-y-8">
 				<div className="space-y-6 max-w-lg mx-auto">
-					{formData.desiredJobTitles.map((title, index) => (
-						<div key={index} className="space-y-3">
-							<Label htmlFor={`jobTitle-${index}`} className="text-base">
-								Job Title {index + 1}
-							</Label>
-							<div className="flex gap-3">
-								<Input
-									id={`jobTitle-${index}`}
-									value={title}
-									onChange={(e) => handleJobTitleChange(index, e.target.value)}
-									placeholder="e.g., Frontend Developer"
-									className="h-12 text-lg"
-								/>
-								{index === formData.desiredJobTitles.length - 1 &&
-								formData.desiredJobTitles.length < 3 ? (
-									<Button
-										type="button"
-										variant="outline"
-										size="icon"
-										onClick={handleAddJobTitle}
-										className="h-12 w-12"
-									>
-										<Plus className="h-5 w-5" />
-									</Button>
-								) : index > 0 ? (
-									<Button
-										type="button"
-										variant="outline"
-										size="icon"
-										onClick={() => handleRemoveJobTitle(index)}
-										className="h-12 w-12"
-									>
-										<Minus className="h-5 w-5" />
-									</Button>
-								) : null}
-							</div>
-							{errors?.index === index && (
-								<p className="text-sm text-destructive">{errors.message}</p>
-							)}
-						</div>
-					))}
+					<AnimatePresence mode="popLayout">
+						{formData.desiredJobTitles.map((title, index) => (
+							<motion.div
+								key={index}
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								exit={{ opacity: 0, y: -20 }}
+								transition={{ duration: 0.2, ease: 'easeOut' }}
+								className="space-y-3"
+							>
+								<div className="flex gap-3">
+									<Input
+										id={`jobTitle-${index}`}
+										value={title}
+										onChange={(e) => handleJobTitleChange(index, e.target.value)}
+										placeholder="e.g., Frontend Developer"
+										className="h-12 text-lg"
+									/>
+									{formData.desiredJobTitles.length < 3 &&
+										index === formData.desiredJobTitles.length - 1 && (
+											<Button
+												type="button"
+												variant="outline"
+												size="icon"
+												onClick={handleAddJobTitle}
+												className="h-12 w-12 shrink-0"
+											>
+												<Plus className="h-5 w-5" />
+											</Button>
+										)}
+									{index > 0 && (
+										<Button
+											type="button"
+											variant="outline"
+											size="icon"
+											onClick={() => handleRemoveJobTitle(index)}
+											className="h-12 w-12 shrink-0"
+										>
+											<Minus className="h-5 w-5" />
+										</Button>
+									)}
+								</div>
+								{errors?.index === index && (
+									<p className="text-sm text-destructive">{errors.message}</p>
+								)}
+							</motion.div>
+						))}
+					</AnimatePresence>
 				</div>
 
 				<div className="space-y-6 max-w-lg mx-auto">
