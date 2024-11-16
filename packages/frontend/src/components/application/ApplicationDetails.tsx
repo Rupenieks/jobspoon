@@ -7,17 +7,17 @@ import { useReadApplication } from '@/hooks/useReadApplication';
 import { useReadInsights } from '@/hooks/useReadInsights';
 import { useUpdateApplicationStage } from '@/hooks/useUpdateApplicationStage';
 import { cn } from '@/lib/utils';
-import { Building2, Check, LinkIcon, MapPin, Play } from 'lucide-react';
+import { Building2, Check, MapPin, Play } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import ReactConfetti from 'react-confetti';
 import { useParams } from 'react-router-dom';
 import InsightCard from '../insights/InsightCard';
 import ResumeEditingWrapper from '../resumes/ResumeEditingWrapper';
 import { ResumeStateProvider } from '../resumes/ResumeStateContext';
+import { Button } from '../ui/button';
 import CompanyLogo from '../ui/company-logo';
 import { ScrollArea } from '../ui/scroll-area';
 import LoadingSkeleton from './ApplicationDetailsLoadingSkeleton';
-import { Button } from '../ui/button';
 
 const ApplicationDetails: React.FC<{
 	onChangeStage: (stage: 'applied' | 'interview' | 'success' | 'rejected') => void;
@@ -140,7 +140,7 @@ const ApplicationDetails: React.FC<{
 
 								<TabsContent value="overview" className="space-y-4">
 									<div className="grid grid-cols-2 gap-4 text-sm">
-										<div className="flex items-center gap-2">
+										<div className="flex items-center gap-2 mt-2">
 											<MapPin className="h-4 w-4" />
 											<span>
 												{application.match.city}, {application.match.country}
@@ -153,9 +153,9 @@ const ApplicationDetails: React.FC<{
 										{/* Add more metadata */}
 									</div>
 
-									<div className="mt-4">
+									<div className="mt-4 flex flex-col gap-2">
 										<h3 className="font-semibold mb-2">Job Description</h3>
-										<ScrollArea className="h-[200px]">
+										<ScrollArea className="h-[200px] py-2 border rounded-md p-2">
 											<p className="text-sm text-muted-foreground whitespace-pre-wrap">
 												{application.match.description}
 											</p>
@@ -165,7 +165,7 @@ const ApplicationDetails: React.FC<{
 
 								<TabsContent value="company">
 									<ScrollArea className="h-[300px]">
-										<div className="space-y-4">
+										<div className="space-y-4 mt-2">
 											<p className="text-sm text-muted-foreground">
 												{application.match.company?.description}
 											</p>
@@ -205,15 +205,15 @@ const ApplicationDetails: React.FC<{
 								</TabsContent>
 
 								<TabsContent value="tech">
-									<ScrollArea className="h-[300px]">
-										<div className="flex flex-wrap gap-2">
-											{application.match.company?.technologies?.map((tech) => (
-												<Badge key={tech} variant="secondary">
+									<div className="flex flex-wrap gap-2 mt-2 h-[300px]">
+										<ScrollArea>
+											{application.match.company?.technologies?.map((tech: string) => (
+												<Badge key={tech} variant="default">
 													{tech}
 												</Badge>
 											))}
-										</div>
-									</ScrollArea>
+										</ScrollArea>
+									</div>
 								</TabsContent>
 							</Tabs>
 						</CardContent>

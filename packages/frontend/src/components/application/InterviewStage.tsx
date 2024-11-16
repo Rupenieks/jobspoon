@@ -75,7 +75,7 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 		<div className="container mx-auto p-4 space-y-12">
 			{/* Top Section - Interview Icon */}
 			<div className="flex flex-col items-center justify-center gap-4">
-				<CustomIcon className="w-24 h-24 text-purple-500" name="interview" />
+				<CustomIcon className="w-24 h-24 text-primary" name="interview" />
 				<h2 className="text-xl font-semibold text-muted-foreground">Interview Stage</h2>
 			</div>
 
@@ -86,7 +86,15 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 					<CardContent className="p-6">
 						{isSubmitting || isPollingInsightsGenerationRequest ? (
 							<div className="flex flex-col items-center justify-center py-12">
-								<CustomColorRing colors={['#8B5CF6', '#6D28D9', '#4C1D95', '#3B0764', '#1E0038']} />
+								<CustomColorRing
+									colors={[
+										'var(--primary)',
+										'var(--secondary)',
+										'var(--accent)',
+										'var(--muted)',
+										'var(--ring)',
+									]}
+								/>
 								<p className="text-sm text-muted-foreground mt-4">Analyzing your materials...</p>
 							</div>
 						) : (
@@ -110,7 +118,7 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 									<div className="w-full lg:w-72 space-y-4">
 										<div
 											onClick={() => document.getElementById('file-upload')?.click()}
-											className="border-2 border-dashed rounded-lg cursor-pointer hover:bg-purple-50 transition-colors items-center flex-col flex p-2"
+											className="border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted transition-colors items-center flex-col flex p-2"
 										>
 											<CustomIcon
 												name="upload"
@@ -143,7 +151,7 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 											uploadedFiles.map((file, index) => (
 												<div
 													key={index}
-													className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-full text-sm border border-purple-100"
+													className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-full text-sm border border-primary/10"
 												>
 													<FileText className="h-4 w-4 text-muted-foreground" />
 													<span className="truncate max-w-[120px]">{file.name}</span>
@@ -193,7 +201,7 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 			<div className="grid grid-cols-2 gap-6">
 				<Card
 					className={cn(
-						'bg-red-50 hover:bg-red-100 cursor-pointer',
+						'bg-destructive/10 hover:bg-destructive/20 cursor-pointer',
 						'transition-colors duration-200',
 						'flex items-center justify-center p-8',
 						'text-center'
@@ -201,14 +209,14 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 					onClick={() => onStageChange('rejected')}
 				>
 					<div className="space-y-2">
-						<h3 className="text-xl font-semibold text-red-900">Not Selected</h3>
-						<p className="text-sm text-red-700">Click here if you didn't get the job</p>
+						<h3 className="text-xl font-semibold text-destructive">Not Selected</h3>
+						<p className="text-sm text-destructive/80">Click here if you didn't get the job</p>
 					</div>
 				</Card>
 
 				<Card
 					className={cn(
-						'bg-emerald-50 hover:bg-emerald-100 cursor-pointer',
+						'bg-success/10 hover:bg-success/20 cursor-pointer',
 						'transition-colors duration-200',
 						'flex items-center justify-center p-8',
 						'text-center'
@@ -216,8 +224,8 @@ const InterviewStage: React.FC<{ onStageChange: (stage: 'success' | 'rejected') 
 					onClick={() => onStageChange('success')}
 				>
 					<div className="space-y-2">
-						<h3 className="text-xl font-semibold text-emerald-900">Got the Job!</h3>
-						<p className="text-sm text-emerald-700">Click here if you got the offer</p>
+						<h3 className="text-xl font-semibold text-success">Got the Job!</h3>
+						<p className="text-sm text-success/80">Click here if you got the offer</p>
 					</div>
 				</Card>
 			</div>

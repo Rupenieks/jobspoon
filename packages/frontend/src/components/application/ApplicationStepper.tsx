@@ -48,8 +48,8 @@ const ApplicationStepper: React.FC<ApplicationStepperProps> = ({
 									className={cn(
 										'z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background',
 										isActive && 'border-primary bg-primary text-primary-foreground',
-										isCompleted && 'border-emerald-500 bg-emerald-500 text-white',
-										!isActive && !isCompleted && 'border-gray-300'
+										isCompleted && 'border-success bg-success text-success-foreground',
+										!isActive && !isCompleted && 'border-muted-foreground'
 									)}
 								>
 									<Icon className="h-5 w-5" />
@@ -58,8 +58,8 @@ const ApplicationStepper: React.FC<ApplicationStepperProps> = ({
 									className={cn(
 										'mt-2 text-sm font-medium',
 										isActive && 'text-primary',
-										isCompleted && 'text-emerald-500',
-										!isActive && !isCompleted && 'text-gray-500'
+										isCompleted && 'text-success',
+										!isActive && !isCompleted && 'text-muted-foreground'
 									)}
 								>
 									{stage.label}
@@ -71,10 +71,7 @@ const ApplicationStepper: React.FC<ApplicationStepperProps> = ({
 
 				<Progress
 					value={progressPercentage}
-					className={cn(
-						'h-1',
-						currentIndex > 0 && 'bg-emerald-100 [&>[role=progressbar]]:bg-emerald-500'
-					)}
+					className={cn('h-1', currentIndex > 0 && 'bg-muted [&>[role=progressbar]]:bg-accent')}
 				/>
 			</div>
 		</div>

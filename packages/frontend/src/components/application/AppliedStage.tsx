@@ -62,7 +62,7 @@ const AppliedStage: React.FC<{ onStageChange: (stage: 'interview' | 'rejected') 
 		<div className="container mx-auto p-4 space-y-12">
 			{/* Top Section - Waiting Icon */}
 			<div className="flex flex-col items-center justify-center gap-4">
-				<CustomIcon className="w-24 h-24 text-blue-500" name="waiting" />
+				<CustomIcon className="w-24 h-24 text-primary" name="waiting" />
 				<h2 className="text-xl font-semibold text-muted-foreground">Waiting for a response...</h2>
 			</div>
 
@@ -86,7 +86,7 @@ const AppliedStage: React.FC<{ onStageChange: (stage: 'interview' | 'rejected') 
 			<div className="grid grid-cols-2 gap-6">
 				<Card
 					className={cn(
-						'bg-red-50 hover:bg-red-100 cursor-pointer',
+						'bg-destructive/10 hover:bg-destructive/20 cursor-pointer',
 						'transition-colors duration-200',
 						'flex items-center justify-center p-8',
 						'text-center'
@@ -94,23 +94,18 @@ const AppliedStage: React.FC<{ onStageChange: (stage: 'interview' | 'rejected') 
 					onClick={() => handleStageChange('rejected')}
 				>
 					<div className="space-y-2">
-						<h3 className="text-xl font-semibold text-red-900">They're not interested</h3>
-						<p className="text-sm text-red-700">Click here if you got rejected</p>
+						<h3 className="text-xl font-semibold text-destructive">They're not interested</h3>
+						<p className="text-sm text-destructive/80">Click here if you got rejected</p>
 					</div>
 				</Card>
 
 				<Card
-					className={cn(
-						'bg-emerald-50 hover:bg-emerald-100 cursor-pointer',
-						'transition-colors duration-200',
-						'flex items-center justify-center p-8',
-						'text-center'
-					)}
+					className="bg-success/50 hover:bg-success/60 cursor-pointer  duration-200 flex items-center justify-center p-8 text-center"
 					onClick={() => handleStageChange('interview')}
 				>
 					<div className="space-y-2">
-						<h3 className="text-xl font-semibold text-emerald-900">Interview scheduled</h3>
-						<p className="text-sm text-emerald-700">Click here if you got an interview</p>
+						<h3 className="text-xl font-semibold text-success">Interview scheduled</h3>
+						<p className="text-sm text-success/80">Click here if you got an interview</p>
 					</div>
 				</Card>
 			</div>
