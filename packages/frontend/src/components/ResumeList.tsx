@@ -21,6 +21,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateResumeDialog from './CreateResumeDialog';
 import { Separator } from './ui/separator';
+import { ResumeCard } from './ResumeCard';
 
 const ResumeList: React.FC = () => {
 	const { data: resumes, isLoading, error } = useReadResumes();
@@ -60,39 +61,6 @@ const ResumeList: React.FC = () => {
 	}, [deleteResumes, selectedResumes]);
 
 	const ResumeCards = useMemo(() => {
-		if (isLoading) {
-			return Array(6)
-				.fill(0)
-				.map((_, index) => (
-					<Card
-						key={index}
-						className="relative overflow-hidden"
-						style={{
-							aspectRatio: '1/1.414', // A4 aspect ratio
-						}}
-					>
-						<div
-							className="h-full p-4 flex flex-col"
-							style={{
-								borderLeft: '8px solid hsl(var(--border))', // Using theme border color
-							}}
-						>
-							<div className="flex justify-between items-center">
-								<div className="flex items-center gap-3">
-									<Skeleton className="h-12 w-12 rounded-full" />
-									<Skeleton className="h-6 w-32" />
-								</div>
-							</div>
-
-							<div className="mt-auto">
-								<Skeleton className="h-7 w-48 mb-2" />
-								<Skeleton className="h-4 w-36" />
-							</div>
-						</div>
-					</Card>
-				));
-		}
-
 		if (error) {
 			return (
 				<div className="col-span-full text-center text-destructive">
@@ -101,70 +69,20 @@ const ResumeList: React.FC = () => {
 			);
 		}
 
-		return resumes?.map((resume) => (
-			<Card
-				key={resume.id}
-				className="cursor-pointer relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
-				style={{
-					aspectRatio: '1/1.414', // A4 aspect ratio
-				}}
-			>
-				<div className="absolute top-4 right-4 z-10">
-					<Checkbox
-						checked={selectedResumes.has(resume.id)}
-						onCheckedChange={(checked) => handleCheckboxChange(resume.id, checked as boolean)}
-						onClick={(e) => e.stopPropagation()}
+		return Array(isLoading ? 6 : 0)
+			.fill(0)
+			.map((_, index) => <ResumeCard key={index} isLoading />)
+			.concat(
+				resumes?.map((resume) => (
+					<ResumeCard
+						key={resume.id}
+						resume={resume}
+						isSelected={selectedResumes.has(resume.id)}
+						onCheckboxChange={(checked) => handleCheckboxChange(resume.id, checked)}
+						onClick={() => handleResumeClick(resume.id)}
 					/>
-				</div>
-				<div
-					onClick={() => handleResumeClick(resume.id)}
-					className="h-full p-4 flex flex-col"
-					style={{
-						borderLeft: `8px solid ${resume.data.config.sidebarColor}`,
-						backgroundColor: resume.data.config.primaryColor,
-					}}
-				>
-					<div className="flex justify-between items-center">
-						<div className="flex items-center gap-3">
-							{resume.data.profileImage && (
-								<div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
-									<img
-										src={resume.data.profileImage}
-										alt="Profile"
-										className="h-full w-full object-cover"
-									/>
-								</div>
-							)}
-							<span
-								className="text-lg font-semibold"
-								style={{ color: resume.data.config.fontColor }}
-							>
-								{resume.data.personalInfo?.fullName}
-							</span>
-						</div>
-					</div>
-
-					<span className="mt-6 text-xs" style={{ color: resume.data.config.fontColor }}>
-						{resume.data.personalInfo?.profileBio.length > 320
-							? `${resume.data.personalInfo?.profileBio.slice(0, 320)}...`
-							: resume.data.personalInfo?.profileBio}
-					</span>
-
-					<span className="mt-6 text-xs" style={{ color: resume.data.config.fontColor }}>
-						{resume.data.skills?.length > 0 ? resume.data.skills.join(', ') : 'No skills'}
-					</span>
-
-					<div className="mt-auto">
-						<p className="text-xl font-medium" style={{ color: resume.data.config.fontColor }}>
-							{resume.data.personalInfo?.positionName}
-						</p>
-						<p className="text-sm mt-1" style={{ color: resume.data.config.fontColor }}>
-							Created {formatDistanceToNow(new Date(resume.createdAt))} ago
-						</p>
-					</div>
-				</div>
-			</Card>
-		));
+				)) || []
+			);
 	}, [resumes, isLoading, error, handleResumeClick, selectedResumes, handleCheckboxChange]);
 
 	return (
