@@ -1,6 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CustomIcon from '@/icons/CustomIcon';
@@ -51,17 +49,19 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({ initialData,
 	};
 
 	return (
-		<div className="max-w-2xl mx-auto space-y-12">
+		<div className="max-w-2xl mx-auto space-y-12 bg-white/50 p-8 rounded-lg">
 			<div className="text-center space-y-6">
-				<CustomIcon name="personal-info" className="w-40 h-40 mx-auto text-purple-500" />
+				<CustomIcon name="jobspoon" className="w-40 h-24 mx-auto text-primary" />
 				<div>
-					<h1 className="text-3xl font-bold text-purple-900">Tell us about yourself</h1>
-					<p className="text-lg text-purple-600 mt-2">Let's start with some basic information</p>
+					<h1 className="text-3xl font-bold text-foreground">Tell us about yourself</h1>
+					<p className="text-lg text-muted-foreground mt-2">
+						Let's start with some basic information
+					</p>
 				</div>
 			</div>
 
 			<form onSubmit={handleSubmit} className="space-y-8">
-				<div className="space-y-6">
+				<div className="space-y-6 max-w-lg mx-auto">
 					<div className="space-y-3">
 						<Label htmlFor="fullName" className="text-base">
 							Full Name
@@ -70,41 +70,45 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({ initialData,
 							id="fullName"
 							value={formData.fullName}
 							onChange={(e) => handleChange('fullName', e.target.value)}
-							className="h-12 text-lg border-purple-100 focus:border-purple-300"
+							className="h-12 text-lg"
 						/>
-						{errors.fullName && <p className="text-sm text-red-500">{errors.fullName}</p>}
+						{errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
 					</div>
 
-					<div className="space-y-3">
-						<Label htmlFor="city" className="text-base">
-							City
-						</Label>
-						<Input
-							id="city"
-							value={formData.city}
-							onChange={(e) => handleChange('city', e.target.value)}
-							className="h-12 text-lg border-purple-100 focus:border-purple-300"
-						/>
-						{errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
-					</div>
+					<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-3">
+							<Label htmlFor="city" className="text-base">
+								City
+							</Label>
+							<Input
+								id="city"
+								value={formData.city}
+								onChange={(e) => handleChange('city', e.target.value)}
+								className="h-12 text-lg"
+							/>
+							{errors.city && <p className="text-sm text-destructive">{errors.city}</p>}
+						</div>
 
-					<div className="space-y-3">
-						<Label htmlFor="country" className="text-base">
-							Country
-						</Label>
-						<Input
-							id="country"
-							value={formData.country}
-							onChange={(e) => handleChange('country', e.target.value)}
-							className="h-12 text-lg border-purple-100 focus:border-purple-300"
-						/>
-						{errors.country && <p className="text-sm text-red-500">{errors.country}</p>}
+						<div className="space-y-3">
+							<Label htmlFor="country" className="text-base">
+								Country
+							</Label>
+							<Input
+								id="country"
+								value={formData.country}
+								onChange={(e) => handleChange('country', e.target.value)}
+								className="h-12 text-lg"
+							/>
+							{errors.country && <p className="text-sm text-destructive">{errors.country}</p>}
+						</div>
 					</div>
 				</div>
 
-				<Button type="submit" className="w-full h-12 text-lg">
-					Continue
-				</Button>
+				<div className="max-w-lg mx-auto">
+					<Button type="submit" className="w-full h-12 text-lg">
+						Continue
+					</Button>
+				</div>
 			</form>
 		</div>
 	);

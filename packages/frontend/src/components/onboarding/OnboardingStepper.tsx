@@ -24,9 +24,9 @@ export const OnboardingStepper = ({ currentStep }: OnboardingStepperProps) => {
 							<div
 								className={cn(
 									'z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background',
-									isActive && 'border-purple-500 bg-purple-500 text-white',
-									isCompleted && 'border-emerald-500 bg-emerald-500 text-white',
-									!isActive && !isCompleted && 'border-gray-300'
+									isActive && 'border-primary bg-primary text-primary-foreground',
+									isCompleted && 'border-success bg-success text-success-foreground',
+									!isActive && !isCompleted && 'border-muted'
 								)}
 							>
 								{isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
@@ -34,9 +34,9 @@ export const OnboardingStepper = ({ currentStep }: OnboardingStepperProps) => {
 							<span
 								className={cn(
 									'mt-2 text-sm font-medium',
-									isActive && 'text-purple-500',
-									isCompleted && 'text-emerald-500',
-									!isActive && !isCompleted && 'text-gray-500'
+									isActive && 'text-primary',
+									isCompleted && 'text-success',
+									!isActive && !isCompleted && 'text-muted-foreground'
 								)}
 							>
 								{step.label}
@@ -50,11 +50,11 @@ export const OnboardingStepper = ({ currentStep }: OnboardingStepperProps) => {
 					className="absolute top-5 left-0 right-0 h-[2px] -translate-y-1/2"
 					style={{ width: 'calc(100% - 2.5rem)', left: '1.25rem' }}
 				>
-					<div className="h-full bg-gray-200" />
+					<div className="h-full bg-muted" />
 					<div
 						className={cn(
 							'absolute top-0 left-0 h-full transition-all duration-300',
-							currentStep === 1 ? 'bg-purple-500' : 'bg-emerald-500'
+							currentStep === 1 ? 'bg-primary' : 'bg-success'
 						)}
 						style={{
 							width: currentStep === 1 ? '0%' : '100%',

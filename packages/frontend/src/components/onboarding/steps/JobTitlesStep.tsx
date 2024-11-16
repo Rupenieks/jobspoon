@@ -3,7 +3,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CustomIcon from '@/icons/CustomIcon';
-import { Minus, Plus } from 'lucide-react';
+import { ArrowLeft, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { z } from 'zod';
 
@@ -77,19 +77,19 @@ export const JobTitlesStep: React.FC<JobTitlesStepProps> = ({ initialData, onSub
 	};
 
 	return (
-		<div className="max-w-2xl mx-auto space-y-12">
+		<div className="max-w-2xl mx-auto space-y-12 bg-white/50 p-8 rounded-lg">
 			<div className="text-center space-y-6">
-				<CustomIcon name="online-resume" className="w-40 h-40 mx-auto text-purple-500" />
+				<CustomIcon name="online-resume" className="w-40 h-40 mx-auto text-primary" />
 				<div>
-					<h1 className="text-3xl font-bold text-purple-900">What roles interest you?</h1>
-					<p className="text-lg text-purple-600 mt-2">
+					<h1 className="text-3xl font-bold text-foreground">What roles interest you?</h1>
+					<p className="text-lg text-muted-foreground mt-2">
 						Add up to 3 job titles you're interested in
 					</p>
 				</div>
 			</div>
 
 			<form onSubmit={handleSubmit} className="space-y-8">
-				<div className="space-y-6">
+				<div className="space-y-6 max-w-lg mx-auto">
 					{formData.desiredJobTitles.map((title, index) => (
 						<div key={index} className="space-y-3">
 							<Label htmlFor={`jobTitle-${index}`} className="text-base">
@@ -101,64 +101,59 @@ export const JobTitlesStep: React.FC<JobTitlesStepProps> = ({ initialData, onSub
 									value={title}
 									onChange={(e) => handleJobTitleChange(index, e.target.value)}
 									placeholder="e.g., Frontend Developer"
-									className="h-12 text-lg border-purple-100 focus:border-purple-300"
+									className="h-12 text-lg"
 								/>
-								{index > 0 && (
+								{index === formData.desiredJobTitles.length - 1 &&
+								formData.desiredJobTitles.length < 3 ? (
+									<Button
+										type="button"
+										variant="outline"
+										size="icon"
+										onClick={handleAddJobTitle}
+										className="h-12 w-12"
+									>
+										<Plus className="h-5 w-5" />
+									</Button>
+								) : index > 0 ? (
 									<Button
 										type="button"
 										variant="outline"
 										size="icon"
 										onClick={() => handleRemoveJobTitle(index)}
-										className="h-12 w-12 border-purple-100 hover:border-purple-300"
+										className="h-12 w-12"
 									>
 										<Minus className="h-5 w-5" />
 									</Button>
-								)}
+								) : null}
 							</div>
-							{errors?.index === index && <p className="text-sm text-red-500">{errors.message}</p>}
+							{errors?.index === index && (
+								<p className="text-sm text-destructive">{errors.message}</p>
+							)}
 						</div>
 					))}
 				</div>
 
-				{formData.desiredJobTitles.length < 3 && (
-					<Button
-						type="button"
-						variant="outline"
-						className="w-full h-12 text-lg border-purple-100 hover:border-purple-300"
-						onClick={handleAddJobTitle}
-					>
-						<Plus className="h-5 w-5 mr-2" />
-						Add Another Job Title
-					</Button>
-				)}
-
-				<div className="space-y-6">
-					<div className="flex items-center space-x-3 bg-purple-50 p-4 rounded-lg">
+				<div className="space-y-6 max-w-lg mx-auto">
+					<div className="flex items-center space-x-3 bg-secondary p-4 rounded-lg">
 						<Checkbox
 							id="seekingRemote"
 							checked={formData.seekingRemote}
 							onCheckedChange={(checked) =>
 								setFormData((prev) => ({ ...prev, seekingRemote: checked === true }))
 							}
-							className="border-purple-300"
 						/>
-						<Label htmlFor="seekingRemote" className="text-base text-purple-900">
+						<Label htmlFor="seekingRemote" className="text-base text-foreground">
 							I'm open to remote work opportunities
 						</Label>
 					</div>
 
 					{errors && !errors.index && (
-						<p className="text-sm text-red-500 text-center">{errors.message}</p>
+						<p className="text-sm text-destructive text-center">{errors.message}</p>
 					)}
 
 					<div className="flex gap-4">
-						<Button
-							type="button"
-							variant="outline"
-							className="flex-1 h-12 text-lg border-purple-100 hover:border-purple-300"
-							onClick={onBack}
-						>
-							Back
+						<Button type="button" variant="ghost" className="flex-1 h-12 text-lg" onClick={onBack}>
+							<ArrowLeft className="h-5 w-5 mr-2" />
 						</Button>
 						<Button type="submit" className="flex-1 h-12 text-lg">
 							Complete Setup

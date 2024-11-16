@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import { PersonalInfoStep } from './steps/PersonalInfoStep';
-import { JobTitlesStep } from './steps/JobTitlesStep';
-import { AnimatePresence, motion } from 'framer-motion';
-import { OnboardingStepper } from './OnboardingStepper';
-import { useEditUser } from '@/hooks/useEditUser';
 import useCreateResumesForOnboarding from '@/hooks/useCreateResumesForOnboarding';
 import { useOnboardUser } from '@/hooks/useOnboardUser';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState } from 'react';
+import { OnboardingStepper } from './OnboardingStepper';
+import { JobTitlesStep } from './steps/JobTitlesStep';
+import { PersonalInfoStep } from './steps/PersonalInfoStep';
 
 interface OnboardingData {
 	fullName: string;
@@ -74,7 +73,7 @@ const Onboarding = () => {
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			transition={{ duration: 0.6 }}
-			className="min-h-screen bg-gradient-to-b from-purple-50 to-white"
+			className="min-h-screen bg-gradient-to-br from-primary to-secondary"
 		>
 			<div className="container mx-auto px-4 py-16">
 				<motion.div
