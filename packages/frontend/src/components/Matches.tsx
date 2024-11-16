@@ -6,6 +6,8 @@ import ResumeMatchCard from './ResumeMatchCard';
 import { useReadApplications } from '@/hooks/useReadApplications';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const ResumeSkeleton: React.FC = () => (
 	<div className="mb-4">
@@ -54,7 +56,25 @@ const Matches: React.FC = () => {
 						Here you can match your resumes to jobs based on the data you provided
 					</p>
 				</div>
-				<Badge variant="info">{jobRunsRemaining} job runs remaining today</Badge>
+				{jobRunsRemaining && jobRunsRemaining > 0 ? (
+					<Alert className="w-fit items-center gap-2" variant="default">
+						<AlertCircle className="h-4 w-4" />
+
+						<AlertTitle>{jobRunsRemaining} job runs remaining today</AlertTitle>
+						<AlertDescription>
+							You may run a total of 3 job runs per <br /> day and only 1 job run per resume.
+						</AlertDescription>
+					</Alert>
+				) : (
+					<Alert className="w-fit items-center gap-2" variant="destructive">
+						<AlertCircle className="h-4 w-4" />
+
+						<AlertTitle>No job runs remaining today</AlertTitle>
+						<AlertDescription>
+							You may run a total of 3 job runs per <br /> day and only 1 job run per resume.
+						</AlertDescription>
+					</Alert>
+				)}
 			</div>
 			<Separator className="my-6" />
 			{ResumeList}

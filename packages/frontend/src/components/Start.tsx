@@ -120,7 +120,7 @@ const Start = () => {
 			<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 				{/* Application Stages */}
 				<Card className="lg:col-span-4">
-					<CardHeader className="bg-card">
+					<CardHeader className="bg-card bg-secondary">
 						<CardTitle>Application Stages</CardTitle>
 					</CardHeader>
 					<CardContent>

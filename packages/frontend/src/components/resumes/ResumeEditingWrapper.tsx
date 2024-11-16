@@ -183,8 +183,8 @@ const UtilityBar = () => {
 							<Slider
 								value={[resume.data.config.margin]}
 								onValueChange={([value]) => updateConfig('margin', value)}
-								min={10}
-								max={50}
+								min={0}
+								max={12}
 								step={0.1}
 								className="flex-grow"
 							/>
@@ -216,6 +216,7 @@ const UtilityBar = () => {
 								updatePages(value);
 							}}
 							min={1}
+							max={3}
 							className="w-full"
 						/>
 					</div>

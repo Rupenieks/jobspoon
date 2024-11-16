@@ -135,7 +135,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 		[applications]
 	);
 
-	const handleRefreshClick = useCallback(
+	const handleAttemptFindJobs = useCallback(
 		async (e: React.MouseEvent) => {
 			e.stopPropagation();
 
@@ -164,18 +164,10 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 
 	return (
 		<ResumeStateProvider resumeId={resume.id}>
-			<Accordion
-				type="single"
-				collapsible
-				className="mb-6 border-l-4"
-				style={{ borderLeftColor: resume.data.config.sidebarColor }}
-			>
+			<Accordion type="single" collapsible className="mb-6">
 				<AccordionItem value={resume.id} className="border-none">
 					<AccordionTrigger
-						className={cn(
-							'hover:no-underline py-4 px-4',
-							'border-t-2 border-r-2 border-b-2 border-border'
-						)}
+						className={cn('hover:no-underline py-4 px-4', 'border-2 border-border')}
 					>
 						<div className="flex items-center justify-between w-full">
 							<div className="flex-1">
@@ -242,7 +234,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 														variant="default"
 														onClick={(e) => {
 															e.stopPropagation();
-															handleRefreshClick(e);
+															handleAttemptFindJobs(e);
 														}}
 														disabled={isPending}
 													>
@@ -322,7 +314,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 							) : resume.matches && resume.matches.length > 0 ? (
 								<Table className="border border-border rounded-md">
 									<TableHeader>
-										<TableRow>
+										<TableRow className="bg-secondary">
 											<TableHead>Company</TableHead>
 
 											<TableHead>Position</TableHead>
@@ -407,24 +399,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 																<MoreVertical className="h-4 w-4" />
 															</Button>
 														</PopoverTrigger>
-														<PopoverContent className="w-40" align="end">
-															<div className="space-y-1">
-																{match.applyUrl && (
-																	<Button
-																		variant="ghost"
-																		className="w-full justify-start"
-																		onClick={() => {
-																			if (match.applyUrl) {
-																				window.open(match.applyUrl, '_blank');
-																			}
-																		}}
-																	>
-																		<ExternalLink className="h-4 w-4 mr-2" />
-																		Apply Direct
-																	</Button>
-																)}
-															</div>
-														</PopoverContent>
+														<PopoverContent className="w-40" align="end"></PopoverContent>
 													</Popover>
 												</TableCell>
 											</TableRow>
@@ -434,14 +409,19 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 							) : (
 								<div
 									className={cn(
-										'h-24 flex flex-col gap-3 p-4 h-fit items-center justify-center',
-										'border border-border rounded-md'
+										'min-h-48 flex p-4 h-fit items-center justify-center',
+										'border border-border'
 									)}
 								>
-									<CustomIcon name="no-data" className="h-12 w-12 text-muted-foreground" />
-									<span className="text-muted-foreground text-sm text-center">
-										Hit refresh to find jobs.
-									</span>
+									<div
+										onClick={handleAttemptFindJobs}
+										className="flex items-center justify-center gap-4 cursor-pointer hover:bg-secondary rounded-md p-4"
+									>
+										<CustomIcon name="no-data" className="h-24 w-24 text-muted-foreground" />
+										<span className="text-muted-foreground font-medium text-lg text-center">
+											No matched jobs. <br /> Click to find jobs
+										</span>
+									</div>
 								</div>
 							)}
 						</div>
