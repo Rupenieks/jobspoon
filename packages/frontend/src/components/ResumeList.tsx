@@ -9,19 +9,15 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useDeleteResumes } from '@/hooks/useDeleteResumes';
-import { useReadApplications } from '@/hooks/useReadApplications';
 import { useReadResumes } from '@/hooks/useReadResumes';
-import { formatDistanceToNow } from 'date-fns';
 import { Plus, Trash2 } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateResumeDialog from './CreateResumeDialog';
-import { Separator } from './ui/separator';
 import { ResumeCard } from './ResumeCard';
+import { Separator } from './ui/separator';
+import CustomIcon from '@/icons/CustomIcon';
 
 const ResumeList: React.FC = () => {
 	const { data: resumes, isLoading, error } = useReadResumes();
@@ -65,6 +61,21 @@ const ResumeList: React.FC = () => {
 			return (
 				<div className="col-span-full text-center text-destructive">
 					Error loading resumes. Please try again later.
+				</div>
+			);
+		}
+
+		if (resumes?.length === 0) {
+			return (
+				<div className="col-span-full text-center text-muted-foreground flex flex-col items-center justify-center mt-8">
+					<div
+						onClick={() => setIsDialogOpen(true)}
+						className="flex flex-col justify-center items-center cursor-pointer hover:bg-secondary transition-colors duration-200 rounded-lg p-4"
+					>
+						<CustomIcon name="no-data" className="h-48 w-48" />
+						<span className="text-sm mt-2 font-medium">No resumes found</span>
+						<span className="text-sm mt-2 text-muted-foreground">Click to create a resume</span>
+					</div>
 				</div>
 			);
 		}

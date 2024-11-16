@@ -1,13 +1,14 @@
-import React, { useMemo } from 'react';
-import { useReadResumesWithMatches } from '@/hooks/useReadResumesWithMatches';
-import { useMatchJobs } from '@/hooks/useMatchJobs';
 import { Skeleton } from '@/components/ui/skeleton';
-import ResumeMatchCard from './ResumeMatchCard';
+import { useMatchJobs } from '@/hooks/useMatchJobs';
 import { useReadApplications } from '@/hooks/useReadApplications';
-import { Separator } from './ui/separator';
-import { Badge } from './ui/badge';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { useReadResumesWithMatches } from '@/hooks/useReadResumesWithMatches';
+import CustomIcon from '@/icons/CustomIcon';
 import { AlertCircle } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ResumeMatchCard from './ResumeMatchCard';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Separator } from './ui/separator';
 
 const ResumeSkeleton: React.FC = () => (
 	<div className="mb-4">
@@ -18,13 +19,7 @@ const ResumeSkeleton: React.FC = () => (
 const Matches: React.FC = () => {
 	const { resumes, jobRunsRemaining, isLoading } = useReadResumesWithMatches();
 	const { mutate: matchJobs, isPending } = useMatchJobs();
-	const { data: applications } = useReadApplications();
-
-	const filteredResumes = useMemo(() => {
-		return resumes?.filter((resume) => {
-			return !applications?.some((application) => application.resumeId === resume.id);
-		});
-	}, [resumes, applications]);
+	const navigate = useNavigate();
 
 	const handleMatchJobs = async (resumeId: string) => {
 		matchJobs(resumeId);
@@ -37,7 +32,22 @@ const Matches: React.FC = () => {
 				.map((_, index) => <ResumeSkeleton key={index} />);
 		}
 
-		return filteredResumes?.map((resume) => (
+		if (resumes?.length === 0) {
+			return (
+				<div className="col-span-full text-center text-muted-foreground flex flex-col items-center justify-center mt-8">
+					<div
+						onClick={() => navigate('/resumes')}
+						className="flex flex-col justify-center items-center cursor-pointer hover:bg-secondary transition-colors duration-200 rounded-lg p-4"
+					>
+						<CustomIcon name="no-data" className="h-48 w-48" />
+						<span className="text-sm mt-2 font-medium">No resumes found</span>
+						<span className="text-sm mt-2 text-muted-foreground">Click to go to resumes</span>
+					</div>
+				</div>
+			);
+		}
+
+		return resumes?.map((resume) => (
 			<ResumeMatchCard
 				key={resume.id}
 				resumeId={resume.id}
