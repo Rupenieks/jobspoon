@@ -60,7 +60,7 @@ export const ResumeCard: React.FC<ResumeCardProps> = ({
 			</div>
 
 			<div
-				className="h-full flex flex-col cursor-pointer group-hover:bg-secondary transition-colors"
+				className="h-full flex flex-col cursor-pointer group-hover:bg-muted transition-colors"
 				onClick={onClick}
 			>
 				<CardHeader className="p-6">

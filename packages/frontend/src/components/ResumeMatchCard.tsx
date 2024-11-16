@@ -165,7 +165,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 			<Accordion type="single" collapsible className="mb-6">
 				<AccordionItem value={resume.id} className="border-none">
 					<AccordionTrigger
-						className={cn('hover:no-underline py-4 px-4', 'border-2 border-border')}
+						className={cn('hover:no-underline py-4 px-4', 'border-2 border-border rounded-sm')}
 					>
 						<div className="flex items-center justify-between w-full">
 							<div className="flex-1">
@@ -183,24 +183,28 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 							</div>
 							<div className="flex items-center gap-6">
 								<div className="flex items-center gap-2">
-									<Badge variant="secondary">
-										Last match run: {'  '}
-										{resume?.jobMatchRuns?.sort(
-											(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-										)[0]?.createdAt
-											? formatDistanceToNow(
-													new Date(
-														resume.jobMatchRuns.sort(
-															(a, b) =>
-																new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-														)[0].createdAt
-													),
-													{
-														addSuffix: true,
-													}
-												)
-											: 'Never'}
-									</Badge>
+									{resume.canRunJobsMatch ? (
+										<Badge variant="secondary">
+											Last match run: {'  '}
+											{resume?.jobMatchRuns?.sort(
+												(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+											)[0]?.createdAt
+												? formatDistanceToNow(
+														new Date(
+															resume.jobMatchRuns.sort(
+																(a, b) =>
+																	new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+															)[0].createdAt
+														),
+														{
+															addSuffix: true,
+														}
+													)
+												: 'Never'}
+										</Badge>
+									) : (
+										<Badge variant="warning">Next run in {formatTimeUntilMidnight()}</Badge>
+									)}
 								</div>
 								<div className="flex items-center gap-2">
 									<Badge variant="info">{matchCount} matches</Badge>
@@ -211,7 +215,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 											<TooltipTrigger asChild>
 												<Button
 													size="icon"
-													variant="outline"
+													variant="ghost"
 													onClick={(e) => {
 														e.stopPropagation();
 														setShowDetailsDialog(true);
@@ -229,7 +233,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 												{resume.canRunJobsMatch ? (
 													<Button
 														size="icon"
-														variant="default"
+														variant="ghost"
 														onClick={(e) => {
 															e.stopPropagation();
 															handleAttemptFindJobs(e);
@@ -239,18 +243,17 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 														<RefreshCw className={cn('h-4 w-4', isPending && 'animate-spin')} />
 													</Button>
 												) : (
-													<div className="w-10 h-10">
-														<CircularProgressbar
-															value={getTimeProgress()}
-															strokeWidth={50}
-															styles={buildStyles({
-																strokeLinecap: 'butt',
-																pathColor: 'hsl(var(--foreground))',
-																trailColor: 'hsl(var(--muted))',
-																textSize: 0,
-															})}
-														/>
-													</div>
+													<Button
+														size="icon"
+														variant="ghost"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleAttemptFindJobs(e);
+														}}
+														disabled={true}
+													>
+														<RefreshCw className={cn('h-4 w-4', isPending && 'animate-spin')} />
+													</Button>
 												)}
 											</TooltipTrigger>
 											<TooltipContent>
@@ -271,7 +274,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 							{isPending ? (
 								<Table>
 									<TableHeader>
-										<TableRow>
+										<TableRow className="bg-muted">
 											<TableHead>Position</TableHead>
 											<TableHead>Company</TableHead>
 											<TableHead>Location</TableHead>
@@ -312,7 +315,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 							) : resume.matches && resume.matches.length > 0 ? (
 								<Table className="border border-border rounded-md">
 									<TableHeader>
-										<TableRow className="bg-secondary">
+										<TableRow className="bg-muted">
 											<TableHead>Company</TableHead>
 
 											<TableHead>Position</TableHead>
@@ -413,7 +416,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 								>
 									<div
 										onClick={handleAttemptFindJobs}
-										className="flex items-center justify-center gap-4 cursor-pointer hover:bg-secondary rounded-md p-4"
+										className="flex items-center justify-center gap-4 cursor-pointer hover:bg-muted rounded-md p-4"
 									>
 										<CustomIcon name="no-data" className="h-24 w-24 text-muted-foreground" />
 										<span className="text-muted-foreground font-medium text-lg text-center">

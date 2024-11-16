@@ -1,27 +1,12 @@
-import {
-	ChartConfig,
-	DonutChartContainer,
-	DonutChartTooltipContent,
-} from '@/components/ui/donut-chart';
 import { useReadDashboardAnalytics } from '@/hooks/useReadDashboardAnalytics';
 import { useReadUser } from '@/hooks/useReadUser';
 import CustomIcon, { IconName } from '@/icons/CustomIcon';
 import { cn } from '@/lib/utils';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cell, Label, Pie, PieChart, Tooltip } from 'recharts';
-import { Button } from './ui/button';
+import { ApplicationStageAnalyticsDonutChart } from './analytics/ApplicationStageAnalyticsDonutChart';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Skeleton } from './ui/skeleton';
-import { ApplicationStageAnalyticsDonutChart } from './analytics/ApplicationStageAnalyticsDonutChart';
-
-const stageColors = {
-	not_applied: 'hsl(240 4.8% 95.9%)',
-	applied: 'hsl(221 83% 53%)',
-	interview: 'hsl(48 96% 53%)',
-	success: 'hsl(142 72% 29%)',
-	rejected: 'hsl(0 84% 60%)',
-} as const;
 
 const QuickActionCard = ({
 	icon,
@@ -35,7 +20,7 @@ const QuickActionCard = ({
 	<div
 		className={cn(
 			'cursor-pointer transition-all duration-200',
-			'bg-card hover:scale-[1.02] hover:bg-secondary',
+			'bg-card hover:scale-[1.02] hover:bg-muted',
 			'flex flex-col items-center gap-6 p-8',
 			'h-56 rounded-lg border border-border',
 			'shadow-sm hover:shadow-md'
@@ -43,11 +28,7 @@ const QuickActionCard = ({
 		onClick={onClick}
 	>
 		<CustomIcon name={icon} className="w-48 h-48" />
-		<div>
-			<Button variant="ghost" size="sm">
-				{title}
-			</Button>
-		</div>
+		<div className="text-lg font-semibold">{title}</div>
 	</div>
 );
 
@@ -76,29 +57,6 @@ const Start = () => {
 		return analytics.applicationStages.reduce((sum, stage) => sum + stage.value, 0);
 	}, [analytics]);
 
-	const chartConfig = {
-		not_applied: {
-			label: 'Not Applied',
-			color: stageColors.not_applied,
-		},
-		applied: {
-			label: 'Applied',
-			color: stageColors.applied,
-		},
-		interview: {
-			label: 'Interview',
-			color: stageColors.interview,
-		},
-		success: {
-			label: 'Success',
-			color: stageColors.success,
-		},
-		rejected: {
-			label: 'Rejected',
-			color: stageColors.rejected,
-		},
-	} satisfies ChartConfig;
-
 	if (isLoading) {
 		return <LoadingSkeleton />;
 	}
@@ -121,7 +79,7 @@ const Start = () => {
 			<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 				{/* Application Stages */}
 				<Card className="lg:col-span-4">
-					<CardHeader className="bg-card bg-secondary">
+					<CardHeader className="bg-card bg-muted">
 						<CardTitle>Application Stages</CardTitle>
 					</CardHeader>
 					<CardContent>

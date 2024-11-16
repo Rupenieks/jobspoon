@@ -27,7 +27,7 @@ export class TheirStackService {
         ...query,
         page: 0,
         limit: 25,
-        blur_company_data: true,
+        // blur_company_data: true,
       },
     };
 

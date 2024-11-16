@@ -110,7 +110,7 @@ const Applications: React.FC = () => {
 							<div className="col-span-full text-center text-muted-foreground flex flex-col items-center justify-center py-8">
 								<div
 									onClick={() => navigate('/matches')}
-									className="flex flex-col justify-center items-center cursor-pointer hover:bg-secondary transition-colors duration-200 rounded-lg p-4"
+									className="flex flex-col justify-center items-center cursor-pointer hover:bg-muted transition-colors duration-200 rounded-lg p-4"
 								>
 									<CustomIcon name="no-data" className="h-48 w-48" />
 									<span className="text-sm mt-2 font-medium">No applications found</span>
