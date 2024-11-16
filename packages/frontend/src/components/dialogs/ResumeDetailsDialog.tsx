@@ -14,6 +14,7 @@ import { TResumeData } from '@redundant/common/src';
 import CustomIcon from '@/icons/CustomIcon';
 import { Crosshair2Icon } from '@radix-ui/react-icons';
 import { useMemo } from 'react';
+import { ResumeBasicDetailsForm } from '../forms/ResumeBasicDetailsForm';
 
 interface ResumeDetailsDialogProps {
 	isOpen: boolean;
@@ -22,16 +23,23 @@ interface ResumeDetailsDialogProps {
 }
 
 export function ResumeDetailsDialog({ isOpen, onClose, onMatchJobs }: ResumeDetailsDialogProps) {
-	const { resume, updateResumePersonalInfo, isPending } = useResumeState();
+	const { resume, updateResumePersonalInfo, updateResumeField, isPending } = useResumeState();
 
-	const handleChange = (field: keyof TResumeData['personalInfo'], value: string) => {
-		updateResumePersonalInfo(field, value);
+	const values = {
+		positionTitle: resume?.data.personalInfo.positionName || '',
+		country: resume?.data.personalInfo.country || '',
+		city: resume?.data.personalInfo.city || '',
+		skills: resume?.data.skills || [''],
 	};
 
-	const matchJobsDisabled = useMemo(
-		() => !resume?.data.personalInfo.country || !resume?.data.personalInfo.positionName,
-		[resume?.data.personalInfo.country, resume?.data.personalInfo.positionName]
-	);
+	const handleChange = (field: keyof typeof values, value: any) => {
+		if (field === 'skills') {
+			updateResumeField('skills', value);
+		} else {
+			const personalInfoField = field === 'positionTitle' ? 'positionName' : field;
+			updateResumePersonalInfo(personalInfoField, value);
+		}
+	};
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -43,45 +51,17 @@ export function ResumeDetailsDialog({ isOpen, onClose, onMatchJobs }: ResumeDeta
 						you.
 					</DialogDescription>
 				</DialogHeader>
-				<div className="grid gap-4 py-4 w-full">
-					<div className="flex justify-center">
-						<CustomIcon name="personal-info" className="w-72 h-72" />
-					</div>
-					<div className="space-y-2">
-						<Label htmlFor="positionName">Position Title</Label>
-						<Input
-							id="positionName"
-							value={resume?.data.personalInfo.positionName || ''}
-							onChange={(e) => handleChange('positionName', e.target.value)}
-							placeholder="e.g., Frontend Developer"
-						/>
-					</div>
-
-					<div className="space-y-2">
-						<Label htmlFor="country">Country</Label>
-						<Input
-							id="country"
-							value={resume?.data.personalInfo.country || ''}
-							onChange={(e) => handleChange('country', e.target.value)}
-							placeholder="e.g., United States"
-						/>
-					</div>
-
-					<div className="space-y-2">
-						<Label htmlFor="city">City (optional)</Label>
-						<Input
-							id="city"
-							value={resume?.data.personalInfo.city || ''}
-							onChange={(e) => handleChange('city', e.target.value)}
-							placeholder="e.g., San Francisco"
-						/>
-					</div>
+				<div className="py-4">
+					<ResumeBasicDetailsForm values={values} onChange={handleChange} />
 				</div>
 				<DialogFooter>
 					<Button type="button" variant="outline" onClick={onClose}>
 						Cancel
 					</Button>
-					<Button onClick={onMatchJobs} disabled={matchJobsDisabled || isPending}>
+					<Button
+						onClick={onMatchJobs}
+						disabled={!values.country || !values.positionTitle || isPending}
+					>
 						Match Jobs <Crosshair2Icon className="w-4 h-4" />
 					</Button>
 				</DialogFooter>
