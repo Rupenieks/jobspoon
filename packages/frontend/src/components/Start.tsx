@@ -34,7 +34,7 @@ const QuickActionCard = ({
 	<div
 		className={cn(
 			'cursor-pointer transition-all duration-200',
-			'bg-card hover:scale-[1.02]',
+			'bg-card hover:scale-[1.02] hover:bg-secondary',
 			'flex flex-col items-center gap-6 p-8',
 			'h-56 rounded-lg border border-border',
 			'shadow-sm hover:shadow-md'

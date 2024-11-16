@@ -6,7 +6,7 @@ const Resumes: React.FC = () => {
 	const location = useLocation();
 
 	return (
-		<div className="container">
+		<div className="container p-0">
 			<AnimatePresence mode="wait" initial={false}>
 				<motion.div
 					key={location.pathname}
