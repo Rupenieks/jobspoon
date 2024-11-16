@@ -1,9 +1,10 @@
-import { Check, User, Briefcase } from 'lucide-react';
+import { Check, User, Briefcase, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const steps = [
 	{ id: 1, label: 'Personal Info', icon: User },
 	{ id: 2, label: 'Job Titles', icon: Briefcase },
+	{ id: 3, label: 'Complete', icon: Star },
 ] as const;
 
 interface OnboardingStepperProps {
@@ -23,19 +24,21 @@ export const OnboardingStepper = ({ currentStep }: OnboardingStepperProps) => {
 						<div key={step.id} className="relative flex flex-col items-center">
 							<div
 								className={cn(
-									'z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background',
+									'z-10 flex h-10 w-10 items-center justify-center rounded-full border-2',
+									'transition-colors duration-200',
 									isActive && 'border-primary bg-primary text-primary-foreground',
-									isCompleted && 'border-success bg-success text-success-foreground',
-									!isActive && !isCompleted && 'border-muted'
+									isCompleted && 'border-primary bg-primary text-primary-foreground',
+									!isActive &&
+										!isCompleted &&
+										'border-muted-foreground/25 bg-background text-muted-foreground'
 								)}
 							>
 								{isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
 							</div>
 							<span
 								className={cn(
-									'mt-2 text-sm font-medium',
-									isActive && 'text-primary',
-									isCompleted && 'text-success',
+									'mt-2 text-foreground text-sm font-medium transition-colors duration-200',
+									isCompleted && 'text-primary',
 									!isActive && !isCompleted && 'text-muted-foreground'
 								)}
 							>
@@ -45,19 +48,24 @@ export const OnboardingStepper = ({ currentStep }: OnboardingStepperProps) => {
 					);
 				})}
 
-				{/* Connecting line */}
-				<div
-					className="absolute top-5 left-0 right-0 h-[2px] -translate-y-1/2"
-					style={{ width: 'calc(100% - 2.5rem)', left: '1.25rem' }}
-				>
-					<div className="h-full bg-muted" />
+				{/* Background lines */}
+				<div className="absolute top-5 left-0 right-0 -translate-y-1/2">
 					<div
-						className={cn(
-							'absolute top-0 left-0 h-full transition-all duration-300',
-							currentStep === 1 ? 'bg-primary' : 'bg-success'
-						)}
+						className="h-[2px] bg-muted"
 						style={{
-							width: currentStep === 1 ? '0%' : '100%',
+							width: 'calc(100% - 2.5rem)',
+							marginLeft: '1.5rem',
+						}}
+					/>
+				</div>
+
+				{/* Progress lines */}
+				<div className="absolute top-5 left-0 right-0 -translate-y-1/2">
+					<div
+						className="h-[2px] bg-accent transition-all duration-300"
+						style={{
+							width: `calc(${(currentStep - 1) * 50}% - 1.25rem)`,
+							marginLeft: '1.5rem',
 						}}
 					/>
 				</div>

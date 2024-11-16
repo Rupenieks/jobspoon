@@ -52,6 +52,7 @@ const Onboarding = () => {
 		data: Pick<OnboardingData, 'desiredJobTitles' | 'seekingRemote'>
 	) => {
 		setFormData((prev) => ({ ...prev, ...data }));
+		setCurrentStep(3);
 		await onboardUser({
 			...formData,
 			...data,

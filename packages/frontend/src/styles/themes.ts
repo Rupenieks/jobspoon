@@ -146,7 +146,7 @@ export const themes = {
 	},
 	jobSpoon: {
 		'--background': '#ffffff', // Main background for the app
-		'--foreground': '#0f172a', // Main text color
+		'--foreground': '#2c2b30', // Main text color
 		'--card': '#ffffff', // Card background
 		'--card-foreground': '#2c2b30', // Text color for card elements
 		'--popover': '#ffffff', // Popover background
