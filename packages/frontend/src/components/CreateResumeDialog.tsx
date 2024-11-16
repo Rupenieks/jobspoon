@@ -1,13 +1,12 @@
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
 import { useProcessResume } from '@/hooks/useProcessResume';
-import React, { useCallback, useMemo, useState } from 'react';
-import { Document, Page } from 'react-pdf';
+import { useCreateResume } from '@/hooks/useCreateResume';
 import CustomColorRing from './loaders/ColorRing';
-import { TResumeBase } from '@redundant/common/src';
+import { ManualInputTab } from './resume-creation/ManualInputTab';
+import { PdfUploadTab } from './resume-creation/PdfUploadTab';
+import { AiInputTab } from './resume-creation/AiInputTab';
+import { useMemo } from 'react';
 
 interface CreateResumeDialogProps {
 	isOpen: boolean;
@@ -15,111 +14,76 @@ interface CreateResumeDialogProps {
 }
 
 const CreateResumeDialog: React.FC<CreateResumeDialogProps> = ({ isOpen, onOpenChange }) => {
-	const { mutate: processResume, isPending } = useProcessResume();
-	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-	const [numPages, setNumPages] = useState<number | null>(null);
-	const [resumeText, setResumeText] = useState<string>('');
+	const { mutate: processResume, isPending: isProcessing } = useProcessResume();
+	const { mutate: createResume, isPending: isCreating } = useCreateResume();
 
-	const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files?.[0];
-		if (file) {
-			setSelectedFile(file);
-		}
-	}, []);
+	const colorRingColors = useMemo(() => ['#2a86db', '#a9e0f', '#e6ac16', '#2a86db', '#2a86db'], []);
 
-	const handleProcessResume = useCallback(() => {
-		if (selectedFile) {
-			processResume(
-				{ type: 'file', content: selectedFile },
-				{
-					onSuccess: (data: TResumeBase) => {
-						onOpenChange(false);
-						setSelectedFile(null);
-					},
-					onError: (error) => {
-						console.error('Error processing resume:', error);
-					},
-				}
-			);
-		} else if (resumeText) {
-			processResume(
-				{ type: 'text', content: resumeText },
-				{
-					onSuccess: (data: TResumeBase) => {
-						onOpenChange(false);
-						setResumeText('');
-					},
-					onError: (error) => {
-						console.error('Error processing resume:', error);
-					},
-				}
-			);
-		}
-	}, [selectedFile, resumeText, processResume, onOpenChange]);
+	const handleManualSubmit = (data: {
+		positionTitle: string;
+		country: string;
+		city: string;
+		skills: string[];
+	}) => {
+		createResume(data, {
+			onSuccess: () => {
+				onOpenChange(false);
+			},
+		});
+	};
 
-	const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
-		setNumPages(numPages);
-	}, []);
+	const handleFileSubmit = (file: File) => {
+		processResume(
+			{ type: 'file', content: file },
+			{
+				onSuccess: () => {
+					onOpenChange(false);
+				},
+			}
+		);
+	};
 
-	const colorRingColors = useMemo(
-		() => ['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87'],
-		[]
-	);
+	const handleTextSubmit = (text: string) => {
+		processResume(
+			{ type: 'text', content: text },
+			{
+				onSuccess: () => {
+					onOpenChange(false);
+				},
+			}
+		);
+	};
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
-			<DialogContent className="w-full max-w-3xl">
-				<h2 className="text-lg font-semibold mb-4">Create New Resume</h2>
-				{isPending ? (
-					<div className="flex justify-center items-center h-[400px]">
+			<DialogContent className="w-full max-w-3xl flex flex-col h-[600px]">
+				<DialogHeader className="flex-shrink-0">
+					<h2 className="text-lg font-semibold">Create New Resume</h2>
+				</DialogHeader>
+
+				{isProcessing || isCreating ? (
+					<div className="flex-1 flex justify-center items-center">
 						<CustomColorRing colors={colorRingColors as [string, string, string, string, string]} />
 					</div>
 				) : (
-					<>
-						<Tabs defaultValue="upload">
-							<TabsList className="mb-4">
-								<TabsTrigger value="upload">Upload PDF</TabsTrigger>
-								<TabsTrigger value="text">Enter Text</TabsTrigger>
-							</TabsList>
-							<TabsContent value="upload" className="h-[400px] overflow-y-auto">
-								<Input type="file" accept=".pdf" onChange={handleFileUpload} className="mb-4" />
-								{selectedFile && (
-									<div className="mt-4">
-										<Document
-											file={selectedFile}
-											onLoadSuccess={onDocumentLoadSuccess}
-											className="flex flex-col items-center"
-										>
-											{Array.from(new Array(numPages), (el, index) => (
-												<Page
-													key={`page_${index + 1}`}
-													pageNumber={index + 1}
-													width={300}
-													className="mb-4"
-												/>
-											))}
-										</Document>
-									</div>
-								)}
+					<Tabs defaultValue="manual" className="flex-1 flex flex-col">
+						<TabsList className="flex-shrink-0">
+							<TabsTrigger value="manual">Manual Input</TabsTrigger>
+							<TabsTrigger value="upload">Upload PDF</TabsTrigger>
+							<TabsTrigger value="text">use AI</TabsTrigger>
+						</TabsList>
+						<div className="flex-1">
+							<TabsContent value="manual" className="h-full">
+								<ManualInputTab onSubmit={handleManualSubmit} isPending={isCreating} />
 							</TabsContent>
-							<TabsContent value="text" className="h-[400px]">
-								<Textarea
-									placeholder="Paste your resume text here..."
-									className="h-full resize-none"
-									value={resumeText}
-									onChange={(e) => setResumeText(e.target.value)}
-								/>
+							<TabsContent value="upload" className="h-full">
+								<PdfUploadTab onSubmit={handleFileSubmit} isPending={isProcessing} />
 							</TabsContent>
-						</Tabs>
-						<div className="mt-4 flex justify-end">
-							<Button
-								onClick={handleProcessResume}
-								disabled={(!selectedFile && !resumeText) || isPending}
-							>
-								Submit
-							</Button>
+							<TabsContent value="text" className="h-full">
+								<AiInputTab onSubmit={handleTextSubmit} isPending={isProcessing} />
+							</TabsContent>
 						</div>
-					</>
+					</Tabs>
 				)}
 			</DialogContent>
 		</Dialog>

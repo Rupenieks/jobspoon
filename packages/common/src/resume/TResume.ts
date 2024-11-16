@@ -170,3 +170,13 @@ export const ResumesWithRunsRemainingSchema = z.object({
 });
 
 export type TResumesWithRunsRemaining = z.infer<typeof ResumesWithRunsRemainingSchema>;
+
+// Add after the existing DTOs
+export const ResumeManualCreateDTOSchema = z.object({
+	positionTitle: z.string(),
+	country: z.string(),
+	city: z.string(),
+	skills: z.array(z.string()).transform((skills) => skills.filter((skill) => skill !== '')),
+});
+
+export type TResumeManualCreateDTO = z.infer<typeof ResumeManualCreateDTOSchema>;

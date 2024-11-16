@@ -22,6 +22,7 @@ import {
   TResumeFull,
   TResumeWithMatches,
   TResumesWithRunsRemaining,
+  TResumeManualCreateDTO,
 } from '@redundant/common';
 
 @Controller('resume-parser')
@@ -144,5 +145,16 @@ export class ResumeParserController {
       console.error('Error deleting resumes:', error);
       throw new InternalServerErrorException('Error deleting resumes');
     }
+  }
+
+  @Post('manual-create')
+  async manualCreate(
+    @Body() createDto: TResumeManualCreateDTO,
+    @Request() req,
+  ): Promise<TResumeBase> {
+    return await this.resumeParserService.manualCreate(
+      createDto,
+      req.user.userId,
+    );
   }
 }

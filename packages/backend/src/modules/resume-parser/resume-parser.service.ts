@@ -12,6 +12,7 @@ import {
   TResumeFull,
   ResumeFullSchema,
   TResumesWithRunsRemaining,
+  TResumeManualCreateDTO,
 } from '@redundant/common';
 import { StorageService } from '../storage/storage.service';
 import { UserService } from '../user/user.service';
@@ -255,5 +256,21 @@ export class ResumeParserService {
         userId,
       },
     });
+  }
+
+  async manualCreate(
+    createDto: TResumeManualCreateDTO,
+    userId: string,
+  ): Promise<TResumeBase> {
+    const resumeData: TResumeData = {
+      personalInfo: {
+        positionName: createDto.positionTitle,
+        country: createDto.country,
+        city: createDto.city,
+      },
+      skills: createDto.skills,
+    };
+
+    return await this.storeResume(resumeData, userId);
   }
 }
