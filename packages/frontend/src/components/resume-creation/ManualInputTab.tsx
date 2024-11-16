@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Info, Plus, Minus } from 'lucide-react';
 import CustomIcon from '@/icons/CustomIcon';
 import { useState, useMemo } from 'react';
@@ -142,9 +142,10 @@ export const ManualInputTab = ({ onSubmit, isPending }: ManualInputTabProps) => 
 				</div>
 			</div>
 
-			<div className="flex justify-between items-center gap-4 p-4 border-t bg-background">
+			<div className="flex justify-between items-center gap-4 bg-background">
 				<Alert variant="info" className="bg-blue-500/10 border-blue-500/20">
 					<Info className="h-4 w-4" />
+					<AlertTitle>Required fields</AlertTitle>
 					<AlertDescription>
 						Don't worry, you can add the rest later. This is the minimum information required to
 						search for jobs.
