@@ -1,19 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import {
+  ResumeBaseSchema,
+  ResumeFullSchema,
+  TResumeBase,
+  TResumeData,
+  TResumeFull,
+  TResumeManualCreateDTO,
+  TResumesWithRunsRemaining,
+} from '@redundant/common';
 import * as pdf from 'pdf-parse';
 import { AssistantService } from '../assistant/assistant.service';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  TResumeBase,
-  TResumeData,
-  ResumeBaseSchema,
-  TResumeWithMatches,
-  ResumeWithMatchesSchema,
-  TResumeFull,
-  ResumeFullSchema,
-  TResumesWithRunsRemaining,
-  TResumeManualCreateDTO,
-} from '@redundant/common';
 import { StorageService } from '../storage/storage.service';
 import { UserService } from '../user/user.service';
 
@@ -262,11 +260,18 @@ export class ResumeParserService {
     createDto: TResumeManualCreateDTO,
     userId: string,
   ): Promise<TResumeBase> {
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     const resumeData: TResumeData = {
       personalInfo: {
         positionName: createDto.positionTitle,
         country: createDto.country,
         city: createDto.city,
+        fullName: user.fullName,
       },
       skills: createDto.skills,
     };

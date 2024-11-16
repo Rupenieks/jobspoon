@@ -92,9 +92,10 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 		[applications]
 	);
 
-	const handleEditResume = useCallback(() => {
-		navigate(`/resumes/${resume?.id}`);
-	}, [navigate, resume?.id]);
+	const handleMatchJobs = useCallback(() => {
+		setShowDetailsDialog(false);
+		onMatchJobs(resumeId);
+	}, [onMatchJobs, resumeId]);
 
 	const handleCreateApplication = useCallback(
 		async (matchId: string) => {
@@ -145,7 +146,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 				return;
 			}
 
-			onMatchJobs(resume.id);
+			handleMatchJobs();
 		},
 		[
 			resume?.data.personalInfo.country,
@@ -153,7 +154,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 			resume?.data.personalInfo.positionName,
 			resume?.id,
 			setShowDetailsDialog,
-			onMatchJobs,
+			handleMatchJobs,
 		]
 	);
 
@@ -206,24 +207,24 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 								</div>
 								<div className="flex items-center gap-2 mr-4">
 									<TooltipProvider>
-										<Tooltip>
+										<Tooltip delayDuration={0}>
 											<TooltipTrigger asChild>
 												<Button
 													size="icon"
 													variant="outline"
 													onClick={(e) => {
 														e.stopPropagation();
-														handleEditResume();
+														setShowDetailsDialog(true);
 													}}
 												>
 													<Pencil className="h-4 w-4" />
 												</Button>
 											</TooltipTrigger>
-											<TooltipContent>Edit Resume</TooltipContent>
+											<TooltipContent>Edit job relevant details</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
 									<TooltipProvider>
-										<Tooltip>
+										<Tooltip delayDuration={0}>
 											<TooltipTrigger asChild>
 												{resume.canRunJobsMatch ? (
 													<Button
@@ -429,7 +430,7 @@ const ResumeMatchCard: React.FC<ResumeMatchCardProps> = ({ resumeId, isPending, 
 			<ResumeDetailsDialog
 				isOpen={showDetailsDialog}
 				onClose={() => setShowDetailsDialog(false)}
-				onMatchJobs={() => onMatchJobs(resume.id)}
+				onMatchJobs={() => handleMatchJobs()}
 			/>
 
 			<JobMatchDialog

@@ -12,12 +12,20 @@ export const useMatchJobs = () => {
 
 	return useMutation({
 		mutationFn: matchJobs,
-		onSuccess: (_, resumeId) => {
-			queryClient.invalidateQueries({ queryKey: ['resumes-with-matches'] });
-			queryClient.invalidateQueries({ queryKey: ['resume', resumeId] });
-			toast({
-				title: 'Jobs matched',
-			});
+		onSuccess: (data, resumeId) => {
+			if (data.count === 0) {
+				toast({
+					title: 'No jobs found',
+					description:
+						'No jobs were found matching your resume. Please update your resume details.',
+				});
+			} else {
+				queryClient.invalidateQueries({ queryKey: ['resumes-with-matches'] });
+				queryClient.invalidateQueries({ queryKey: ['resume', resumeId] });
+				toast({
+					title: 'Jobs matched',
+				});
+			}
 		},
 	});
 };

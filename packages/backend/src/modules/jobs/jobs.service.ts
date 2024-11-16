@@ -71,6 +71,15 @@ export class JobsService {
     const parsedResume = ResumeBaseSchema.parse(resume);
 
     try {
+      const jobs = await this.theirStackService.searchJobs(
+        parsedResume,
+        lastRunDate,
+      );
+
+      if (jobs.length === 0) {
+        return 0;
+      }
+
       const jobMatchRun = await this.prismaService.jobMatchRun.create({
         data: {
           userId,
@@ -78,10 +87,6 @@ export class JobsService {
         },
       });
 
-      const jobs = await this.theirStackService.searchJobs(
-        parsedResume,
-        lastRunDate,
-      );
       await this.createMatches({
         resumeId,
         matches: jobs,
