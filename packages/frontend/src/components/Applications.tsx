@@ -25,6 +25,7 @@ import { toast } from '@/hooks/use-toast';
 import { useDeleteApplications } from '@/hooks/useDeleteApplications';
 import CompanyLogo from './ui/company-logo';
 import { Separator } from './ui/separator';
+import CustomIcon from '@/icons/CustomIcon';
 
 const getStatusBadge = (stage: string) => {
 	switch (stage) {
@@ -80,91 +81,110 @@ const Applications: React.FC = () => {
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{isLoading
-					? [...Array(4)].map((_, index) => (
-							<TableRow key={index} className="border-b">
-								<TableCell>
-									<Skeleton className="h-4 w-[140px]" />
-								</TableCell>
-								<TableCell>
-									<Skeleton className="h-4 w-[180px]" />
-								</TableCell>
-								<TableCell>
-									<Skeleton className="h-6 w-[80px]" />
-								</TableCell>
-								<TableCell>
-									<Skeleton className="h-8 w-8" />
-								</TableCell>
-								<TableCell>
-									<Skeleton className="h-4 w-[100px]" />
-								</TableCell>
-								<TableCell>
-									<Skeleton className="h-8 w-8 ml-auto" />
-								</TableCell>
-							</TableRow>
-						))
-					: applications?.map((application) => (
-							<TableRow
-								key={application.id}
-								className="cursor-pointer hover:bg-gray-50 border-b last:border-b-0"
-								onClick={() => navigate(`/applications/${application.id}`)}
-							>
-								<TableCell className="font-medium">
-									<div className="flex items-center gap-2">
-										<CompanyLogo domain={application.match.company?.domain || ''} />
-										{application.match.companyName || 'Company not specified'}
-									</div>
-								</TableCell>
-								<TableCell>{application.match.positionTitle}</TableCell>
+				{isLoading ? (
+					[...Array(4)].map((_, index) => (
+						<TableRow key={index} className="border-b">
+							<TableCell>
+								<Skeleton className="h-4 w-[140px]" />
+							</TableCell>
+							<TableCell>
+								<Skeleton className="h-4 w-[180px]" />
+							</TableCell>
+							<TableCell>
+								<Skeleton className="h-6 w-[80px]" />
+							</TableCell>
+							<TableCell>
+								<Skeleton className="h-8 w-8" />
+							</TableCell>
+							<TableCell>
+								<Skeleton className="h-4 w-[100px]" />
+							</TableCell>
+							<TableCell>
+								<Skeleton className="h-8 w-8 ml-auto" />
+							</TableCell>
+						</TableRow>
+					))
+				) : applications?.length === 0 ? (
+					<TableRow>
+						<TableCell colSpan={6}>
+							<div className="col-span-full text-center text-muted-foreground flex flex-col items-center justify-center py-8">
+								<div
+									onClick={() => navigate('/matches')}
+									className="flex flex-col justify-center items-center cursor-pointer hover:bg-secondary transition-colors duration-200 rounded-lg p-4"
+								>
+									<CustomIcon name="no-data" className="h-48 w-48" />
+									<span className="text-sm mt-2 font-medium">No applications found</span>
+									<span className="text-sm mt-2 text-muted-foreground">
+										Click to browse job matches
+									</span>
+								</div>
+							</div>
+						</TableCell>
+					</TableRow>
+				) : (
+					applications?.map((application) => (
+						<TableRow
+							key={application.id}
+							className="cursor-pointer hover:bg-gray-50 border-b last:border-b-0"
+							onClick={() => navigate(`/applications/${application.id}`)}
+						>
+							<TableCell className="font-medium">
+								<div className="flex items-center gap-2">
+									<CompanyLogo domain={application.match.company?.domain || ''} />
+									{application.match.companyName || 'Company not specified'}
+								</div>
+							</TableCell>
+							<TableCell>{application.match.positionTitle}</TableCell>
 
-								<TableCell>{getStatusBadge(application.stage)}</TableCell>
-								<TableCell>
-									<TooltipProvider>
-										<Tooltip delayDuration={100}>
-											<TooltipTrigger asChild>
-												<Button
-													variant="ghost"
-													size="icon"
-													onClick={(e) => {
-														e.stopPropagation();
-														navigate(`/resumes/${application.resumeId}`);
-													}}
-												>
-													<div className="flex items-center">
-														<FileText className="h-4 w-4" />
-														<ArrowRight className="h-3 w-3" />
-													</div>
-												</Button>
-											</TooltipTrigger>
-											<TooltipContent>Go to resume</TooltipContent>
-										</Tooltip>
-									</TooltipProvider>
-								</TableCell>
-								<TableCell>
-									{formatDistanceToNow(new Date(application.createdAt), {
-										addSuffix: true,
-									})}
-								</TableCell>
-								<TableCell>
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-											<Button variant="ghost" size="icon">
-												<MoreVertical className="h-4 w-4" />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end">
-											<DropdownMenuItem
-												className="text-destructive focus:text-destructive"
-												onClick={(e) => handleDelete(e, application.id)}
+							<TableCell>{getStatusBadge(application.stage)}</TableCell>
+							<TableCell>
+								<TooltipProvider>
+									<Tooltip delayDuration={100}>
+										<TooltipTrigger asChild>
+											<Button
+												variant="ghost"
+												size="icon"
+												onClick={(e) => {
+													e.stopPropagation();
+													navigate(`/resumes/${application.resumeId}`);
+												}}
 											>
-												<Trash2 className="h-4 w-4 mr-2" />
-												Delete
-											</DropdownMenuItem>
-										</DropdownMenuContent>
-									</DropdownMenu>
-								</TableCell>
-							</TableRow>
-						))}
+												<div className="flex items-center">
+													<FileText className="h-4 w-4" />
+													<ArrowRight className="h-3 w-3" />
+												</div>
+											</Button>
+										</TooltipTrigger>
+										<TooltipContent>Go to resume</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
+							</TableCell>
+							<TableCell>
+								{formatDistanceToNow(new Date(application.createdAt), {
+									addSuffix: true,
+								})}
+							</TableCell>
+							<TableCell>
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+										<Button variant="ghost" size="icon">
+											<MoreVertical className="h-4 w-4" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										<DropdownMenuItem
+											className="text-destructive focus:text-destructive"
+											onClick={(e) => handleDelete(e, application.id)}
+										>
+											<Trash2 className="h-4 w-4 mr-2" />
+											Delete
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</TableCell>
+						</TableRow>
+					))
+				)}
 			</TableBody>
 		</Table>
 	);
