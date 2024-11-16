@@ -13,6 +13,7 @@ import { Cell, Label, Pie, PieChart, Tooltip } from 'recharts';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Skeleton } from './ui/skeleton';
+import { ApplicationStageAnalyticsDonutChart } from './analytics/ApplicationStageAnalyticsDonutChart';
 
 const stageColors = {
 	not_applied: 'hsl(240 4.8% 95.9%)',
@@ -124,60 +125,10 @@ const Start = () => {
 						<CardTitle>Application Stages</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<DonutChartContainer
-							config={chartConfig}
-							className="mx-auto aspect-square max-h-[300px]"
-						>
-							<PieChart>
-								<Pie
-									data={analytics?.applicationStages}
-									dataKey="value"
-									nameKey="name"
-									cx="50%"
-									cy="50%"
-									innerRadius={60}
-									outerRadius={80}
-									paddingAngle={2}
-								>
-									{analytics?.applicationStages.map((entry, index) => (
-										<Cell
-											key={`cell-${index}`}
-											fill={stageColors[entry.name as keyof typeof stageColors]}
-										/>
-									))}
-									<Label
-										content={({ viewBox }) => {
-											if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
-												return (
-													<text
-														x={viewBox.cx}
-														y={viewBox.cy}
-														textAnchor="middle"
-														dominantBaseline="middle"
-													>
-														<tspan
-															x={viewBox.cx}
-															y={viewBox.cy}
-															className="fill-foreground text-3xl font-bold"
-														>
-															{totalApplications}
-														</tspan>
-														<tspan
-															x={viewBox.cx}
-															y={(viewBox.cy || 0) + 24}
-															className="fill-muted-foreground"
-														>
-															Applications
-														</tspan>
-													</text>
-												);
-											}
-										}}
-									/>
-								</Pie>
-								<Tooltip content={<DonutChartTooltipContent />} />
-							</PieChart>
-						</DonutChartContainer>
+						<ApplicationStageAnalyticsDonutChart
+							data={analytics?.applicationStages}
+							totalApplications={totalApplications}
+						/>
 					</CardContent>
 				</Card>
 			</div>
