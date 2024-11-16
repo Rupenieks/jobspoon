@@ -94,7 +94,7 @@ export const ManualInputTab = ({ onSubmit, isPending }: ManualInputTabProps) => 
 							<div className="space-y-2">
 								<Label>Skills</Label>
 								<ScrollArea className="bg-mute rounded-md max-h-24 h-24">
-									<div className="grid grid-cols-3 gap-2">
+									<div className="grid grid-cols-3 gap-2 p-2">
 										{inputs.skills.map((skill, index) => (
 											<div key={index} className="flex gap-2">
 												<Input

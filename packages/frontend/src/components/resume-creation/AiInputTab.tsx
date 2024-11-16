@@ -16,12 +16,15 @@ export const AiInputTab = ({ onSubmit, isPending }: AiInputTabProps) => {
 
 	return (
 		<div className="h-full flex flex-col justify-between">
-			<Textarea
-				placeholder="Paste your resume text here..."
-				className="h-[300px] resize-none"
-				value={text}
-				onChange={(e) => setText(e.target.value)}
-			/>
+			<div className="flex justify-center items-center py-2">
+				<Textarea
+					placeholder="Paste your resume text here..."
+					className="h-[300px] resize-none"
+					value={text}
+					onChange={(e) => setText(e.target.value)}
+				/>
+			</div>
+
 			<div className="flex justify-between gap-4">
 				<Alert variant="info" className="bg-blue-500/10 border-blue-500/20">
 					<Info className="h-4 w-4" />

@@ -1,30 +1,29 @@
-import React from 'react';
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { useGetMatch } from '@/hooks/useGetMatch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { formatDistanceToNow } from 'date-fns';
-import { Building2, MapPin, Calendar, ExternalLink, Users2, Building } from 'lucide-react';
-import { Separator } from './ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
 } from '@/components/ui/accordion';
-import { useNavigate } from 'react-router-dom';
-import { useReadApplications } from '@/hooks/useReadApplications';
-import { useCreateApplication } from '@/hooks/useCreateApplication';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { ArrowRight, Plus } from 'lucide-react';
+import { useCreateApplication } from '@/hooks/useCreateApplication';
+import { useGetMatch } from '@/hooks/useGetMatch';
+import { useReadApplications } from '@/hooks/useReadApplications';
+import { formatDistanceToNow } from 'date-fns';
+import { ArrowRight, Building, Building2, Calendar, MapPin, Plus, Users2 } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Separator } from './ui/separator';
 
 interface JobMatchDialogProps {
 	matchId: string | undefined;

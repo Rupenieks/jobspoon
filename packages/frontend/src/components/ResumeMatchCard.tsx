@@ -21,30 +21,27 @@ import { useCreateApplication } from '@/hooks/useCreateApplication';
 import { useReadApplications } from '@/hooks/useReadApplications';
 import { useReadResume } from '@/hooks/useReadResume';
 import CustomIcon from '@/icons/CustomIcon';
+import { cn } from '@/lib/utils';
 import { ToastAction } from '@radix-ui/react-toast';
 import { formatDistanceToNow } from 'date-fns';
 import {
 	ArrowRight,
 	CheckCircle2,
-	Crosshair,
-	ExternalLink,
 	FileText,
 	MoreVertical,
 	Pencil,
 	Plus,
 	RefreshCw,
-	Clock,
 } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
 import { ResumeDetailsDialog } from './dialogs/ResumeDetailsDialog';
 import JobMatchDialog from './JobMatchDialog';
 import { ResumeStateProvider } from './resumes/ResumeStateContext';
-import CompanyLogo from './ui/company-logo';
 import { Badge } from './ui/badge';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
-import { cn } from '@/lib/utils';
+import CompanyLogo from './ui/company-logo';
 
 interface ResumeMatchCardProps {
 	resumeId: string;
