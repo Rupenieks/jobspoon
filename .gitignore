@@ -4,3 +4,5 @@ dist
 .turbo
 .vscode
 packages/backend/prefab-shape-441416-j1-8dee107df634.json
+.env.development
+.env.production

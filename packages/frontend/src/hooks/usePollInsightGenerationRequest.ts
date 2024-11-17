@@ -15,8 +15,6 @@ export const usePollInsightGenerationRequest = (
 				`/insights/application/${applicationId}/generation-request?stage=${stage}`
 			);
 
-			console.log('data', data);
-
 			// If we get a SUCCESS or ERROR status, stop polling and invalidate insights
 			if (data?.status === 'SUCCESS' || data?.status === 'ERROR') {
 				await queryClient.invalidateQueries({

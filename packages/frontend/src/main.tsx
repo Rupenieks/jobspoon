@@ -7,6 +7,7 @@ import { pdfjs } from 'react-pdf';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './auth/AuthProvider';
 import { Toaster } from './components/ui/toaster';
+import { getEnvConfig } from './utils/config';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -14,7 +15,7 @@ const queryClient = new QueryClient();
 
 ReactDOM.render(
 	<React.StrictMode>
-		<GoogleOAuthProvider clientId="946613478264-hhi5t3lt4fjlvpcfd8qqpk0pe9a8fb3c.apps.googleusercontent.com">
+		<GoogleOAuthProvider clientId={getEnvConfig().googleClientId}>
 			<QueryClientProvider client={queryClient}>
 				<AuthProvider>
 					<App />
