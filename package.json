@@ -1,16 +1,17 @@
 {
-  "name": "redundant",
-  "private": true,
-  "packageManager": "pnpm@9.4.0",
-  "scripts": {
-    "dev": "turbo run dev --parallel",
-    "build": "turbo run build",
-    "build:common": "turbo run build --filter=@redundant/common"
-  },
-  "devDependencies": {
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.0",
-    "prettier": "^3.0.0",
-    "turbo": "^2.1.3"
-  }
+	"name": "redundant",
+	"private": true,
+	"packageManager": "pnpm@9.4.0",
+	"scripts": {
+		"dev": "turbo run dev --parallel",
+		"build": "turbo run build",
+		"build:common": "turbo run build --filter=@redundant/common",
+		"start": "node packages/backend/dist/main.js"
+	},
+	"devDependencies": {
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-prettier": "^5.0.0",
+		"prettier": "^3.0.0",
+		"turbo": "^2.1.3"
+	}
 }

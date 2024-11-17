@@ -8,7 +8,15 @@ async function bootstrap() {
   dotenv.config();
   const app = await NestFactory.create(AppModule);
   app.use(json({ limit: '50mb' }));
-  app.enableCors();
+
+  app.enableCors({
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? ['https://your-frontend-url.onrender.com']
+        : true,
+    credentials: true,
+  });
+
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

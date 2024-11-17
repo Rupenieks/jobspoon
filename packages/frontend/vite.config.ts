@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import * as path from 'path';
+import path from 'path';
 import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
@@ -13,6 +13,17 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, './src'),
+		},
+	},
+	build: {
+		outDir: 'dist',
+		sourcemap: true,
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					vendor: ['react', 'react-dom'],
+				},
+			},
 		},
 	},
 });
