@@ -10,10 +10,7 @@ async function bootstrap() {
   app.use(json({ limit: '50mb' }));
 
   app.enableCors({
-    origin:
-      process.env.NODE_ENV === 'production'
-        ? ['https://your-frontend-url.onrender.com']
-        : true,
+    origin: process.env.BROWSER_URL,
     credentials: true,
   });
 

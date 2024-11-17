@@ -5,32 +5,12 @@ services:
     env: node
     buildCommand: pnpm install && pnpm build
     startCommand: NODE_ENV=staging pnpm start
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: redundant-db-staging
-          property: connectionString
-      - key: NODE_ENV
-        value: staging
-      - key: PORT
-        value: 3000
-      - key: CORS_ORIGINS
-        value: https://staging.yourapp.com,https://preview-staging.yourapp.com
 
   - type: web
     name: redundant-frontend-staging
     env: static
     buildCommand: pnpm install && cd packages/frontend && pnpm build:staging
     staticPublishPath: packages/frontend/dist
-    envVars:
-      - key: VITE_APP_ENV
-        value: staging
-      - key: VITE_API_URL
-        value: https://api-staging.yourapp.com
-      - key: VITE_PREVIEW_URL
-        value: https://preview-staging.yourapp.com
-      - key: VITE_GOOGLE_CLIENT_ID
-        value: your-staging-google-client-id
 
   # Production Services
   - type: web
@@ -38,29 +18,9 @@ services:
     env: node
     buildCommand: pnpm install && pnpm build
     startCommand: NODE_ENV=production pnpm start
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: redundant-db
-          property: connectionString
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3000
-      - key: CORS_ORIGINS
-        value: https://yourapp.com,https://preview.yourapp.com
 
   - type: web
     name: redundant-frontend
     env: static
     buildCommand: pnpm install && cd packages/frontend && pnpm build
     staticPublishPath: packages/frontend/dist
-    envVars:
-      - key: VITE_APP_ENV
-        value: production
-      - key: VITE_API_URL
-        value: https://api.yourapp.com
-      - key: VITE_PREVIEW_URL
-        value: https://preview.yourapp.com
-      - key: VITE_GOOGLE_CLIENT_ID
-        value: your-production-google-client-id
