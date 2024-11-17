@@ -6,7 +6,8 @@
 		"dev": "turbo run dev --parallel",
 		"build": "turbo run build",
 		"build:common": "turbo run build --filter=@redundant/common",
-		"start": "node packages/backend/dist/main.js"
+		"start:backend": "node packages/backend/dist/main.js",
+		"start": "cd packages/backend && pnpm start:prod"
 	},
 	"devDependencies": {
 		"eslint-config-prettier": "^9.0.0",

@@ -3,8 +3,8 @@ services:
   - type: web
     name: redundant-api-staging
     env: node
-    buildCommand: pnpm install && pnpm build
-    startCommand: NODE_ENV=staging pnpm start
+    buildCommand: pnpm install && cd packages/backend && pnpm build
+    startCommand: cd packages/backend && pnpm start:prod
 
   - type: web
     name: redundant-frontend-staging
