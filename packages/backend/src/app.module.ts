@@ -11,6 +11,7 @@ import { StorageModule } from './modules/storage/storage.module';
 import { MatchModule } from './modules/match/match.module';
 import { PDFModule } from './modules/pdf/pdf.module';
 import { InsightModule } from './modules/insight/insight.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { InsightModule } from './modules/insight/insight.module';
     MatchModule,
     PDFModule,
     InsightModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

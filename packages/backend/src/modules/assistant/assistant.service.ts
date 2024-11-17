@@ -1,13 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import {
-  InsightBaseSchema,
-  InsightDataSchema,
   MatchBaseSchema,
   ResumeBaseSchema,
   ResumeDataSchema,
-  TInsightBase,
-  TInsightCreateDTO,
   TInsightData,
   TResumeBase,
   TResumeData,

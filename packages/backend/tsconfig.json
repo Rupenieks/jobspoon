@@ -17,8 +17,10 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "jsx": "react-jsx",
     "paths": {
-      "@redundant/common": ["../common/src"]
+      "@redundant/common": ["../common/src"],
+      "@redundant/transactional": ["../transactional"]
     }
   }
 }
