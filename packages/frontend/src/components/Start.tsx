@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { ApplicationStageAnalyticsDonutChart } from './analytics/ApplicationStageAnalyticsDonutChart';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Skeleton } from './ui/skeleton';
+import CompanyLogo from './ui/company-logo';
 
 const QuickActionCard = ({
 	icon,
@@ -21,26 +22,37 @@ const QuickActionCard = ({
 		className={cn(
 			'cursor-pointer transition-all duration-200',
 			'bg-card hover:scale-[1.02] hover:bg-muted',
-			'flex flex-col items-center gap-6 p-8',
-			'h-56 rounded-lg border border-border',
+			'flex flex-col items-center gap-4 p-4',
+			'h-32 rounded-lg border border-border',
 			'shadow-sm hover:shadow-md'
 		)}
 		onClick={onClick}
 	>
-		<CustomIcon name={icon} className="w-48 h-48" />
-		<div className="text-lg font-semibold">{title}</div>
+		<CustomIcon name={icon} className="w-16 h-16" />
+		<div className="text-base font-semibold">{title}</div>
+	</div>
+);
+
+const DataPartnerCard = ({ domain, name }: { domain: string; name: string }) => (
+	<div className="flex flex-col items-center justify-center p-4 bg-card ">
+		<div className="w-12 h-12 mb-2">
+			<CompanyLogo domain={domain} />
+		</div>
+		<span className="text-sm text-muted-foreground">{name}</span>
 	</div>
 );
 
 const LoadingSkeleton = () => (
 	<div className="space-y-8">
 		<Skeleton className="h-12 w-64" />
-		<div className="grid grid-cols-2 gap-4">
-			<Skeleton className="h-20" />
-			<Skeleton className="h-20" />
-		</div>
-		<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-			<Skeleton className="h-[400px] lg:col-span-4" />
+		<Skeleton className="h-40" />
+		<div className="grid grid-cols-12 gap-6">
+			<div className="col-span-12 lg:col-span-4">
+				<div className="space-y-4">
+					<Skeleton className="h-32" />
+					<Skeleton className="h-32" />
+				</div>
+			</div>
 			<Skeleton className="h-[400px] lg:col-span-8" />
 		</div>
 	</div>
@@ -61,24 +73,54 @@ const Start = () => {
 		return <LoadingSkeleton />;
 	}
 
+	const dataPartners = [
+		{ name: 'LinkedIn', domain: 'linkedin.com' },
+		{ name: 'Indeed', domain: 'indeed.com' },
+		{ name: 'Glassdoor', domain: 'glassdoor.com' },
+		{ name: 'ZipRecruiter', domain: 'ziprecruiter.com' },
+		{ name: 'Monster', domain: 'monster.com' },
+		{ name: 'Wellfound', domain: 'wellfound.com' },
+	];
+
 	return (
 		<div className="container mx-auto p-4 space-y-8">
 			<h1 className="text-3xl font-bold">Welcome back, {userName}</h1>
 
-			{/* Quick Actions */}
-			<div className="grid grid-cols-2 gap-6">
-				<QuickActionCard icon="create" title="Create Resume" onClick={() => navigate('/resumes')} />
-				<QuickActionCard
-					icon="todo-list"
-					title="View Applications"
-					onClick={() => navigate('/applications')}
-				/>
-			</div>
+			{/* Data Partners */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-center">
+						Our data partners provide fresh jobs on a 10-minute to daily basis from the following
+						platforms:
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+						{dataPartners.map((partner) => (
+							<DataPartnerCard key={partner.name} name={partner.name} domain={partner.domain} />
+						))}
+					</div>
+				</CardContent>
+			</Card>
 
-			{/* Analytics */}
+			{/* Main Content Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-				{/* Application Stages */}
-				<Card className="lg:col-span-4">
+				{/* Left Column - Quick Actions */}
+				<div className="lg:col-span-4 space-y-4">
+					<QuickActionCard
+						icon="create"
+						title="Create Resume"
+						onClick={() => navigate('/resumes')}
+					/>
+					<QuickActionCard
+						icon="todo-list"
+						title="View Applications"
+						onClick={() => navigate('/applications')}
+					/>
+				</div>
+
+				{/* Right Column - Application Stages */}
+				<Card className="lg:col-span-8">
 					<CardHeader className="bg-card bg-muted">
 						<CardTitle>Application Stages</CardTitle>
 					</CardHeader>

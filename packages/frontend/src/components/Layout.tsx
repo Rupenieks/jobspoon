@@ -73,11 +73,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 									className={cn(
 										'flex items-center px-4 py-3 rounded-lg transition-colors',
 										isNavItemActive(item.path)
-											? 'bg-accent text-accent-foreground font-medium'
+											? 'bg-secondary text-accent-foreground font-medium'
 											: 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground'
 									)}
 								>
-									<span className="flex-shrink-0">{item.icon}</span>
+									<span className={cn('flex-shrink-0')}>{item.icon}</span>
 									<span className="ml-3">{item.label}</span>
 								</Link>
 							</li>
