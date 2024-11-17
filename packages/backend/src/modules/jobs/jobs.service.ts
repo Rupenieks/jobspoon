@@ -108,7 +108,10 @@ export class JobsService {
     jobMatchRunId,
   }: {
     resumeId: string;
-    matches: TMatchBase[];
+    matches: Omit<
+      TMatchBase,
+      'id' | 'createdAt' | 'updatedAt' | 'jobMatchRunId'
+    >[];
     userId: string;
     jobMatchRunId: string;
   }): Promise<void> {

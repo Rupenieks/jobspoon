@@ -4,9 +4,7 @@
 	"packageManager": "pnpm@9.4.0",
 	"scripts": {
 		"dev": "turbo run dev --parallel",
-		"build": "turbo run build",
-		"build:common": "turbo run build --filter=@redundant/common",
-		"start:backend": "node packages/backend/dist/main.js",
+		"build": "turbo run build --filter=@redundant/common --filter=@redundant/transactional --filter=backend",
 		"start": "cd packages/backend && pnpm start:prod"
 	},
 	"devDependencies": {

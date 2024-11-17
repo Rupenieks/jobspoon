@@ -1,8 +1,9 @@
 {
 	"name": "@redundant/transactional",
 	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"type": "module",
 	"scripts": {
 		"build": "vite build",
@@ -15,12 +16,15 @@
 	"license": "ISC",
 	"dependencies": {
 		"@react-email/components": "0.0.28",
-		"@react-email/render": "^1.0.2",
+		"@react-email/render": "^1.0.2"
+	},
+	"peerDependencies": {
 		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
-		"react-email": "^3.0.2"
+		"react-dom": "^18.3.1"
 	},
 	"devDependencies": {
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
 		"@react-email/tailwind": "^1.0.2",
 		"@types/react": "^18.3.11",
 		"@vitejs/plugin-react": "^4.3.2",

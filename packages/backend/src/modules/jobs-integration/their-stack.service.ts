@@ -59,7 +59,7 @@ export class TheirStackService {
   }: {
     resumeId: string;
     jobs: TTheirStackJobsResponse['data'];
-  }): Omit<TMatchBase, 'id'>[] {
+  }): Omit<TMatchBase, 'id' | 'createdAt' | 'updatedAt' | 'jobMatchRunId'>[] {
     this.logger.debug(`Converting ${jobs.length} jobs to matches`);
     return jobs.map((job) => ({
       integrationId: job.id.toString(),

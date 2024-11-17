@@ -41,6 +41,7 @@ export class ResumeParserService {
             fullName: user.fullName,
             country: user.country,
             city: user.city,
+            profileBio: '',
           },
         },
       };
@@ -58,7 +59,7 @@ export class ResumeParserService {
   }
 
   async storeResume(
-    resumeData: TResumeData,
+    resumeData: Partial<TResumeData>,
     userId: string,
   ): Promise<TResumeBase> {
     const stored = await this.prismaService.resume.create({
@@ -266,12 +267,13 @@ export class ResumeParserService {
       throw new NotFoundException('User not found');
     }
 
-    const resumeData: TResumeData = {
+    const resumeData: Partial<TResumeData> = {
       personalInfo: {
         positionName: createDto.positionTitle,
         country: createDto.country,
         city: createDto.city,
         fullName: user.fullName,
+        profileBio: '',
       },
       skills: createDto.skills,
     };
