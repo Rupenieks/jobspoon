@@ -165,7 +165,7 @@ const JobMatchDialog: React.FC<JobMatchDialogProps> = ({ matchId, isOpen, onClos
 														</AccordionTrigger>
 														<AccordionContent className="px-4 pb-4">
 															<div className="flex flex-wrap gap-2">
-																{match.company.technologies.map((tech) => (
+																{match.company.technologies.map((tech: string) => (
 																	<Badge key={tech} variant="secondary">
 																		{tech}
 																	</Badge>

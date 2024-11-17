@@ -1,7 +1,7 @@
 import useDebouncedCallback from '@/hooks/useDebouncedCallback';
 import { useReadResume } from '@/hooks/useReadResume';
 import { useUpdateResume } from '@/hooks/useUpdateResume';
-import { TResumeData, TResumeBase } from '@redundant/common/src';
+import { TResumeData, TResumeBase, TEducation, TExperience } from '@redundant/common/src';
 import React, { useCallback, useContext, useEffect, useState, useMemo } from 'react';
 
 interface ResumeStateContextType {
@@ -10,8 +10,8 @@ interface ResumeStateContextType {
 	isLoading: boolean;
 	error: Error | null;
 	updateResumeField: <K extends keyof TResumeData>(field: K, value: TResumeData[K]) => void;
-	updateExperience: (index: number, field: keyof TResumeData['experience'][0], value: any) => void;
-	updateEducation: (index: number, field: keyof TResumeData['education'][0], value: any) => void;
+	updateExperience: (index: number, field: keyof TExperience, value: any) => void;
+	updateEducation: (index: number, field: keyof TEducation, value: any) => void;
 	addExperience: () => void;
 	addEducation: () => void;
 	updateSkill: (index: number, value: string) => void;
@@ -73,7 +73,7 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({ resume
 	);
 
 	const updateExperience = useCallback(
-		(index: number, field: keyof TResumeData['experience'][0], value: any) => {
+		(index: number, field: keyof TExperience, value: any) => {
 			setResume((prev) => {
 				if (!prev) return prev;
 				const newExperience = [...(prev.data.experience || [])];
@@ -87,7 +87,7 @@ export const ResumeStateProvider: React.FC<ResumeStateProviderProps> = ({ resume
 	);
 
 	const updateEducation = useCallback(
-		(index: number, field: keyof TResumeData['education'][0], value: any) => {
+		(index: number, field: keyof TEducation, value: any) => {
 			setResume((prev) => {
 				if (!prev) return prev;
 				const newEducation = [...(prev.data.education || [])];

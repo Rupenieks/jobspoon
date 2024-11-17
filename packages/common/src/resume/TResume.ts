@@ -12,6 +12,8 @@ export const ExperienceSchema = z.object({
 	contributions: z.array(z.string()).nullish(),
 });
 
+export type TExperience = z.infer<typeof ExperienceSchema>;
+
 export const EducationSchema = z.object({
 	university: z.string().nullish(),
 	degree: z.string().nullish(),
@@ -19,12 +21,16 @@ export const EducationSchema = z.object({
 	endDate: z.string().nullish(),
 });
 
+export type TEducation = z.infer<typeof EducationSchema>;
+
 export const ReferenceSchema = z.object({
 	name: z.string().nullish(),
 	position: z.string().nullish(),
 	number: z.string().nullish(),
 	email: z.string().nullish(),
 });
+
+export type TReference = z.infer<typeof ReferenceSchema>;
 
 export const ResumeConfigSchema = z.object({
 	primaryColor: z.string().default('#1f2937'),

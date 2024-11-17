@@ -30,9 +30,18 @@ import { GripVertical, TrashIcon } from 'lucide-react';
 import React, { useCallback, useMemo } from 'react';
 import { useResumeState } from './resumes/ResumeStateContext';
 import { SectionLayoutManager } from './SectionLayoutManager';
+import { TEducation, TExperience, TResumeBase, TResumeData } from '@redundant/common/src';
+import { cn } from '@/lib/utils';
 
-// Sortable Experience Item Component
-const SortableExperienceItem = ({ experience, index, updateExperience }) => {
+const SortableExperienceItem = ({
+	experience,
+	index,
+	updateExperience,
+}: {
+	experience: TExperience;
+	index: number;
+	updateExperience: (index: number, field: string, value: any) => void;
+}) => {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: index.toString(),
 	});
@@ -41,24 +50,23 @@ const SortableExperienceItem = ({ experience, index, updateExperience }) => {
 		() => ({
 			transform: CSS.Transform.toString(transform),
 			transition,
-			zIndex: isDragging ? 50 : 0,
-			opacity: isDragging ? 0.8 : 1,
-			position: 'relative',
-			backgroundColor: isDragging ? 'white' : undefined,
-			boxShadow: isDragging ? 'rgba(0, 0, 0, 0.1) 0px 10px 50px' : undefined,
 		}),
-		[transform, transition, isDragging]
+		[transform, transition]
 	);
 
 	return (
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={`mb-6 p-4 border rounded-lg transition-colors ${
+			className={cn(
+				'mb-6 p-4 border rounded-lg transition-colors relative',
 				isDragging
-					? 'border-primary/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
-					: 'bg-background border-border hover:border-primary/50'
-			}`}
+					? [
+							'border-primary/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
+							'opacity-80 z-50 bg-white shadow-lg',
+						]
+					: ['bg-background border-border hover:border-primary/50', 'opacity-100 z-0']
+			)}
 		>
 			<div className="flex items-center gap-2 mb-2">
 				<button
@@ -139,6 +147,12 @@ const SortableEducationItem = ({
 	updateEducation,
 	updateResumeField,
 	resume,
+}: {
+	education: TEducation;
+	index: number;
+	updateEducation: (index: number, field: keyof TEducation, value: any) => void;
+	updateResumeField: <K extends keyof TResumeData>(field: K, value: TResumeData[K]) => void;
+	resume: TResumeBase | null;
 }) => {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: index.toString(),
@@ -148,24 +162,23 @@ const SortableEducationItem = ({
 		() => ({
 			transform: CSS.Transform.toString(transform),
 			transition,
-			zIndex: isDragging ? 50 : 0,
-			opacity: isDragging ? 0.8 : 1,
-			position: 'relative',
-			backgroundColor: isDragging ? 'white' : undefined,
-			boxShadow: isDragging ? 'rgba(0, 0, 0, 0.1) 0px 10px 50px' : undefined,
 		}),
-		[transform, transition, isDragging]
+		[transform, transition]
 	);
 
 	return (
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={`mb-6 p-4 border rounded-lg transition-colors ${
+			className={cn(
+				'mb-6 p-4 border rounded-lg transition-colors relative',
 				isDragging
-					? 'border-primary/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
-					: 'bg-background border-border hover:border-primary/50'
-			}`}
+					? [
+							'border-primary/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
+							'opacity-80 z-50 bg-white shadow-lg',
+						]
+					: ['bg-background border-border hover:border-primary/50', 'opacity-100 z-0']
+			)}
 		>
 			<div className="flex items-center gap-2 mb-2">
 				<button
@@ -347,6 +360,7 @@ const ResumeEditor: React.FC = () => {
 									key={index}
 									experience={exp}
 									index={index}
+									// @ts-ignore
 									updateExperience={updateExperience}
 								/>
 							))}
