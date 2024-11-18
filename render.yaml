@@ -1,9 +1,4 @@
 services:
-  - type: postgres
-    name: redundant-db-staging
-    ipAllowList: []
-    plan: free
-
   - type: web
     name: redundant-api-staging
     env: node
@@ -29,3 +24,7 @@ services:
       cd packages/frontend &&
       pnpm build:staging
     staticPublishPath: packages/frontend/dist
+
+databases:
+  - name: redundant-db-staging
+    plan: free
