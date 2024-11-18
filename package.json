@@ -5,6 +5,7 @@
 	"scripts": {
 		"dev": "turbo run dev --parallel",
 		"build": "turbo run build --filter=@redundant/common --filter=@redundant/transactional --filter=backend",
+		"build:common": "cd packages/common && pnpm build",
 		"start": "cd packages/backend && pnpm start:prod"
 	},
 	"devDependencies": {
