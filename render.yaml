@@ -3,24 +3,40 @@ services:
   - type: web
     name: redundant-api-staging
     env: node
+    branch: staging
     buildCommand: pnpm install && pnpm build:common && cd packages/backend && prisma generate && pnpm build
     startCommand: cd packages/backend && pnpm start:prod
+    envVars:
+      - key: NODE_ENV
+        value: staging
 
   - type: web
     name: redundant-frontend-staging
     env: static
+    branch: staging
     buildCommand: pnpm install && cd packages/frontend && pnpm build:staging
     staticPublishPath: packages/frontend/dist
+    envVars:
+      - key: NODE_ENV
+        value: staging
 
   # Production Services
   - type: web
     name: redundant-api
     env: node
+    branch: main
     buildCommand: pnpm install && pnpm build
     startCommand: NODE_ENV=production pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
 
   - type: web
     name: redundant-frontend
     env: static
+    branch: main
     buildCommand: pnpm install && cd packages/frontend && pnpm build
     staticPublishPath: packages/frontend/dist
+    envVars:
+      - key: NODE_ENV
+        value: production
