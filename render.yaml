@@ -3,7 +3,7 @@ services:
     name: redundant-api-staging
     env: node
     branch: staging
-    buildCommand: pnpm install && pnpm build:common && cd packages/backend && prisma generate && pnpm build
+    buildCommand: pnpm install && pnpm build && cd packages/backend && prisma generate
     startCommand: cd packages/backend && pnpm start:prod
     envVars:
       - key: NODE_ENV
