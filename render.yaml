@@ -13,7 +13,7 @@ services:
     name: redundant-frontend-staging
     env: static
     branch: staging
-    buildCommand: pnpm install && cd packages/frontend && pnpm build:staging
+    buildCommand: pnpm install && cd packages/frontend && pnpm build
     staticPublishPath: packages/frontend/dist
     envVars:
       - key: NODE_ENV
