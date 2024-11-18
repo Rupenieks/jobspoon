@@ -1,7 +1,28 @@
 services:
+  # Databases
+  - type: pserv
+    name: jobspoon-db-staging
+    env: docker
+    plan: free
+    branch: staging
+    repo: https://github.com/render-examples/postgres-docker
+    envVars:
+      - key: POSTGRES_DB
+        value: jobspoon_staging
+
+  # - type: pserv
+  #   name: jobspoon-db-prod
+  #   env: docker
+  #   plan: standard
+  #   branch: main
+  #   repo: https://github.com/render-examples/postgres-docker
+  #   envVars:
+  #     - key: POSTGRES_DB
+  #       value: jobspoon_prod
+
   # Staging Services
   - type: web
-    name: redundant-api-staging
+    name: jobspoon-api-staging
     env: node
     branch: staging
     buildCommand: pnpm install && pnpm build:common && cd packages/backend && prisma generate && pnpm build
@@ -11,7 +32,7 @@ services:
         value: staging
 
   - type: web
-    name: redundant-frontend-staging
+    name: jobspoon-frontend-staging
     env: static
     branch: staging
     buildCommand: pnpm install && cd packages/frontend && pnpm build:staging
@@ -20,9 +41,9 @@ services:
       - key: NODE_ENV
         value: staging
 
-  # Production Services
+  # # Production Services
   # - type: web
-  #   name: redundant-api
+  #   name: jobspoon-api
   #   env: node
   #   branch: main
   #   buildCommand: pnpm install && pnpm build
@@ -32,7 +53,7 @@ services:
   #       value: production
 
   # - type: web
-  #   name: redundant-frontend
+  #   name: jobspoon-frontend
   #   env: static
   #   branch: main
   #   buildCommand: pnpm install && cd packages/frontend && pnpm build
