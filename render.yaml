@@ -9,7 +9,7 @@ services:
       pnpm build &&
       cd packages/backend &&
       npx prisma migrate deploy &&
-      npx prisma generate
+      npx prisma generate && pnpm build
     startCommand: cd packages/backend && pnpm start:prod
 
   - type: web
