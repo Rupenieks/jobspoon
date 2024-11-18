@@ -6,12 +6,12 @@ services:
     rootDir: packages/backend
     buildCommand: >
       pnpm install &&
-      pnpm build &&
+      pnpm build:common &&
       cd packages/backend &&
+      npx prisma migrate deploy &&
       npx prisma generate &&
       pnpm build
     startCommand: cd packages/backend && pnpm start:prod
-    postDeploy: cd packages/backend && npx prisma migrate deploy
 
   - type: web
     name: redundant-frontend-staging
