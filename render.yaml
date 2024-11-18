@@ -22,4 +22,3 @@ services:
 databases:
   - name: redundant-db-staging
     plan: free
-    branch: staging
