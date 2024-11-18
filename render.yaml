@@ -5,14 +5,11 @@ services:
     branch: staging
     buildCommand: >
       pnpm install &&
-      pnpm build:common &&
+      pnpm build &&
       cd packages/backend &&
       npx prisma generate &&
       pnpm build
     startCommand: cd packages/backend && pnpm start:prod
-    envVars:
-      - key: NODE_ENV
-        value: staging
 
   - type: web
     name: redundant-frontend-staging
@@ -20,9 +17,9 @@ services:
     branch: staging
     buildCommand: >
       pnpm install &&
-      pnpm build:common &&
+      pnpm build &&
       cd packages/frontend &&
-      pnpm build:staging
+      pnpm build
     staticPublishPath: packages/frontend/dist
 
 databases:
