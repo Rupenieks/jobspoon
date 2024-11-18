@@ -1,24 +1,4 @@
 services:
-  # Databases
-  - type: postgres
-    name: redundant-db-staging
-    ipAllowList: [] # empty array means allow all
-    plan: free
-    branch: staging
-    envVars:
-      - key: POSTGRES_DB
-        value: redundant_staging
-
-  # - type: postgres
-  #   name: redundant-db-prod
-  #   ipAllowList: []
-  #   plan: standard
-  #   branch: main
-  #   envVars:
-  #     - key: POSTGRES_DB
-  #       value: redundant_prod
-
-  # Staging Services
   - type: web
     name: redundant-api-staging
     env: node
@@ -39,23 +19,7 @@ services:
       - key: NODE_ENV
         value: staging
 
-  # # Production Services
-  # - type: web
-  #   name: jobspoon-api
-  #   env: node
-  #   branch: main
-  #   buildCommand: pnpm install && pnpm build
-  #   startCommand: NODE_ENV=production pnpm start
-  #   envVars:
-  #     - key: NODE_ENV
-  #       value: production
-
-  # - type: web
-  #   name: jobspoon-frontend
-  #   env: static
-  #   branch: main
-  #   buildCommand: pnpm install && cd packages/frontend && pnpm build
-  #   staticPublishPath: packages/frontend/dist
-  #   envVars:
-  #     - key: NODE_ENV
-  #       value: production
+databases:
+  - name: redundant-db-staging
+    plan: free
+    branch: staging
