@@ -3,10 +3,12 @@ import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import 'multer';
 import { json } from 'express';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   dotenv.config();
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
   app.use(json({ limit: '50mb' }));
 
   const allowedOrigins = [
@@ -14,6 +16,8 @@ async function bootstrap() {
     'https://accounts.google.com',
     'https://oauth2.googleapis.com',
   ];
+
+  logger.log(`Allowed origins: ${allowedOrigins}`);
 
   app.enableCors({
     origin: (origin, callback) => {
