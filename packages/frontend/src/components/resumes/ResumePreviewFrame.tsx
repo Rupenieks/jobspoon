@@ -15,9 +15,10 @@ const ResumePreviewFrame = () => {
 		resumeId: resume?.id,
 	});
 
-	const previewUrl = import.meta.env.DEV
-		? 'http://localhost:3001/creator'
-		: `${getEnvConfig().previewUrl}/creator`;
+	const previewUrl =
+		import.meta.env.NODE_ENV === 'development'
+			? 'http://localhost:3001/creator'
+			: `${getEnvConfig().previewUrl}/creator`;
 
 	useResumeStateSender({ resume: temporaryResume?.data || resume?.data || null, iframeRef });
 
