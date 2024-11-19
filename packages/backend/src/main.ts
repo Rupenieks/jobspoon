@@ -11,8 +11,10 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   app.use(json({ limit: '50mb' }));
 
+  const browserUrl = process.env.BROWSER_URL?.replace(/\/$/, '');
+
   const allowedOrigins = [
-    process.env.BROWSER_URL,
+    browserUrl,
     'https://accounts.google.com',
     'https://oauth2.googleapis.com',
   ];
@@ -28,8 +30,6 @@ async function bootstrap() {
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
 
   await app.listen(process.env.PORT || 3000);
