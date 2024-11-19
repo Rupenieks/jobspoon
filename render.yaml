@@ -10,7 +10,7 @@ services:
       npx prisma migrate deploy &&
       npx prisma generate &&
       pnpm build
-    startCommand: pnpm start:prod
+    startCommand: cd packages/backend && pnpm start:prod
 
   - type: web
     name: redundant-frontend-staging
