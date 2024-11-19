@@ -5,8 +5,8 @@ services:
     branch: staging
     rootDir: packages/backend
     buildCommand: >
-      pnpm install &&
-      pnpm build &&
+      pnpm install --no-frozen-lockfile &&
+      pnpm build:common &&
       cd packages/backend &&
       npx prisma migrate deploy &&
       npx prisma generate && pnpm build
@@ -18,10 +18,10 @@ services:
     rootDir: packages/frontend
     branch: staging
     buildCommand: >
-      pnpm install &&
-      pnpm build &&
+      pnpm install --no-frozen-lockfile &&
+      pnpm build:common &&
       cd packages/frontend &&
-      pnpm build
+      pnpm build:staging
     staticPublishPath: packages/frontend/dist
 
 databases:
