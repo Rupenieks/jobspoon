@@ -23,6 +23,11 @@ export default defineConfig(({ mode }) => {
 		build: {
 			outDir: path.resolve(__dirname, 'dist/resume-viewer'),
 			emptyOutDir: true,
+			rollupOptions: {
+				input: {
+					main: path.resolve(__dirname, 'src/resume-viewer/src/index.html'),
+				},
+			},
 		},
 		define: {
 			__APP_ENV__: JSON.stringify(env.VITE_APP_ENV),
