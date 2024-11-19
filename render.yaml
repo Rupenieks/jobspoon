@@ -4,28 +4,24 @@ services:
     env: node
     branch: staging
     buildCommand: >
-      cd ../.. &&
       pnpm install --no-frozen-lockfile &&
-      pnpm build:common &&
+      pnpm build &&
       cd packages/backend &&
       npx prisma migrate deploy &&
       npx prisma generate &&
       pnpm build
     startCommand: pnpm start:prod
-    rootDir: packages/backend
 
   - type: web
     name: redundant-frontend-staging
     env: static
     branch: staging
     buildCommand: >
-      cd ../.. &&
       pnpm install --no-frozen-lockfile &&
-      pnpm build:common &&
+      pnpm build &&
       cd packages/frontend &&
       pnpm build:staging
     staticPublishPath: packages/frontend/dist
-    rootDir: packages/frontend
 
 databases:
   - name: redundant-db-staging
