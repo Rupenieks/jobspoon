@@ -20,7 +20,7 @@ services:
       pnpm install --no-frozen-lockfile &&
       pnpm build &&
       cd packages/frontend &&
-      pnpm build:staging
+      pnpm build
     staticPublishPath: packages/frontend/dist
 
 databases:
