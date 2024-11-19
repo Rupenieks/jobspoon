@@ -23,6 +23,16 @@ services:
       pnpm build
     staticPublishPath: packages/frontend/dist
 
+  - type: web
+    name: redundant-preview-staging
+    env: static
+    branch: staging
+    buildCommand: >
+      pnpm install --no-frozen-lockfile &&
+      cd packages/frontend &&
+      pnpm build:preview
+    staticPublishPath: packages/frontend/dist/resume-viewer
+
 databases:
   - name: redundant-db-staging
     plan: free
