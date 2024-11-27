@@ -37,3 +37,8 @@ export const getConfig = (): Config => {
 	const config = getEnvConfig();
 	return validateConfig(config);
 };
+
+export const getStorageKey = (key: string): string => {
+	const env = import.meta.env.VITE_APP_ENV || 'development';
+	return `${env}_${key}`;
+};
