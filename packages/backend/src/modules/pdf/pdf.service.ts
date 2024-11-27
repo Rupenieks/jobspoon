@@ -23,8 +23,11 @@ export class PDFService {
   ) {
     const chromeUrl = env.CHROME_URL;
     const chromeToken = env.CHROME_TOKEN;
-    this.browserURL = `${chromeUrl}?token=${chromeToken}`;
     this.environment = process.env.NODE_ENV || 'development';
+    this.browserURL =
+      this.environment === 'development'
+        ? `${chromeUrl}?token=${chromeToken}`
+        : `${process.env.PREVIEW_URL}/preview`;
   }
 
   private async getBrowser() {
