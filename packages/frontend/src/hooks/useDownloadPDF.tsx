@@ -1,55 +1,50 @@
-import { useState, useCallback } from "react";
-import axios from "axios";
-import axiosInstance from "@/utils/axiosConfig";
+import { useState, useCallback } from 'react';
+import axiosInstance from '@/utils/axiosConfig';
 
 interface UseDownloadPDFProps {
-  resumeId?: string;
+	resumeId?: string;
 }
 
 export const useDownloadPDF = ({ resumeId }: UseDownloadPDFProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  const downloadPDF = useCallback(async () => {
-    if (!resumeId) {
-      setError("No resume ID provided");
-      return;
-    }
+	const downloadPDF = useCallback(async () => {
+		if (!resumeId) {
+			setError('No resume ID provided');
+			return;
+		}
 
-    setIsLoading(true);
-    setError(null);
+		setIsLoading(true);
+		setError(null);
 
-    try {
-      const response = await axiosInstance.get(`/pdf/${resumeId}`, {
-        responseType: "blob",
-      });
+		try {
+			// Get the signed URL from your backend
+			const response = await axiosInstance.get(`/pdf/${resumeId}`);
+			const signedUrl = response.data;
 
-      // Create blob link to download
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "resume.pdf");
+			// Create a hidden anchor element
+			const link = document.createElement('a');
+			link.href = signedUrl;
+			link.target = '_blank'; // Optional: opens in new tab
+			link.rel = 'noopener noreferrer'; // Security best practice
+			link.download = 'resume.pdf'; // Suggested filename
 
-      // Append to html link element page
-      document.body.appendChild(link);
+			// Trigger the download
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Failed to download PDF');
+			console.error('Failed to download PDF:', err);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [resumeId]);
 
-      // Start download
-      link.click();
-
-      // Clean up and remove the link
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to download PDF");
-      console.error("Failed to download PDF:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [resumeId]);
-
-  return {
-    downloadPDF,
-    isLoading,
-    error,
-  };
+	return {
+		downloadPDF,
+		isLoading,
+		error,
+	};
 };

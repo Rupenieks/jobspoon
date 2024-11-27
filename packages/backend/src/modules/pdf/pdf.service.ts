@@ -8,16 +8,23 @@ import { env } from 'process';
 import { connect } from 'puppeteer';
 import { ResumeParserService } from '../resume-parser/resume-parser.service';
 import { PDFDocument } from 'pdf-lib';
+import { StorageService } from '../storage/storage.service';
+import { TResumeFull } from '@redundant/common';
 
 @Injectable()
 export class PDFService {
   private readonly logger = new Logger(PDFService.name);
   private readonly browserURL: string;
+  private readonly environment: string;
 
-  constructor(private readonly resumeParserService: ResumeParserService) {
+  constructor(
+    private readonly resumeParserService: ResumeParserService,
+    private readonly storageService: StorageService,
+  ) {
     const chromeUrl = env.CHROME_URL;
     const chromeToken = env.CHROME_TOKEN;
     this.browserURL = `${chromeUrl}?token=${chromeToken}`;
+    this.environment = process.env.NODE_ENV || 'development';
   }
 
   private async getBrowser() {
@@ -153,21 +160,45 @@ export class PDFService {
     const useWsl = process.env.USE_WSL === 'true';
     const viteHost = process.env.VITE_HOST || 'localhost';
     const vitePort = process.env.VITE_PORT || '3001';
-    
-    if (useWsl) {
-      return `http://${viteHost}:${vitePort}/pdfPreview`;
+    const environment = process.env.NODE_ENV || 'development';
+
+    if (environment === 'development') {
+      if (useWsl) {
+        return `http://${viteHost}:${vitePort}/pdfPreview`;
+      }
+
+      return `http://host.docker.internal:${vitePort}/pdfPreview`;
     }
-    
-    return `http://host.docker.internal:${vitePort}/pdfPreview`;
+
+    return `${process.env.PREVIEW_URL}/pdfPreview`;
   }
 
-  async generatePDF(resumeId: string, userId: string): Promise<Buffer> {
-    const resume = await this.resumeParserService.getResumeById(resumeId, userId);
+  async generatePDF(
+    resumeId: string,
+    userId: string,
+  ): Promise<Buffer | string> {
+    const resume = await this.resumeParserService.getResumeById(
+      resumeId,
+      userId,
+    );
 
     if (!resume) {
       throw new NotFoundException(`Resume with ID ${resumeId} not found`);
     }
 
+    const pdfBuffer = await this.generatePDFBuffer(resume);
+
+    // In production/staging, upload to storage and return URL
+    return this.storageService.uploadObject({
+      userId,
+      buffer: pdfBuffer,
+      filename: `${resume.id}.pdf`,
+      type: 'resumes',
+      contentType: 'application/pdf',
+    });
+  }
+
+  private async generatePDFBuffer(resume: TResumeFull): Promise<Buffer> {
     const browser = await this.getBrowser();
     const page = await browser.newPage();
 
@@ -206,14 +237,14 @@ export class PDFService {
             element.style.position = 'absolute';
             element.style.display = 'block';
           });
-          
+
           // Make current page visible
-          const currentPreview = document.querySelectorAll('.preview')[currentIndex] as HTMLElement;
+          const currentPreview = document.querySelectorAll('.preview')[
+            currentIndex
+          ] as HTMLElement;
           currentPreview.style.opacity = '1';
           currentPreview.style.position = 'relative';
-          
 
-          
           // Reset styles
           document.querySelectorAll('.preview').forEach((el, index) => {
             const element = el as HTMLElement;
@@ -229,15 +260,17 @@ export class PDFService {
 
         // Get the exact height including all content
         const pageHeight = await page.evaluate((currentIndex) => {
-          const currentPreview = document.querySelectorAll('.preview')[currentIndex] as HTMLElement;
-          
+          const currentPreview = document.querySelectorAll('.preview')[
+            currentIndex
+          ] as HTMLElement;
+
           // Get the exact height including all content
           const computedStyle = window.getComputedStyle(currentPreview);
           const height = currentPreview.getBoundingClientRect().height;
-          
+
           // Log the height for debugging
           console.log(`Page ${currentIndex + 1} actual height:`, height);
-          
+
           return height;
         }, i);
 
@@ -269,7 +302,6 @@ export class PDFService {
       // Save the final merged PDF
       const finalPdfBytes = await mergedPdf.save();
       return Buffer.from(finalPdfBytes);
-
     } catch (error) {
       this.logger.error('Error generating PDF:', error);
       throw new InternalServerErrorException(
