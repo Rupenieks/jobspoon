@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { env } from 'process';
+import puppeteer from 'puppeteer';
 import { connect } from 'puppeteer';
 import { ResumeParserService } from '../resume-parser/resume-parser.service';
 import { PDFDocument } from 'pdf-lib';
@@ -46,7 +47,6 @@ export class PDFService {
         });
       } else {
         // For staging/production, launch a new browser instance using bundled Chromium
-        const puppeteer = require('puppeteer');
         return await puppeteer.launch({
           args: [
             '--no-sandbox',
@@ -54,7 +54,7 @@ export class PDFService {
             '--disable-dev-shm-usage',
             '--single-process',
           ],
-          headless: 'new',
+          headless: true,
         });
       }
     } catch (error) {
