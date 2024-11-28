@@ -18,7 +18,7 @@ services:
     branch: staging
     buildCommand: >
       pnpm install --no-frozen-lockfile &&
-      pnpm build &&
+      pnpm build:common &&
       cd packages/frontend &&
       pnpm build
     staticPublishPath: packages/frontend/dist
@@ -29,6 +29,7 @@ services:
     branch: staging
     buildCommand: >
       pnpm install --no-frozen-lockfile &&
+      pnpm build:common &&
       cd packages/frontend &&
       pnpm build:preview
     staticPublishPath: packages/frontend/dist/resume-viewer
