@@ -45,7 +45,7 @@ export class PDFService {
           acceptInsecureCerts: true,
         });
       } else {
-        // For staging/production, launch a new browser instance
+        // For staging/production, launch a new browser instance using bundled Chromium
         const puppeteer = require('puppeteer');
         return await puppeteer.launch({
           args: [
@@ -55,7 +55,6 @@ export class PDFService {
             '--single-process',
           ],
           headless: 'new',
-          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
         });
       }
     } catch (error) {
@@ -64,7 +63,6 @@ export class PDFService {
       this.logger.error('Failed to connect to browser:', {
         error: JSON.stringify(error),
         browserURL: this.browserURL,
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
       });
       throw new InternalServerErrorException(
         'Failed to connect to browser service',
