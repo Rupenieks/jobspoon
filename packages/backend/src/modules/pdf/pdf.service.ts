@@ -21,30 +21,50 @@ export class PDFService {
     private readonly resumeParserService: ResumeParserService,
     private readonly storageService: StorageService,
   ) {
-    const chromeUrl = env.CHROME_URL;
-    const chromeToken = env.CHROME_TOKEN;
     this.environment = process.env.NODE_ENV || 'development';
-    this.browserURL =
-      this.environment === 'development'
-        ? `${chromeUrl}?token=${chromeToken}`
-        : `${process.env.PREVIEW_URL}/preview`;
+
+    // In development, use Chrome container
+    if (this.environment === 'development') {
+      const chromeUrl = env.CHROME_URL;
+      const chromeToken = env.CHROME_TOKEN;
+      this.browserURL = `${chromeUrl}?token=${chromeToken}`;
+    } else {
+      // In staging/production, use Chrome AWS Lambda
+      this.browserURL = process.env.PREVIEW_URL || 'http://localhost:3001';
+    }
   }
 
   private async getBrowser() {
     try {
-      this.logger.debug(
-        `Attempting to connect to browser at: ${this.browserURL}`,
-      );
-      return await connect({
-        browserWSEndpoint: this.browserURL,
-        acceptInsecureCerts: true,
-      });
+      if (this.environment === 'development') {
+        this.logger.debug(
+          `Attempting to connect to browser at: ${this.browserURL}`,
+        );
+        return await connect({
+          browserWSEndpoint: this.browserURL,
+          acceptInsecureCerts: true,
+        });
+      } else {
+        // For staging/production, launch a new browser instance
+        const puppeteer = require('puppeteer');
+        return await puppeteer.launch({
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--single-process',
+          ],
+          headless: 'new',
+          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+        });
+      }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       this.logger.error('Failed to connect to browser:', {
         error: JSON.stringify(error),
         browserURL: this.browserURL,
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
       });
       throw new InternalServerErrorException(
         'Failed to connect to browser service',
