@@ -220,7 +220,8 @@ export class ResumeParserService {
   ): Promise<TResumeBase> {
     const profileImageUrl = await this.storageService.uploadImage(
       file,
-      'profile',
+      'pictures',
+      userId,
     );
     return await this.updateResume(
       id,

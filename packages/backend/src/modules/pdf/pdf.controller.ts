@@ -21,14 +21,7 @@ export class PDFController {
     @Request() req,
     @Res() res: Response,
   ) {
-    const buffer = await this.pdfService.generatePDF(resumeId, req.user.userId);
-
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': 'attachment; filename=resume.pdf',
-      'Content-Length': buffer.length,
-    });
-
-    res.send(buffer);
+    const pdfUrl = await this.pdfService.generatePDF(resumeId, req.user.userId);
+    res.send(pdfUrl);
   }
 }

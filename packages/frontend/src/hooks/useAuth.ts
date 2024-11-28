@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import axiosInstance from '@/utils/axiosConfig';
 import { TUser } from '@redundant/common';
+import { getStorageKey } from '@/utils/config';
 
 interface AuthCredentials {
 	email: string;
@@ -19,8 +20,8 @@ export const useAuth = () => {
 		setError(null);
 		try {
 			const response = await axiosInstance.post('/auth/login', credentials);
-			localStorage.setItem('token', response.data.access_token);
-			localStorage.setItem('refresh_token', response.data.refresh_token);
+			localStorage.setItem(getStorageKey('token'), response.data.access_token);
+			localStorage.setItem(getStorageKey('refresh_token'), response.data.refresh_token);
 			setUser(response.data.user);
 			setIsAuthenticated(true);
 		} catch (err) {
@@ -36,7 +37,7 @@ export const useAuth = () => {
 		setError(null);
 		try {
 			const response = await axiosInstance.post('/auth/register', credentials);
-			localStorage.setItem('token', response.data.access_token);
+			localStorage.setItem(getStorageKey('token'), response.data.access_token);
 			setUser(response.data.user);
 			setIsAuthenticated(true);
 		} catch (err) {
@@ -55,8 +56,8 @@ export const useAuth = () => {
 				credential,
 			});
 
-			localStorage.setItem('token', response.data.access_token);
-			localStorage.setItem('refresh_token', response.data.refresh_token);
+			localStorage.setItem(getStorageKey('token'), response.data.access_token);
+			localStorage.setItem(getStorageKey('refresh_token'), response.data.refresh_token);
 			setUser(response.data.user);
 			setIsAuthenticated(true);
 		} catch (err) {
@@ -71,8 +72,8 @@ export const useAuth = () => {
 		setLoading(true);
 		setError(null);
 		try {
-			localStorage.removeItem('token');
-			localStorage.removeItem('refresh_token');
+			localStorage.removeItem(getStorageKey('token'));
+			localStorage.removeItem(getStorageKey('refresh_token'));
 			setUser(null);
 			setIsAuthenticated(false);
 		} catch (err) {
@@ -84,7 +85,7 @@ export const useAuth = () => {
 	}, []);
 
 	const refreshTokens = useCallback(async () => {
-		const refreshToken = localStorage.getItem('refresh_token');
+		const refreshToken = localStorage.getItem(getStorageKey('refresh_token'));
 		if (!refreshToken) {
 			throw new Error('No refresh token available');
 		}
@@ -92,8 +93,8 @@ export const useAuth = () => {
 			const response = await axiosInstance.post('/auth/refresh', {
 				refresh_token: refreshToken,
 			});
-			localStorage.setItem('token', response.data.access_token);
-			localStorage.setItem('refresh_token', response.data.refresh_token);
+			localStorage.setItem(getStorageKey('token'), response.data.access_token);
+			localStorage.setItem(getStorageKey('refresh_token'), response.data.refresh_token);
 			return response.data.access_token;
 		} catch (error) {
 			console.error('Error refreshing token:', error);
@@ -102,7 +103,7 @@ export const useAuth = () => {
 	}, []);
 
 	const checkAuth = useCallback(async () => {
-		const token = localStorage.getItem('token');
+		const token = localStorage.getItem(getStorageKey('token'));
 		if (token) {
 			try {
 				const response = await axiosInstance.get('/auth/check');
@@ -114,7 +115,7 @@ export const useAuth = () => {
 				}
 			} catch (err) {
 				console.error('Auth check failed:', err);
-				localStorage.removeItem('token');
+				localStorage.removeItem(getStorageKey('token'));
 				setUser(null);
 				setIsAuthenticated(false);
 			}
@@ -122,7 +123,7 @@ export const useAuth = () => {
 	}, []);
 
 	useEffect(() => {
-		if (!isAuthenticated && !!localStorage.getItem('token')) {
+		if (!isAuthenticated && !!localStorage.getItem(getStorageKey('token'))) {
 			checkAuth();
 		}
 	}, [isAuthenticated, checkAuth]);

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getEnvConfig } from './config';
+import { getEnvConfig, getStorageKey } from './config';
 
 const axiosInstance = axios.create({
 	baseURL: getEnvConfig().apiUrl,
@@ -21,7 +21,7 @@ const processQueue = (error: any, token: string | null = null) => {
 
 axiosInstance.interceptors.request.use(
 	(config) => {
-		const token = localStorage.getItem('token');
+		const token = localStorage.getItem(getStorageKey('token'));
 		if (token) {
 			config.headers['Authorization'] = `Bearer ${token}`;
 		}
@@ -51,27 +51,28 @@ axiosInstance.interceptors.response.use(
 			isRefreshing = true;
 
 			try {
-				const refreshToken = localStorage.getItem('refresh_token');
+				const refreshToken = localStorage.getItem(getStorageKey('refresh_token'));
 				if (!refreshToken) {
 					throw new Error('No refresh token available');
 				}
 
-				const response = await axios.post('http://localhost:3000/auth/refresh', {
+				const response = await axios.post(`${getEnvConfig().apiUrl}/auth/refresh`, {
 					refresh_token: refreshToken,
 				});
 
 				const { access_token, refresh_token } = response.data;
-				localStorage.setItem('token', access_token);
-				localStorage.setItem('refresh_token', refresh_token);
+				localStorage.setItem(getStorageKey('token'), access_token);
+				localStorage.setItem(getStorageKey('refresh_token'), refresh_token);
 
 				axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
 				processQueue(null, access_token);
 
 				return axiosInstance(originalRequest);
 			} catch (err) {
 				processQueue(err, null);
-				localStorage.removeItem('token');
-				localStorage.removeItem('refresh_token');
+				localStorage.removeItem(getStorageKey('token'));
+				localStorage.removeItem(getStorageKey('refresh_token'));
 				return Promise.reject(err);
 			} finally {
 				isRefreshing = false;
