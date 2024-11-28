@@ -4,7 +4,8 @@ services:
     env: node
     branch: staging
     buildCommand: >
-      sudo apt-get update && sudo apt-get install -y chromium &&
+      apt-get -y update &&
+      apt-get -y install chromium-browser &&
       pnpm install --no-frozen-lockfile &&
       pnpm build &&
       cd packages/backend &&
