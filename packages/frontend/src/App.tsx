@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { useAuth } from './auth/AuthProvider';
 import Matches from './components/Matches';
@@ -13,10 +13,12 @@ import ApplicationPage from './components/application/ApplicationPage';
 import Onboarding from './components/onboarding/Onboarding';
 import { useReadUser } from './hooks/useReadUser';
 import { ThemeProvider } from './components/ThemeProvider';
+import useDocumentTitle from './hooks/useDocumentTitle';
 
 const App: React.FC = () => {
 	const { loading, isAuthenticated } = useAuth();
 	const { data: userData } = useReadUser();
+	useDocumentTitle('');
 
 	const content = useMemo(() => {
 		if (loading) {

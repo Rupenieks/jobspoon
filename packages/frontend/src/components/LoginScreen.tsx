@@ -3,13 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useAuth } from '@/auth/AuthProvider';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const LoginScreen: React.FC = () => {
 	const [isRegistering, setIsRegistering] = useState(false);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [fullName, setFullName] = useState('');
-
+	useDocumentTitle('Login');
 	const { signIn, signUp, signInWithGoogle } = useAuth();
 
 	const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import ResumeMatchCard from './ResumeMatchCard';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Separator } from './ui/separator';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const ResumeSkeleton: React.FC = () => (
 	<div className="mb-4">
@@ -20,7 +21,7 @@ const Matches: React.FC = () => {
 	const { resumes, jobRunsRemaining, isLoading } = useReadResumesWithMatches();
 	const { mutate: matchJobs, isPending } = useMatchJobs();
 	const navigate = useNavigate();
-
+	useDocumentTitle('Matches');
 	const handleMatchJobs = async (resumeId: string) => {
 		matchJobs(resumeId);
 	};

@@ -8,6 +8,7 @@ import { ApplicationStageAnalyticsDonutChart } from './analytics/ApplicationStag
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Skeleton } from './ui/skeleton';
 import CompanyLogo from './ui/company-logo';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const QuickActionCard = ({
 	icon,
@@ -35,8 +36,8 @@ const QuickActionCard = ({
 
 const DataPartnerCard = ({ domain, name }: { domain: string; name: string }) => (
 	<div className="flex flex-col items-center justify-center p-4 bg-card ">
-		<div className="w-12 h-12 mb-2">
-			<CompanyLogo domain={domain} />
+		<div className="w-24 h-24 mb-2 flex items-center justify-center">
+			<CompanyLogo height={48} width={48} domain={domain} />
 		</div>
 		<span className="text-sm text-muted-foreground">{name}</span>
 	</div>
@@ -63,6 +64,7 @@ const Start = () => {
 	const { data: analytics, isLoading } = useReadDashboardAnalytics();
 	const { data: user } = useReadUser();
 	const userName = user?.fullName ?? 'User';
+	useDocumentTitle(``);
 
 	const totalApplications = useMemo(() => {
 		if (!analytics) return 0;
@@ -86,7 +88,7 @@ const Start = () => {
 		<div className="container mx-auto p-4 space-y-8">
 			<h1 className="text-3xl font-bold">Welcome back, {userName}</h1>
 
-			{/* Data Partners */}
+			{/* Data Partners
 			<Card>
 				<CardHeader>
 					<CardTitle className="text-center">
@@ -101,7 +103,7 @@ const Start = () => {
 						))}
 					</div>
 				</CardContent>
-			</Card>
+			</Card> */}
 
 			{/* Main Content Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

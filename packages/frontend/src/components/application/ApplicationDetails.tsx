@@ -18,13 +18,13 @@ import { Button } from '../ui/button';
 import CompanyLogo from '../ui/company-logo';
 import { ScrollArea } from '../ui/scroll-area';
 import LoadingSkeleton from './ApplicationDetailsLoadingSkeleton';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const ApplicationDetails: React.FC<{
 	onChangeStage: (stage: 'applied' | 'interview' | 'success' | 'rejected') => void;
 }> = ({ onChangeStage }) => {
 	const { applicationId } = useParams<{ applicationId: string }>();
 	const { data: application, isLoading } = useReadApplication(applicationId);
-
 	const resumeId = useMemo(() => application?.resume.id, [application?.resume.id]);
 
 	const { mutate: updateStage } = useUpdateApplicationStage();

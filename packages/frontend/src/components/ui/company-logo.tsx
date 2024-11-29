@@ -1,9 +1,21 @@
-const CompanyLogo = ({ domain }: { domain: string }) => {
+import { cn } from '@/lib/utils';
+
+const CompanyLogo = ({
+	domain,
+	className,
+	width = 24,
+	height = 24,
+}: {
+	domain: string;
+	className?: string;
+	width?: number;
+	height?: number;
+}) => {
 	return (
 		<img
-			src={`https://cdn.brandfetch.io/${domain}/w/24/h/24?c=1id-oSFsbFmt110EbV7`}
+			src={`https://cdn.brandfetch.io/${domain}/w/${width}/h/${height}?c=1id-oSFsbFmt110EbV7`}
 			alt={domain}
-			className="rounded-sm h-6 w-6"
+			className={cn('rounded-sm ', className)}
 		/>
 	);
 };

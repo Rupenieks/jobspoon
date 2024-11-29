@@ -6,11 +6,12 @@ import ResumeEditingWrapper from './resumes/ResumeEditingWrapper';
 import { useResumeState } from './resumes/ResumeStateContext';
 import { withResumeState } from './resumes/withResumeState';
 import { ResumeSkeleton } from './skeletons/ResumeSkeleton';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const ResumeDetails: React.FC = () => {
 	const navigate = useNavigate();
 	const { resume, isLoading, error } = useResumeState();
-
+	useDocumentTitle(`${resume?.data.personalInfo.positionName} - Resume`);
 	if (isLoading) {
 		return <ResumeSkeleton />;
 	}

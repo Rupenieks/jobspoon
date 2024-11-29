@@ -11,6 +11,7 @@ import RejectedStage from './RejectedStage';
 import { Skeleton } from '../ui/skeleton';
 import InterviewStage from './InterviewStage';
 import SuccessStage from './SuccessStage';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const stages = ['not_applied', 'applied', 'interview', 'success'] as const;
 
@@ -42,6 +43,7 @@ const ApplicationPage: React.FC = () => {
 		'not_applied' | 'applied' | 'interview' | 'success' | 'rejected'
 	>();
 	const [direction, setDirection] = useState(1); // 1 for forward, -1 for backward
+	useDocumentTitle(`${application?.match.companyName} - ${application?.match.positionTitle}`);
 
 	// Only set active stage once application is loaded
 	React.useEffect(() => {

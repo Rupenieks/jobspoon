@@ -26,6 +26,7 @@ import { useDeleteApplications } from '@/hooks/useDeleteApplications';
 import CompanyLogo from './ui/company-logo';
 import { Separator } from './ui/separator';
 import CustomIcon from '@/icons/CustomIcon';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const getStatusBadge = (stage: string) => {
 	switch (stage) {
@@ -48,7 +49,7 @@ const Applications: React.FC = () => {
 	const { data: applications, isLoading } = useReadApplications();
 	const { mutateAsync: deleteApplication } = useDeleteApplications();
 	const navigate = useNavigate();
-
+	useDocumentTitle('Applications');
 	const handleDelete = async (e: React.MouseEvent, applicationId: string) => {
 		e.stopPropagation();
 		try {
