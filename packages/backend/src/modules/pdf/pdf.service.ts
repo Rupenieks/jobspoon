@@ -183,20 +183,41 @@ export class PDFService {
       userId,
     );
 
+    this.logger.log('Generating PDF for resume:', {
+      resumeId,
+      userId,
+    });
+
     if (!resume) {
+      this.logger.error(`Resume not found.`, {
+        resumeId,
+        userId,
+      });
       throw new NotFoundException(`Resume with ID ${resumeId} not found`);
     }
 
     const pdfBuffer = await this.generatePDFBuffer(resume);
 
-    // In production/staging, upload to storage and return URL
-    return this.storageService.uploadObject({
+    this.logger.log('PDF generated successfully:', {
+      resumeId,
       userId,
-      buffer: pdfBuffer,
-      filename: `${resume.id}.pdf`,
-      type: 'resumes',
-      contentType: 'application/pdf',
     });
+
+    try {
+      return this.storageService.uploadObject({
+        userId,
+        buffer: pdfBuffer,
+        filename: `${resume.id}.pdf`,
+        type: 'resumes',
+        contentType: 'application/pdf',
+      });
+    } catch (error) {
+      this.logger.error('Error generating PDF or uploading to storage:', error);
+      throw new InternalServerErrorException(
+        'Failed to generate PDF',
+        error instanceof Error ? error.message : String(error),
+      );
+    }
   }
 
   private async generatePDFBuffer(resume: TResumeFull): Promise<Buffer> {
@@ -232,7 +253,7 @@ export class PDFService {
       for (let i = 0; i < resume.data.pages.length; i++) {
         // Hide all pages except current
         await page.evaluate((currentIndex) => {
-          document.querySelectorAll('.preview').forEach((el, index) => {
+          document.querySelectorAll('.preview').forEach((el) => {
             const element = el as HTMLElement;
             element.style.opacity = '0';
             element.style.position = 'absolute';
@@ -266,11 +287,7 @@ export class PDFService {
           ] as HTMLElement;
 
           // Get the exact height including all content
-          const computedStyle = window.getComputedStyle(currentPreview);
           const height = currentPreview.getBoundingClientRect().height;
-
-          // Log the height for debugging
-          console.log(`Page ${currentIndex + 1} actual height:`, height);
 
           return height;
         }, i);

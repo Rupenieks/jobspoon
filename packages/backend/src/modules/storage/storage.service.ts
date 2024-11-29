@@ -28,37 +28,39 @@ export class StorageService implements OnModuleInit {
     try {
       const [exists] = await this.storage.bucket(this.bucket).exists();
       if (!exists) {
-        await this.storage.createBucket(this.bucket);
+        await this.storage.createBucket(this.bucket, {
+          location: 'EU',
+        });
+
+        const origins = [
+          `http://${process.env.VITE_HOST}:${process.env.VITE_PORT}`,
+          `https://${process.env.VITE_HOST}:${process.env.VITE_PORT}`,
+        ];
+
+        if (this.environment === 'development') {
+          origins.push('http://localhost:5173');
+          origins.push('http://localhost:3000');
+        }
+
+        // Set CORS configuration for the bucket
+        await this.storage.bucket(this.bucket).setCorsConfiguration([
+          {
+            maxAgeSeconds: 3600,
+            method: ['GET', 'HEAD', 'OPTIONS'],
+            origin: [...origins],
+            responseHeader: [
+              'Content-Type',
+              'Access-Control-Allow-Origin',
+              'Content-Disposition',
+            ],
+          },
+        ]);
+
+        this.logger.log('Bucket CORS configuration updated successfully.');
         this.logger.log(`Bucket ${this.bucket} created successfully.`);
       } else {
         this.logger.log(`Bucket ${this.bucket} already exists.`);
       }
-
-      const origins = [
-        `http://${process.env.VITE_HOST}:${process.env.VITE_PORT}`,
-        `https://${process.env.VITE_HOST}:${process.env.VITE_PORT}`,
-      ];
-
-      if (this.environment === 'development') {
-        origins.push('http://localhost:5173');
-        origins.push('http://localhost:3000');
-      }
-
-      // Set CORS configuration for the bucket
-      await this.storage.bucket(this.bucket).setCorsConfiguration([
-        {
-          maxAgeSeconds: 3600,
-          method: ['GET', 'HEAD', 'OPTIONS'],
-          origin: [...origins],
-          responseHeader: [
-            'Content-Type',
-            'Access-Control-Allow-Origin',
-            'Content-Disposition',
-          ],
-        },
-      ]);
-
-      this.logger.log('Bucket CORS configuration updated successfully.');
     } catch (error) {
       this.logger.error('Error configuring bucket:', error);
       throw error;
@@ -74,13 +76,27 @@ export class StorageService implements OnModuleInit {
   }: UploadParams): Promise<string> {
     try {
       const bucket = this.storage.bucket(this.bucket);
-      const filePath = `${this.environment}/${userId}/${type}/${filename}`;
+      const filePath = `${userId}/${type}/${filename}`;
       const file = bucket.file(filePath);
+
+      this.logger.log('Uploading file to storage:', {
+        userId,
+        type,
+        filename,
+        contentType,
+      });
 
       await file.save(buffer, {
         metadata: {
           contentType: contentType || this.getContentType(filename),
         },
+      });
+
+      this.logger.log('File uploaded successfully:', {
+        userId,
+        type,
+        filename,
+        contentType,
       });
 
       // Generate a signed URL with CORS headers
@@ -92,7 +108,12 @@ export class StorageService implements OnModuleInit {
         responseType: contentType || this.getContentType(filename),
       });
 
-      this.logger.debug(`File uploaded successfully, signed URL generated`);
+      this.logger.log('Signed URL generated:', {
+        userId,
+        type,
+        filename,
+        contentType,
+      });
 
       return signedUrl;
     } catch (error) {
