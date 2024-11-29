@@ -4,16 +4,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import ResumePreviewFrame from './ResumePreviewFrame';
 import { useResumeState } from './ResumeStateContext';
 import { Button } from '../ui/button';
-import { Palette, Type, Maximize, FileText, Layout } from 'lucide-react';
+import { Palette, Type, Maximize, FileText, Layout, Download } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Input } from '../ui/input';
 import { Slider } from '../ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useMemo, useCallback } from 'react';
 import { TResumeConfig } from '@redundant/common/src';
+import { useDownloadPDF } from '@/hooks/useDownloadPDF';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 const UtilityBar = () => {
 	const { resume, updateResumeField } = useResumeState();
+	const { downloadPDF, isLoading } = useDownloadPDF({
+		resumeId: resume?.id,
+	});
 
 	const availableFonts = useMemo(
 		() => [
@@ -250,6 +255,22 @@ const UtilityBar = () => {
 					</div>
 				</PopoverContent>
 			</Popover>
+
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={downloadPDF}
+							disabled={isLoading || !resume?.id}
+						>
+							<Download className="h-4 w-4" />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>Download PDF</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
 		</div>
 	);
 };
