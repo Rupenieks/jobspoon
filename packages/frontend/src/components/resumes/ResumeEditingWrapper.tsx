@@ -85,7 +85,7 @@ const UtilityBar = ({
 	if (!resume) return null;
 
 	return (
-		<div className="flex items-center justify-between p-2 border-b">
+		<div className="flex items-center justify-between p-2 border-b border rounded-t-lg shadow-md">
 			<div className="flex items-center gap-2">
 				<Popover>
 					<PopoverTrigger asChild>

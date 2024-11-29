@@ -15,12 +15,12 @@ const ResumePreviewFrame = () => {
 	useResumeStateSender({ resume: temporaryResume?.data || resume?.data || null, iframeRef });
 
 	return (
-		<div className="relative w-full h-full border border-gray-200 rounded-md">
+		<div className="relative w-full h-full border border-gray-200 rounded-b-md">
 			<iframe
 				ref={iframeRef}
 				title="Resume Preview"
 				src={previewUrl}
-				className="w-full h-full border border-gray-200 rounded-md"
+				className="w-full h-full border border-gray-200 rounded-b-md"
 			/>
 		</div>
 	);
