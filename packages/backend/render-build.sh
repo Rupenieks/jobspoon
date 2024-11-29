@@ -2,8 +2,13 @@
 # exit on error
 set -o errexit
 
-# npm install
-# npm run build # uncomment if required
+# Debugging output to check environment variables
+echo "PUPPETEER_CACHE_DIR: ${PUPPETEER_CACHE_DIR}"
+echo "XDG_CACHE_HOME: ${XDG_CACHE_HOME}"
+
+# Ensure environment variables are set
+: "${PUPPETEER_CACHE_DIR:?PUPPETEER_CACHE_DIR is not set}"
+: "${XDG_CACHE_HOME:?XDG_CACHE_HOME is not set}"
 
 # Store/pull Puppeteer cache with build cache
 if [[ ! -d "${PUPPETEER_CACHE_DIR}" ]]; then 
