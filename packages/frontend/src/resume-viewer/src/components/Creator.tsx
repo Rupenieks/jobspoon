@@ -32,7 +32,7 @@ const Creator: React.FC = () => {
 				initialScale={0.4}
 				minScale={0.2}
 				maxScale={3}
-				centerOnInit={false}
+				centerOnInit={true}
 				limitToBounds={false}
 				wheel={{
 					wheelDisabled: false,
