@@ -47,6 +47,7 @@ export class PDFService {
         });
       } else {
         // For staging/production, launch a new browser instance using bundled Chromium
+        const puppeteer = require('puppeteer');
         return await puppeteer.launch({
           args: [
             '--no-sandbox',
@@ -54,19 +55,22 @@ export class PDFService {
             '--disable-dev-shm-usage',
             '--single-process',
           ],
-          headless: true,
+          headless: 'new',
         });
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error('Failed to connect to browser:', {
-        error: JSON.stringify(error),
+      const errorDetails = {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
         browserURL: this.browserURL,
-      });
+        environment: this.environment,
+      };
+
+      this.logger.error('Failed to connect to browser:', errorDetails);
+
       throw new InternalServerErrorException(
         'Failed to connect to browser service',
-        errorMessage,
+        JSON.stringify(errorDetails),
       );
     }
   }
