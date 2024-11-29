@@ -15,6 +15,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import ResumePreviewFrame from './ResumePreviewFrame';
 import { useResumeState } from './ResumeStateContext';
 import { MarginIcon } from '@radix-ui/react-icons';
+import { ScrollArea } from '../ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 const UtilityBar = ({
 	isFullScreen,
@@ -310,26 +312,26 @@ const ResumeContent = ({
 	onToggleFullScreen: () => void;
 }) => {
 	return (
-		<div className="flex gap-6 min-h-screen">
-			<div className={`${isFullScreen ? 'w-1/3' : 'w-1/2'} overflow-y-auto p-1`}>
-				<Tabs defaultValue="manual" className="sticky top-0">
+		<div className={cn('flex gap-6 h-screen', isFullScreen && 'p-2')}>
+			<div className={cn('overflow-y-auto', isFullScreen ? 'w-1/3' : 'w-1/2')}>
+				<Tabs defaultValue="manual">
 					<TabsList>
 						<TabsTrigger value="manual">Manual</TabsTrigger>
 						<TabsTrigger value="automated">Automated</TabsTrigger>
 					</TabsList>
 					<TabsContent value="manual">
-						<ResumeEditor />
+						<ScrollArea className="h-full">
+							<ResumeEditor />
+						</ScrollArea>
 					</TabsContent>
 					<TabsContent value="automated">
 						<AutomatedResumeEditor />
 					</TabsContent>
 				</Tabs>
 			</div>
-			<div className={`${isFullScreen ? 'w-2/3' : 'w-1/2'} sticky top-0 bg-background z-10`}>
-				<div className="sticky top-0">
-					<UtilityBar isFullScreen={isFullScreen} onToggleFullScreen={onToggleFullScreen} />
-				</div>
-				<div className="max-h-[632px] h-full sticky top-[49px]">
+			<div className={cn('flex flex-col', isFullScreen ? 'w-2/3' : 'w-1/2')}>
+				<UtilityBar isFullScreen={isFullScreen} onToggleFullScreen={onToggleFullScreen} />
+				<div className="flex-1">
 					<ResumePreviewFrame />
 				</div>
 			</div>
@@ -350,8 +352,8 @@ const ResumeEditingWrapper = () => {
 	if (isFullScreen) {
 		return (
 			<Dialog open={true} onOpenChange={() => setIsFullScreen(false)}>
-				<DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh]">
-					<div className="pt-6">{content}</div>
+				<DialogContent className="[&>button]:hidden w-[95vw] min-w-[95vw] h-[95vh] border-0 rounded-none bg-background overflow-hidden">
+					{content}
 				</DialogContent>
 			</Dialog>
 		);
