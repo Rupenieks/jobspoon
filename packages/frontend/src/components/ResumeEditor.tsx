@@ -26,22 +26,25 @@ import {
 	verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, TrashIcon } from 'lucide-react';
+import { GripVertical, TrashIcon, Plus } from 'lucide-react';
 import React, { useCallback, useMemo } from 'react';
 import { useResumeState } from './resumes/ResumeStateContext';
 import { SectionLayoutManager } from './SectionLayoutManager';
 import { TEducation, TExperience, TResumeBase, TResumeData } from '@redundant/common/src';
 import { cn } from '@/lib/utils';
+import ResumeEditorSection from './ResumeEditorSection';
+
+interface SortableExperienceItemProps {
+	experience: TExperience;
+	index: number;
+	updateExperience: (index: number, field: keyof TExperience, value: any) => void;
+}
 
 const SortableExperienceItem = ({
 	experience,
 	index,
 	updateExperience,
-}: {
-	experience: TExperience;
-	index: number;
-	updateExperience: (index: number, field: string, value: any) => void;
-}) => {
+}: SortableExperienceItemProps) => {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: index.toString(),
 	});
@@ -308,133 +311,123 @@ const ResumeEditor: React.FC = () => {
 	}
 
 	return (
-		<Accordion type="multiple" className="w-full">
-			<AccordionItem value="personal-info">
-				<AccordionTrigger>Personal Information</AccordionTrigger>
-				<AccordionContent>
-					<div className="space-y-4">
-						<div>
-							<label className="block text-sm font-medium mb-1">Profile Bio</label>
-							<Textarea
-								value={resume.data.personalInfo.profileBio || ''}
-								onChange={(e) => updatePersonalInfo('profileBio', e.target.value)}
-								placeholder="Write a brief bio about yourself..."
-								className="h-32"
+		<Accordion type="multiple" className="w-full flex flex-col">
+			<ResumeEditorSection title="Personal Information" value="personal-info">
+				<div>
+					<label className="block text-sm font-medium mb-1">Profile Bio</label>
+					<Textarea
+						value={resume.data.personalInfo.profileBio || ''}
+						onChange={(e) => updatePersonalInfo('profileBio', e.target.value)}
+						placeholder="Write a brief bio about yourself..."
+						className="h-32"
+					/>
+				</div>
+
+				<div className="grid grid-cols-2 gap-4">
+					{personalInfoFields.map(({ label, field }) => (
+						<div key={field}>
+							<label className="block text-sm font-medium mb-1">{label}</label>
+							<Input
+								value={resume.data.personalInfo[field] || ''}
+								onChange={(e) => updatePersonalInfo(field, e.target.value)}
 							/>
 						</div>
-
-						<div className="grid grid-cols-2 gap-4">
-							{personalInfoFields.map(({ label, field }) => (
-								<div key={field}>
-									<label className="block text-sm font-medium mb-1">{label}</label>
-									<Input
-										value={resume.data.personalInfo[field] || ''}
-										onChange={(e) => updatePersonalInfo(field, e.target.value)}
-									/>
-								</div>
-							))}
-							<div>
-								<label>Profile Image</label>
-								<Input type="file" onChange={handleProfileImageUpload} />
-							</div>
-						</div>
+					))}
+					<div>
+						<label>Profile Image</label>
+						<Input type="file" onChange={handleProfileImageUpload} />
 					</div>
-				</AccordionContent>
-			</AccordionItem>
+				</div>
+			</ResumeEditorSection>
 
-			<AccordionItem value="experience">
-				<AccordionTrigger>Experience</AccordionTrigger>
-				<AccordionContent>
-					<DndContext
-						sensors={sensors}
-						collisionDetection={closestCenter}
-						onDragEnd={handleExperienceDragEnd}
-						modifiers={[restrictToVerticalAxis]}
+			<ResumeEditorSection title="Experience" value="experience">
+				<DndContext
+					sensors={sensors}
+					collisionDetection={closestCenter}
+					onDragEnd={handleExperienceDragEnd}
+					modifiers={[restrictToVerticalAxis]}
+				>
+					<SortableContext
+						items={resume.data.experience?.map((_, i) => i.toString()) || []}
+						strategy={verticalListSortingStrategy}
 					>
-						<SortableContext
-							items={resume.data.experience?.map((_, i) => i.toString()) || []}
-							strategy={verticalListSortingStrategy}
-						>
-							{resume.data.experience?.map((exp, index) => (
-								<SortableExperienceItem
-									key={index}
-									experience={exp}
-									index={index}
-									// @ts-ignore
-									updateExperience={updateExperience}
-								/>
-							))}
-						</SortableContext>
-					</DndContext>
-					<Button onClick={addExperience}>Add Experience</Button>
-				</AccordionContent>
-			</AccordionItem>
-
-			<AccordionItem value="education">
-				<AccordionTrigger>Education</AccordionTrigger>
-				<AccordionContent>
-					<DndContext
-						sensors={sensors}
-						collisionDetection={closestCenter}
-						onDragEnd={handleEducationDragEnd}
-						modifiers={[restrictToVerticalAxis]}
-					>
-						<SortableContext
-							items={resume.data.education?.map((_, i) => i.toString()) || []}
-							strategy={verticalListSortingStrategy}
-						>
-							{resume.data.education?.map((edu, index) => (
-								<SortableEducationItem
-									key={index}
-									education={edu}
-									index={index}
-									updateEducation={updateEducation}
-									updateResumeField={updateResumeField}
-									resume={resume}
-								/>
-							))}
-						</SortableContext>
-					</DndContext>
-					<Button onClick={addEducation}>Add Education</Button>
-				</AccordionContent>
-			</AccordionItem>
-
-			<AccordionItem value="skills">
-				<AccordionTrigger>Skills</AccordionTrigger>
-				<AccordionContent>
-					<div className="grid grid-cols-2 gap-2 mb-2">
-						{resume.data.skills?.map((skill, index) => (
-							<div key={index} className="flex gap-2 mb-2">
-								<Input
-									value={skill}
-									onChange={(e) => updateSkill(index, e.target.value)}
-									placeholder="Skill"
-								/>
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={() =>
-										updateResumeField(
-											'skills',
-											resume.data.skills?.filter((_, i) => i !== index) || []
-										)
-									}
-								>
-									<TrashIcon className="h-4 w-4" />
-								</Button>
-							</div>
+						{resume.data.experience?.map((exp, index) => (
+							<SortableExperienceItem
+								key={index}
+								experience={exp}
+								index={index}
+								updateExperience={(index: number, field: keyof TExperience, value: any) =>
+									updateExperience(index, field, value)
+								}
+							/>
 						))}
-					</div>
-					<Button onClick={addSkill}>Add Skill</Button>
-				</AccordionContent>
-			</AccordionItem>
+					</SortableContext>
+				</DndContext>
+				<Button onClick={addExperience} size="icon" variant="outline">
+					<Plus className="h-4 w-4" />
+				</Button>
+			</ResumeEditorSection>
 
-			<AccordionItem value="layout">
-				<AccordionTrigger>Layout</AccordionTrigger>
-				<AccordionContent>
-					<SectionLayoutManager />
-				</AccordionContent>
-			</AccordionItem>
+			<ResumeEditorSection title="Education" value="education">
+				<DndContext
+					sensors={sensors}
+					collisionDetection={closestCenter}
+					onDragEnd={handleEducationDragEnd}
+					modifiers={[restrictToVerticalAxis]}
+				>
+					<SortableContext
+						items={resume.data.education?.map((_, i) => i.toString()) || []}
+						strategy={verticalListSortingStrategy}
+					>
+						{resume.data.education?.map((edu, index) => (
+							<SortableEducationItem
+								key={index}
+								education={edu}
+								index={index}
+								updateEducation={updateEducation}
+								updateResumeField={updateResumeField}
+								resume={resume}
+							/>
+						))}
+					</SortableContext>
+				</DndContext>
+				<Button onClick={addEducation} size="icon" variant="outline">
+					<Plus className="h-4 w-4" />
+				</Button>
+			</ResumeEditorSection>
+
+			<ResumeEditorSection title="Skills" value="skills">
+				<div className="grid grid-cols-2 gap-2 mb-2">
+					{resume.data.skills?.map((skill, index) => (
+						<div key={index} className="flex gap-2 mb-2">
+							<Input
+								value={skill}
+								onChange={(e) => updateSkill(index, e.target.value)}
+								placeholder="Skill"
+							/>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={() =>
+									updateResumeField(
+										'skills',
+										resume.data.skills?.filter((_, i) => i !== index) || []
+									)
+								}
+							>
+								<TrashIcon className="h-4 w-4" />
+							</Button>
+						</div>
+					))}
+				</div>
+				<Button onClick={addSkill} size="icon" variant="outline">
+					<Plus className="h-4 w-4" />
+				</Button>
+			</ResumeEditorSection>
+
+			<ResumeEditorSection title="Layout" value="layout">
+				<SectionLayoutManager />
+			</ResumeEditorSection>
 		</Accordion>
 	);
 };

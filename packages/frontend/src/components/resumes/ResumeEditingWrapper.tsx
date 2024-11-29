@@ -103,7 +103,7 @@ const UtilityBar = ({
 	if (!resume) return null;
 
 	return (
-		<div className="flex items-center justify-between p-2 border rounded-lg shadow-md bg-background">
+		<div className="flex items-center justify-between p-2 border rounded-lg bg-background">
 			<div className="flex items-center gap-4">
 				<div className="flex items-center gap-2">
 					<Button
@@ -353,7 +353,7 @@ const ResumeContent = ({
 	return (
 		<div
 			className={cn(
-				'flex flex-col gap-6 min-h-[600px] overflow-hidden',
+				'flex flex-col gap-2 min-h-[600px] overflow-hidden',
 				isFullScreen && 'p-2 border rounded'
 			)}
 		>
@@ -364,7 +364,7 @@ const ResumeContent = ({
 				onToggleFullScreen={onToggleFullScreen}
 			/>
 
-			<div className={cn('flex gap-6 flex-1 h-full overflow-hidden p-2')}>
+			<div className={cn('flex gap-6 flex-1 h-full overflow-hidden ')}>
 				<div className={cn('h-full overflow-y-auto', isFullScreen ? 'w-1/3' : 'w-1/2')}>
 					{activeTab === 'manual' ? (
 						<ScrollArea className="h-full">
