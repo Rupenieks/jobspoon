@@ -13,6 +13,23 @@ services:
     startCommand: cd packages/backend && pnpm start:prod
 
   - type: web
+    name: redundant-chrome-staging
+    env: docker
+    branch: staging
+    dockerfilePath: ./packages/chrome/Dockerfile
+    envVars:
+      - key: TOKEN
+        value: your-secret-token
+      - key: MAX_CONCURRENT_SESSIONS
+        value: '10'
+      - key: CONNECTION_TIMEOUT
+        value: '300000'
+      - key: MAX_QUEUE_LENGTH
+        value: '20'
+      - key: ENABLE_CORS
+        value: 'true'
+
+  - type: web
     name: redundant-frontend-staging
     env: static
     branch: staging

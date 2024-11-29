@@ -4,65 +4,42 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { env } from 'process';
-import puppeteer from 'puppeteer';
-import { connect } from 'puppeteer';
-import { ResumeParserService } from '../resume-parser/resume-parser.service';
-import { PDFDocument } from 'pdf-lib';
-import { StorageService } from '../storage/storage.service';
 import { TResumeFull } from '@redundant/common';
+import { PDFDocument } from 'pdf-lib';
+import { connect } from 'puppeteer';
+import { PDFConfig, getPDFConfig } from '../../config/pdf.config';
+import { ResumeParserService } from '../resume-parser/resume-parser.service';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class PDFService {
   private readonly logger = new Logger(PDFService.name);
-  private readonly browserURL: string;
-  private readonly environment: string;
+  private readonly config: PDFConfig;
 
   constructor(
     private readonly resumeParserService: ResumeParserService,
     private readonly storageService: StorageService,
   ) {
-    this.environment = process.env.NODE_ENV || 'development';
-
-    // In development, use Chrome container
-    if (this.environment === 'development') {
-      const chromeUrl = env.CHROME_URL;
-      const chromeToken = env.CHROME_TOKEN;
-      this.browserURL = `${chromeUrl}?token=${chromeToken}`;
-    } else {
-      // In staging/production, use Chrome AWS Lambda
-      this.browserURL = process.env.PREVIEW_URL || 'http://localhost:3001';
-    }
+    this.config = getPDFConfig();
   }
 
   private async getBrowser() {
     try {
-      if (this.environment === 'development') {
-        this.logger.debug(
-          `Attempting to connect to browser at: ${this.browserURL}`,
-        );
-        return await connect({
-          browserWSEndpoint: this.browserURL,
-          acceptInsecureCerts: true,
-        });
-      } else {
-        // For staging/production, launch a new browser instance using bundled Chromium
-        return await puppeteer.launch({
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--single-process',
-          ],
-          headless: true,
-        });
-      }
+      const browserWSEndpoint = `${this.config.chromeUrl}?token=${this.config.chromeToken}`;
+      this.logger.debug(
+        `Attempting to connect to browser at: ${browserWSEndpoint}`,
+      );
+
+      return await connect({
+        browserWSEndpoint,
+        acceptInsecureCerts: true,
+      });
     } catch (error) {
       const errorDetails = {
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
-        browserURL: this.browserURL,
-        environment: this.environment,
+        chromeUrl: this.config.chromeUrl,
+        environment: process.env.NODE_ENV,
       };
 
       this.logger.error('Failed to connect to browser:', errorDetails);
