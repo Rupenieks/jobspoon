@@ -2,6 +2,10 @@
 # exit on error
 set -o errexit
 
+# Get environment variables from Node.js
+export PUPPETEER_CACHE_DIR=$(node -e "console.log(process.env.PUPPETEER_CACHE_DIR)")
+export XDG_CACHE_HOME=$(node -e "console.log(process.env.XDG_CACHE_HOME)")
+
 # Debugging output to check environment variables
 echo "PUPPETEER_CACHE_DIR: ${PUPPETEER_CACHE_DIR}"
 echo "XDG_CACHE_HOME: ${XDG_CACHE_HOME}"
