@@ -154,6 +154,7 @@ export class ResumeParserService {
         applications: {
           none: {}, // This filters out resumes that have applications
         },
+        matchId: null,
       },
       include: {
         matches: true,
