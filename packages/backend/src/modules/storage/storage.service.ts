@@ -12,7 +12,8 @@ interface UploadParams {
 @Injectable()
 export class StorageService implements OnModuleInit {
   private storage: Storage;
-  private bucket: string;
+  private privateBucket: string;
+  private publicBucket: string;
   private readonly logger = new Logger(StorageService.name);
   private readonly environment: string;
 
@@ -20,50 +21,73 @@ export class StorageService implements OnModuleInit {
     this.storage = new Storage({
       keyFilename: process.env.GOOGLE_CLOUD_KEY_FILE,
     });
-    this.bucket = process.env.GOOGLE_CLOUD_BUCKET_NAME;
+    this.privateBucket = process.env.GOOGLE_CLOUD_BUCKET_NAME;
+    this.publicBucket = process.env.GOOGLE_CLOUD_PUBLIC_BUCKET_NAME;
     this.environment = process.env.NODE_ENV || 'development';
   }
 
   async onModuleInit() {
     try {
-      const [exists] = await this.storage.bucket(this.bucket).exists();
-      if (!exists) {
-        await this.storage.createBucket(this.bucket, {
-          location: 'EU',
+      await this.initializeBucket(this.privateBucket);
+      await this.initializeBucket(this.publicBucket, true);
+    } catch (error) {
+      this.logger.error('Error configuring buckets:', error);
+      throw error;
+    }
+  }
+
+  private async initializeBucket(bucketName: string, isPublic = false) {
+    const [exists] = await this.storage.bucket(bucketName).exists();
+
+    if (!exists) {
+      await this.storage.createBucket(bucketName, {
+        location: 'EU',
+      });
+
+      if (isPublic) {
+        const bucket = this.storage.bucket(bucketName);
+        const [policy] = await bucket.iam.getPolicy({
+          requestedPolicyVersion: 3,
         });
 
-        const origins = [
-          `http://${process.env.VITE_HOST}:${process.env.VITE_PORT}`,
-          `https://${process.env.VITE_HOST}:${process.env.VITE_PORT}`,
-        ];
+        policy.version = 3;
 
-        if (this.environment === 'development') {
-          origins.push('http://localhost:5173');
-          origins.push('http://localhost:3000');
-        }
+        policy.bindings.push({
+          role: 'roles/storage.objectViewer',
+          members: ['allUsers'],
+        });
 
-        // Set CORS configuration for the bucket
-        await this.storage.bucket(this.bucket).setCorsConfiguration([
-          {
-            maxAgeSeconds: 3600,
-            method: ['GET', 'HEAD', 'OPTIONS'],
-            origin: [...origins],
-            responseHeader: [
-              'Content-Type',
-              'Access-Control-Allow-Origin',
-              'Content-Disposition',
-            ],
-          },
-        ]);
-
-        this.logger.log('Bucket CORS configuration updated successfully.');
-        this.logger.log(`Bucket ${this.bucket} created successfully.`);
-      } else {
-        this.logger.log(`Bucket ${this.bucket} already exists.`);
+        await this.storage.bucket(bucketName).iam.setPolicy(policy);
       }
-    } catch (error) {
-      this.logger.error('Error configuring bucket:', error);
-      throw error;
+
+      const origins = [
+        `http://${process.env.VITE_HOST}:${process.env.VITE_PORT}`,
+        `https://${process.env.VITE_HOST}:${process.env.VITE_PORT}`,
+      ];
+
+      if (this.environment === 'development') {
+        origins.push('http://localhost:5173');
+        origins.push('http://localhost:3000');
+      }
+
+      await this.storage.bucket(bucketName).setCorsConfiguration([
+        {
+          maxAgeSeconds: 3600,
+          method: ['GET', 'HEAD', 'OPTIONS'],
+          origin: [...origins],
+          responseHeader: [
+            'Content-Type',
+            'Access-Control-Allow-Origin',
+            'Content-Disposition',
+          ],
+        },
+      ]);
+
+      this.logger.log(
+        `Bucket ${bucketName} created and configured successfully.`,
+      );
+    } else {
+      this.logger.log(`Bucket ${bucketName} already exists.`);
     }
   }
 
@@ -75,7 +99,7 @@ export class StorageService implements OnModuleInit {
     contentType,
   }: UploadParams): Promise<string> {
     try {
-      const bucket = this.storage.bucket(this.bucket);
+      const bucket = this.storage.bucket(this.privateBucket);
       const filePath = `${userId}/${type}/${filename}`;
       const file = bucket.file(filePath);
 
@@ -124,7 +148,7 @@ export class StorageService implements OnModuleInit {
 
   async getSignedUrl(filePath: string): Promise<string> {
     try {
-      const file = this.storage.bucket(this.bucket).file(filePath);
+      const file = this.storage.bucket(this.privateBucket).file(filePath);
       const [signedUrl] = await file.getSignedUrl({
         version: 'v4',
         action: 'read',
@@ -141,14 +165,36 @@ export class StorageService implements OnModuleInit {
     file: Express.Multer.File,
     folder: 'pictures',
     userId: string,
+    resumeId: string,
   ): Promise<string> {
-    return this.uploadObject({
-      userId,
-      type: folder,
-      buffer: file.buffer,
-      filename: file.originalname,
-      contentType: file.mimetype,
-    });
+    const bucket = this.storage.bucket(this.publicBucket);
+    const extension = file.originalname.split('.').pop();
+    const filePath = `${userId}/${folder}/resume-${resumeId}.${extension}`;
+    const fileObject = bucket.file(filePath);
+
+    try {
+      this.logger.log('Uploading image to public bucket:', {
+        userId,
+        folder,
+        resumeId,
+      });
+      await fileObject.save(file.buffer, {
+        metadata: {
+          contentType: file.mimetype,
+        },
+      });
+
+      this.logger.log('Image uploaded successfully:', {
+        userId,
+        folder,
+        resumeId,
+      });
+
+      return `https://storage.googleapis.com/${this.publicBucket}/${filePath}`;
+    } catch (error) {
+      this.logger.error('Error uploading image:', error);
+      throw error;
+    }
   }
 
   private getContentType(filename: string): string {
@@ -170,10 +216,10 @@ export class StorageService implements OnModuleInit {
     if (!fileUrl) return;
 
     try {
-      const fileName = fileUrl.split(`${this.bucket}/`)[1];
+      const fileName = fileUrl.split(`${this.privateBucket}/`)[1];
       if (!fileName) return;
 
-      const file = this.storage.bucket(this.bucket).file(fileName);
+      const file = this.storage.bucket(this.privateBucket).file(fileName);
       await file.delete();
       this.logger.debug(`File deleted successfully: ${fileName}`);
     } catch (error) {

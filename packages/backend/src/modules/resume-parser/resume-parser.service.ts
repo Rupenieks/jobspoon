@@ -222,6 +222,7 @@ export class ResumeParserService {
       file,
       'pictures',
       userId,
+      id,
     );
     return await this.updateResume(
       id,
